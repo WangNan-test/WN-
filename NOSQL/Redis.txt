@@ -1,0 +1,175 @@
+Redis是单线程+多路IO复用技术
+
+	多路复用是指使用一个线程来检查多个文件描述符（Socket）的就绪状态
+比如调用select和poll函数，传入多个文件描述符，如果有一个文件描述符就绪，则返回，
+否则阻塞直到超时。得到的就绪状态后进行真正操作可以在同一个线程执行，也可以启动线程执行
+（比如线程池）
+
+Redis 常用操作
+	set  <key>  <value>		设置一个key-value
+	get <key> 		查找key
+	keys *			查看当前库的所有key
+	del <key>			删除当前key
+	exists <key>		判断当前key存不存在
+	type <key>		查看当前Key的类型
+	expire <key> <time>	给指定key定时为time单位秒
+	ttl <key>			查看当前key还有多长时间过期 -1永不过时 -2已过时
+	dbsize			查看当前库有多少key
+	flushdb			清空当前库中所有key
+	
+
+String类型常用操作:	append <key>  <value> 		给指定key的value值追加值 返回追加后字符串的长度
+		strlen   <key>			查看指定key，对应value的长度
+		setnx  <key>  <value>		给当前库不存在的KEY 创建并复制value 
+		 incr <key>			将对应key 中存储的数字增值1如果不是数字则报错
+		decr  <key>			将对应key中存储的数字减值1
+		incrdy/decrby <key> '步长'		给指定key增加减少指定的步长
+		mset <key1> <value1><key2> <value2> 同时设置一个或多个key-value对	
+		mget <key1> <key2>		 同时得到一个或多个alue对
+		msetnx <key1> <value1><key2> <value2>同时设置一个或多个key-value对，当且仅当所有给定key都不存在
+		getrange <key> '开始位置' ‘结束位置’	获得值的范围 类似于Java中的 subString
+		setrange <key> '开始位置' <value>		 用value复写key中所存储的字符串值
+		setex 'key' <过期时间> <value>	设置键值的时候设置过期时间单位秒
+		getset <key> <value> 		以旧换新，设置了新值同时获得旧值
+
+原子性：所谓原子操作是指不会被线程调度机制打断的操作；这种操作一旦开始，就一直运行到结束，中间不会有
+任何context switch(切换到另一个线程)
+
+Redis单命令的原子性主要得益于Redis的单线程
+
+
+
+
+List：单键多值
+Redis列表是简单的字符串列表，按照插入顺序排列，你可以添加一个元素导列表的头部（左边）或者尾部（右边）
+它的底层实际是个双向链表，对两段的操作性能很高，通过索引下边的操作中间的节点性能会较差。
+
+常用指令：
+	lpush/rpush <key> <value1> <value2>		从左边/右边插入一个或多个值
+	lpop/rpop <key> 				从左边右边吐出一个值  值再健在，值光键亡
+	lrange <key> <start> <stop> 			按照索引下表获得元素（从左到右）
+	lindex<key> <index> 			按照索引下标获得元素（从左到右）
+	llen <key>				获得列表长度
+	linsert <key> before <value> <NewValue>	再<value>的后面插入<newvalue>插入值
+	lren<key> <n> <value> 			从左边删除n个value(从左到右)
+
+
+Redis set对外提供的功能与List类似的一个列表功能，特殊之处在于set是可以自动排重的，当你需要存储一个列表
+数据，又不希望出现重复数据时，set是一个很好的选择，并且set提供了判断某个成员是否在一个set集合内的重要接口
+，这个也是list所不能提供的。
+Redis的Set是String类型的无序集合。他底层其实是一个value为null的hash表，所以添加，删除，查找的复杂度都是O（1）
+常用指令：
+	sadd<key> <value><value1>		将一个或多个member元素加入到集合key当中已经存在于集合中的member的元素将被忽略
+	smembers<key>			取出该集合的所有值
+	sismember <key><value>		判断集合<key>时候为含有该<value>值，有返回1没有则返回0
+	scard <key> 			返回该集合的元素个数
+	srem<key> <value1><values>		删除集合中的某个元素
+	spop<key> 			随机从该集合中吐出一个值
+	srandmember<key> <n>		随机从该集合中取出n个值 不会从集合中删除
+	sinter <key1><key2>		返回两个集合交集的元素
+	sunion<key1><key2> 		返回两个集合并集的元素
+	sdiff<key1><key2>			返回两个集合的差集元素
+
+
+hash：Redis hash是一个键值对集合     Redis hash是一个String类型的field和value的映射表   hash特别适合用于存储对象  
+类似于Java里面的Map<String,String>
+
+常用指令：
+	hset<key> <field> <value>			给<key>集合中的<fieId>键被赋值<value>
+	hget<key1> <fieId>				从<key1>集合<fieId>键赋值<value>
+	hmset<key> <fieId1><value1> <fieId2><value2>	批量设置hash的值
+	hexists <key> <fieId>			查看给定哈希表中给定域fieId是否存在
+	hkeys <key> 				列出该hash集合的所有fieId
+	hvals<key>				列出该hash集合的所有value
+	hgetall <key>				获取该hash集合中所有的 键值对
+	hincrby<key><fieId><increment>		为哈希表key中的域fieId的值加上增量increment
+	hsetnx<key><fieId><value>			将哈希表key中的域fieId的值设置为value	当且仅当域fieId不存在
+
+zset（sorted set）
+	Redis有序集合zset与普通集合set非常相似，是一个没有重复元素的字符串集合，不同之处是有序集合的每个成员
+都关联了一个评分（score），这个评分（score）被用来按照从最低分到最高分的方式排列集合中的成员。集合的成员是唯一的，
+但是评分可以是重复了
+	因为元素是有序的，所以你也可以很快的根据评分(score)或者次序(position)来获取一个范围的元素。访问有序集合
+中间元素也是非常快的。因此你能够使用有序集合作为一个没有重复成员的只能列表。
+
+常用指令：
+	zadd <key> <score1> <value> <score2> <value2>		将一个或过个member元素机器score加入到有序集key当中。
+	zrange <key> <start> <stop> [WITHSCIRES]		返回带有序集key中，下表再<start> <stop>之间的元素 带WITHSCIRES，可以让分数一起和值返回到返回集。
+	zrangebyscore <key> <min> <max> [withscores] [limit offset count]	 
+		·返回有序集key中所有score值介于min和max之间（包括等min或max）的成员。有序集成员按照score值递增次序排列
+	zrevrange <key> <max> <min> [withscores] [limit offset count]	同上，改为从大到小排列
+	zincrby <key> <increment> <value>			为元素的score加上增量
+	zrem <key> <value> 				删除该集合下，指定值的元素
+	zcount <key> <min> <max>				统计该值集合，分数区间内的元素个数
+	zrank  <key> <value>				返回该值在集合中的排名，从0开始
+	
+
+Redis事务：
+
+Mylti、Exec、discard
+	
+	从输入Multi命令开始，输入的命令都会一次进入命令队列中，但不会执行，至到输入Exec后，Redis会将之前的命令队列
+中的命令依次执行。
+·	·组队的过程中可以通过discard来放弃组队。
+
+事务的错误处理：组队中某个命令出现了报告错误，执行时整个的所有队列会都被取消。
+
+	如果执行阶段某个命令报出了错误，则只有报错的命令不会被执行，而其他的命令都会被执行，不会回滚
+
+
+事务三特性：
+	单独的隔离操作：
+		事务中的所有命令都会序列化，按顺序的执行。事务在执行的过程中，不会被其他客户端发来的命令请求所打断。
+	没有隔离级别的概念：
+		队列中的命令没有提交之前都不会被世纪的被执行，因为事务提交前任何指令都不会被
+实际的被执行，因为事务提交前任何指令都不会被实际执行，也就不存在“事务内的查询要看到事务里的更新”，
+在事务外查询不能看到 
+
+	不保证原子性
+		·Redis同一个事务中如果有一条命令执行失败，其后的命令仍然会被执行，没有回滚。
+
+
+Redis持久化
+	Redis提供了两种不同形式的持久化方式。
+		
+RDB（Reids DataBase）
+	·在指定的时间间隔内将内存中的数据集快照写入磁盘，也就是行话将Snapshot
+          快照，他恢复时是将快照文件直接读到内存里。
+备份是如何执行的：
+	Redis会单独创建(fork)一个子进程来进行持久化，会先将数据写入到一个临时文件中
+，代持久化过程都结束了，在用这个临时文件替换上次持久化好的文件。整个过程中，主进程是不进行任何IO操作
+的，这就确保了极高的性能如果需要进行大规模数据的回复，且对于数据回复的完整性不是很敏感
+，那RDB方式要比AOF方式更加的高效。RDB的缺点是最后一次持久化的数据可能丢失。
+
+AOF（Append Of File）
+	
+	以日志的形式来记录每个写操作，将Redis执行过的所有写指令下来(读操作不记录)，只需追加文件但不可以改写
+文件，Redes启动之初会读取改文件重新构建数据，换言之，Redis重启的话就根据日志文件的内容将
+写指令从前到后执行一次已完成诗句的回复工作。
+
+AOF文件故障备份
+	AOF的备份机制和性能虽然和RDB不同，但备份和回复的操作同RDB一样，都是拷贝备份文件，需要恢复时
+早拷贝到Redis工作目录下，启动系统即加载。
+	AOF和RDB同事开启，系统默认取AOF的数据
+
+AOF的优点
+	·备份机制更稳健，丢失数据概率更低。
+	·刻度的日志文本通过操作AOF文件，可以处理实务操作。
+AOP的缺点
+	·比RDB占用更多磁盘空间。
+	·回复备份速度要慢，
+	·每次读写都同步的话，有一定的性能压力。
+	·存在个别Bug，造成恢复不能，
+
+	
+	
+
+
+
+
+
+
+
+
+
+

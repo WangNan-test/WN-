@@ -1,0 +1,41 @@
+
+git config --global user.name
+git config --global user.email
+进入文件后 输入 git init 初始化文件
+
+查看当前状态 git status 
+添加到缓存区 git add 文件名
+提交至版本库 git commit -m 文件名 “注解内容”
+
+查看版本 
+查看之前操作 git log 
+查看之间详细操作 git log --pretty=oneline
+
+查看之前所有操作 git reflog 
+
+回到某一指定版本  git reset --hard 版本号
+
+
+克隆线上文件到本地
+HTTp模式下
+
+git clone 线上地址(https://github.com/WangNan-test/shop.git)
+
+提交到线上仓库：git push
+
+拉取线上仓库：git  pull 
+
+SSH私钥生成  指令  $ ssh-keygen -t rsa -C "1253177372@qq.com"
+
+分支相关指令
+查看分支：git branch
+创建分支：git branch 分支名
+切换分支：git checkout 分支名
+删除分支：git branch -d 分支名
+合并分支：git merge 被合并的分支名
+
+
+
+
+
+
