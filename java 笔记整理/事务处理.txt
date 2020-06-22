@@ -1,0 +1,243 @@
+
+	传统关系型数据库最大的操作特点在于其支持事务控制，既然存在有事务，那么在程序里面就必须对事务
+进行合理的控制这样才能够保证多个更新操作的完整性。
+
+事务的本质：所有的更新要么一起成功，要么一起失败，一个业务中的若干操作一定要同时完成。
+
+再进行事务控制的时候有一个更加专业的词汇来进行描述：ACID原则。
+
+	·原子性（Atomicity）：整个事务种的所有操作，要么全部完成，要么全部不完成，不可能停滞再中间的某个环节。事物再
+执行过程种发生错误，会被回滚到事物开始前的状态，就像这个事务从来没有执行过一样。
+
+	·一致性(Consistency)：一个事务可以封装状态改变（除非他是一个只读的）。事务必须保持系统处于一致的状态，
+不管再任何给定的时间并发事务有多少。
+
+	·隔离性（Isolation）：隔离状态执行事务，使他们好像是系统在给定时间内执行的唯一操作，如果有两个事务，运行在相同的时间内，
+执行相同的功能，事务的隔离性将确保每一事务在系统中认为只有该事务在使用系统；	
+	
+	·持久性（Durability）：在事务完成以后，该事务对数据库所作的更改便持久的保存在数据库之中，并不会回滚。
+
+一个支持事务（Transaction)的数据库，必须要具有这四个特性，否则在事务过程当中无法保证数据的正确性，交易过程极可能达不到交易方的要求
+
+	ACID：一个用户一个用户的更新，每个用户的更新操作彼此独立（谁也不碍），更新完成之后的数据要持久化到数据库之中。
+
+
+	在讲解数据库开发的时候曾经强调过，所有连接到数据库上的用户都表示一个Session，那么每一个Session拥有完整且
+独立的事务。在Connection接口里面提供有如下几个与事务有关的操作方法：
+
+		|- 设置是否自动提交更新:public void setAutoCommit​(boolean autoCommit) throws SQLException
+		|-事务回滚：public void rollback() throws SQLException
+		|-事务提交：public void commit() throws SQLException
+
+
+范例：观察以下没有事务控制的情况
+package drill;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.util.Arrays;
+
+public class JDBCDemo {
+    public static final String OBDRIVER="oracle.jdbc.driver.OracleDriver";
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        Class.forName(OBDRIVER);
+        Connection conn= DriverManager.getConnection(DBURL,USER,PASSWORD);
+        Statement stmt = conn.createStatement();
+        stmt.addBatch("INSERT INTO news(nid,title) VALUES(news_seq.nextval,'MLDN-A')");
+        stmt.addBatch("INSERT INTO news(nid,title) VALUES(news_seq.nextval,'MLDN-'B')");
+        stmt.addBatch("INSERT INTO news(nid,title) VALUES(news_seq.nextval,'MLDN-C')");
+        int[] ints = stmt.executeBatch();
+
+        System.out.println("【批处理的执行结果】："+ Arrays.toString(ints));
+        conn.close();
+    }
+}
+
+
+
+Exception in thread "main" java.sql.BatchUpdateException: 批处理中出现错误: ORA-00917: 缺失逗号
+
+	此时的执行的代码一定会出现错误，但是最终的结果可以发现，在出错之前的程序都正常进行了数据库的更新提交，这实际上
+就属于默认的自动提交模式。
+
+
+范例：事务控制
+package drill;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
+
+public class JDBCDemo {
+    public static final String OBDRIVER="oracle.jdbc.driver.OracleDriver";
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) {
+        Connection conn=null;
+        try{
+            Class.forName(OBDRIVER);
+            conn= DriverManager.getConnection(DBURL,USER,PASSWORD);
+            conn.setAutoCommit(false);  //取消事务的自动提交
+            Statement stmt = conn.createStatement();
+            stmt.addBatch("INSERT INTO news(nid,title) VALUES(news_seq.nextval,'MLDN-A')");
+            stmt.addBatch("INSERT INTO news(nid,title) VALUES(news_seq.nextval,'MLDN-B')");
+            stmt.addBatch("INSERT INTO news(nid,title) VALUES(news_seq.nextval,'MLDN-C')");
+            int[] ints = stmt.executeBatch();
+            System.out.println("【批处理的执行结果】："+ Arrays.toString(ints));
+            conn.commit();  //手工提事务
+        }catch(Exception e){
+            try {
+                conn.rollback();    //回滚事务
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }finally {
+            if(conn!=null){
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+	此时的代码一旦执行中出现了错误，那么所有之前正确的更新操作也会自动进行全部的回滚。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

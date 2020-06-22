@@ -1,0 +1,415 @@
+Object类的主要特点是可以解决参数的统一问题，也就是说使用Object类可以接受所有的数据类型。
+
+Object简介：
+	在java之中只有一个类是不存在继承关系的，那么这个类就是Object，也就是说所有的类
+默认情况下都是Object的子类。
+		这两中类“class Emp{}”与“ class Emp extends Object{}”完全相同。	
+
+	在Object类设计的时候考虑到了所有的继承问题，所以该类提供有无参构造方法，这样所有的类
+在定义时即便不知道Object类的存在也不会出现构造方法调用失败的语法错误。	
+	那么既然Object类是所有类的父类，那么这种情况下就可以使用Object类接受所有子类对象。
+范例：
+	package println;
+class Emp{
+	
+}
+public class println{
+	public static void main(String []args){
+		Object obj=new Emp();	//向上转型
+		if(obj instanceof Emp){	//判断是否向上转型成功
+			Emp emp=(Emp) obj;	//向下转型5
+			System.out.println("向下转型成功");
+		}
+	}
+}
+
+如果一个程序的方法要求可以接受所有类对象的时候就可以利用Object实现处理。但是还有一点需要注意，
+在Java设计过程中对于所有的引用数据类型实际上都可以使用Object类进行接受包括数组也可以。
+范例：
+	package println;
+class Emp{
+	
+}
+public class println{
+	public static void main(String []args){
+		Object obj=new int[]{1,23,4,4};		//向上转型		
+		if(obj instanceof int[]){			//判断是否向上转型
+		int [] temp=(int[]) obj;			//向下转型
+		for(int dept:temp){				//循环输出
+			System.out.print(dept+"、");
+			}
+		}
+	}
+}
+
+Object是一个万能的数据类型，它更适合于进行程序的标准设计。
+——————————————————————————————————————————————————————
+获取对象信息（toString）：
+	object虽然是一个类，但是这个类本身也时提供有一些处理方法的。在Object类之中提供有
+“toString”方法，该方法可以获取一个对象的完整信息：public String toString().
+范例：
+package println;
+class Emp{
+	private String name;
+	private int age;
+	public Emp(String name,int age){
+		this.name=name;
+		this.age=age;
+	}
+	public String toString(){			//覆写Object中的方法，
+		return "姓名="+this.name+
+				"、年龄="+this.age;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Emp emp=new Emp("王男",20);
+		System.out.println(emp);		//调用覆写的方法
+	}
+}
+	可以发现在之前进行对象直接输出的时候所调用的方法就是toString（）方法，所以这个方法调用不调用的时候是一样的。
+在以后的开发之中对象信息的获得可以直接覆写此方法。
+——————————————————————————————————————————————————————————————————
+对象比较：equals（）
+	Object类之中另外一个比较重要的方法就是在与对象比较的处理上，所谓的对象比较主要的功能时比较两个对象的内容是否
+完全相同。
+
+	Object类作为所有类的父类提供了对象比较操作支持，对于对象比较的操作实现可以使用equals()方法完成；
+		·对象比较：public boolean equals（Object obj）;可以接受所有类型，默认情况下该方法只是进行了两个对象地址判断
+			public boolean equals（Object obj）{
+				return（this==obj）;	
+			}
+		也就是说对于实际的使用者而言，如果要想正确实现判断处理，那么必须要在子类中覆写此方法，并且进行属性判断。	
+		·
+package println;
+class Emp {
+	private String name;
+	private int age;
+	public Emp(String name,int age){
+		this.name=name;
+		this.age=age;
+	}
+	public boolean equals(Object obj){
+		if(!(obj instanceof Emp)){			//判断是否为同类
+			return false;					//不是的话返回false
+		}	
+		if(this==obj){						//判断时候是在和自己比较
+			return true;					//是的话返回true
+		}
+		if(obj==null){						//判断是否和空对象比较
+			return false;					//是的反返回false
+		}
+		Emp emp=(Emp) obj;					//向下转型  用于获取类中的属性
+		return this.name.equals(emp.name)&&this.age==emp.age;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Emp emp=new Emp("王",20);
+		Emp emp1=new Emp("王",20);
+		System.out.println(emp.equals(" "));
+	}
+}
+
+String类作为Object的子类，那么这个类里面实际上已经覆写了equals()方法。
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

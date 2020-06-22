@@ -1,0 +1,318 @@
+oracle用的数据表：emp、dept。
+	·emp表：empn、ename、job、sal、comm、mgr、deptno
+	·dept表：deptno、dname、loc；
+要求可以通过程序描述出如下的对应关系：
+	 //·一个部门有多个雇员，可以输出一个部门的完整信息；（包括雇员信息）
+	·可以根据一个雇员可以找到雇员对应的领导信息和雇员所在部门的信息。
+
+通过简单Java类的开发以及数据表的使用，应该可以观察出两者存在对应关系，
+	·简单Java的名称=实体表名称；
+	·简单Java类的属性=实体表的字段；
+	·简单Java类一个的对象=表的一行记录；
+	·对象数组=表的多行记录；
+	·外键关系=引用配置；
+1、先按照给定的关系将所有的基础字段转换为简单java类
+class Emp{
+	private int empno;
+	private String ename;
+	private String job;
+	private double sal;
+	private double comm;
+	public Emp(){}
+	public Emp(int empno,String ename,String job,double sal,double comm){
+		this.empno=empno;
+		this.ename=ename;
+		this.job=job;
+		this.sal=sal;
+		this.comm=comm;
+	}
+		public String getInfo(){
+			return "【emp】empno="+this.empno+
+					",ename="+this.ename+
+					",job="+this.job+
+					",sal"+this.sal+
+					",comm="+this.comm;
+	}
+}
+class Dept{
+	private int deptno;
+	private String ename;
+	private String loc;
+	public Dept(){}
+	public Dept(int deptno,String ename,String loc){
+		this.deptno=deptno;
+		this.ename=ename;
+		this.loc=loc;
+	}
+	public String getInfo(){
+		return "【Dept】deptno="
+				+this.deptno+",ename="+
+				this.ename+",loc="+this.loc;
+	}
+}
+public class println{
+	public static void main(String[]args){
+	}
+}
+2、随后要进行关系设计，该数据表因由如下的数据关系：
+	·一个雇员属于一个部门，需要追加部门引用；
+	·一个雇员有一个领导，领导一定时自身关联，自身引用 ；
+	·一个部门因有多个雇员，需要一个对象数组来描述多个雇员信息。 
+class Emp{
+	private int empno;
+	private String ename;
+	private String job;
+	private double sal;
+	private double comm;
+	private Emp mgr;//描述雇员领导
+	private Dept dept;//描述雇员所在部门
+	public Emp(){}
+	public Emp(int empno,String ename,String job,double sal,double comm){
+		this.empno=empno;
+		this.ename=ename;
+		this.job=job;
+		this.sal=sal;
+		this.comm=comm;
+	}
+	public void setMgr(Emp mgr){
+		this.mgr=mgr;
+	}
+	public Emp getMgr(){
+		return this.mgr;
+	}
+	public void setDept(Dept dept){
+		this.dept=dept;
+	}
+	public Dept getDept(){
+		return this.dept;
+	}
+	
+		public String getInfo(){
+			return "【emp】empno="+this.empno+
+					",ename="+this.ename+
+					",job="+this.job+
+					",sal"+this.sal+
+					",comm="+this.comm;
+	}
+}
+class Dept{
+	private int deptno;
+	private String ename;
+	private String loc;
+	private Emp[] emps;//所有的雇员
+	public Dept(){}
+	public Dept(int deptno,String ename,String loc){
+		this.deptno=deptno;
+		this.ename=ename;
+		this.loc=loc;
+	}
+	public void setEmps(Emp[] emps){
+		this.emps=emps;
+	}
+	public Emp[] getEmp(){
+		return this.emps;
+	}
+	public String getInfo(){
+		return "【Dept】deptno="
+				+this.deptno+",ename="+
+				this.ename+",loc="+this.loc;
+	}
+}
+public class println{
+	public static void main(String[]args){
+	}
+}
+基本的类定义完成了。
+————————————————————————————————
+3、实现开发的需求
+class Emp{
+		private int empno;
+		private String ename;
+		private String job;
+		private double sal;
+		private double comm;
+		private Emp mgr;//描述雇员领导
+		private Dept dept;//描述雇员所在部门
+		public Emp(){}
+		public Emp(int empno,String ename,String job,double sal,double comm){
+			this.empno=empno;
+			this.ename=ename;
+			this.job=job;
+			this.sal=sal;
+			this.comm=comm;
+		}
+		public void setMgr(Emp mgr){
+			this.mgr=mgr;
+		}
+		public Emp getMgr(){
+			return this.mgr;
+		}
+		public void setDept(Dept dept){
+			this.dept=dept;
+		}
+		public Dept getDept(){
+			return this.dept;
+		}
+		
+			public String getInfo(){
+				return "【emp】empno="+this.empno+
+						",ename="+this.ename+
+						",job="+this.job+
+						",sal"+this.sal+
+						",comm="+this.comm;
+		}
+	}
+	class Dept{
+		private int deptno;
+		private String ename;
+		private String loc;
+		private Emp[] emps;//所有的雇员
+		public Dept(){}
+		public Dept(int deptno,String ename,String loc){
+			this.deptno=deptno;
+			this.ename=ename;
+			this.loc=loc;
+		}
+		public void setEmps(Emp[] emps){
+			this.emps=emps;
+		}
+		public Emp[] getEmps(){
+			return this.emps;
+		}
+		public String getInfo(){
+			return "【Dept】deptno="
+					+this.deptno+",ename="+
+					this.ename+",loc="+this.loc;
+		}
+	}
+	public class println{
+		public static void main(String[]args){
+			//第一步：设置类对象间的关系
+			//分别创建各自类的实例化对象
+			Dept dept=new Dept(1,"大家庭","爱的小窝");
+			Emp a=new Emp(1,"王南","老板",20.0,9.0);
+			Emp b=new Emp(2,"李欢","老板娘",20.0,8.0);
+			Emp c=new Emp(3,"王小南","儿子",2.0,7.0);
+			//设置雇员领导的关系
+			c.setMgr(b);
+			b.setMgr(a);
+			//设置雇员和部门的关系
+			a.setDept(dept);
+			b.setDept(dept);
+			c.setDept(dept);
+			//设置部门和雇员的关系
+			dept.setEmps(new Emp[]{a,b,c});
+			//第二部：数据的取得 
+			//·一个部门有多个雇员，可以输出一个部门的完整信息；（包括雇员信息）
+			System.out.println(dept.getInfo());//输出部门
+			for(int x=0;x<dept.getEmps().length;x++){
+				System.out.println("\t|-"+dept.getEmps()[x].getInfo());
+				if(dept.getEmps()[x].getMgr()!=null){
+				System.out.println("\t\t|-"+dept.getEmps()[x].getMgr().getInfo());
+				}
+				}
+			System.out.println("====================================================");
+				System.out.println(b.getInfo());
+				if(b.getMgr()!=null){
+					System.out.println(b.getMgr().getInfo());
+				}
+				System.out.println(b.getDept().getInfo());
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

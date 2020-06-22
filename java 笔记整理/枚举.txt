@@ -1,0 +1,653 @@
+	很多的编程语言都会提供有枚举的概念，但是java一直到JDK1.5之后才提出了所谓枚举的概念。在实际的开发之中枚举的主要作用
+是用与定义有限个数对象的一种结构（多例设计），枚举就属于多例设计，并且其结构要比多例设计更加的简单。
+
+枚举的基本定义：
+	从JDK1.5之后在程序之中提供有enum的关键字，利用此关键字可以实现枚举的定义。
+范例：定义一个枚举
+package println;	
+enum Color{	//枚举类
+	RED,GREEN,BLUE;	//实例化对象
+}
+public class Factory{
+	public static void main(String []args){
+		Color c=Color.RED;	//获取是实例化对象
+		System.out.println(c);	//RED
+	}
+}
+
+	如果此时采用了多例设计模式来进行设计，那么需要编写很多的程序代码，这样对于开发的复杂度是比较高的，
+里面毕竟牵扯到了构造方法的私有化以及静态方法。多例设计与枚举设计虽然可以实现相同的功能，但是使用枚举
+可以在程序编译的时候就判断所使用的实例化对象是否存在。
+	在进行枚举处理的时候还可以利用values（）方法获取所有的枚举对象进行输出。
+范例：获取所有的枚举对象
+package println;	
+enum Color{	//枚举类
+	RED,GREEN,BLUE;	//实例化对象
+}
+public class Factory{
+	public static void main(String []args){
+		for(Color c:Color.values()){	//使用values方法获取所有对象输出
+			System.out.println(c);
+		}
+	}
+}
+	如果此时同样的功能需要通过多例设计来解决的化，那么就需要对象数组；
+	从JDK1.5追加的枚举结构之后，就可以在switch之中进行枚举项的判断。
+范例：观察枚举与switch处理
+package println;	
+enum Color{	//枚举类
+	RED,GREEN,BLUE;	//实例化对象
+}
+public class Factory{
+	public static void main(String []args){
+		Color c=Color.BLUE;
+		switch(c){
+		case RED: 
+			System.out.println("红色");
+			break;
+		case GREEN:
+			System.out.println("绿色");
+			break;
+		case BLUE:
+			System.out.println("蓝色");
+			break;
+		}
+	}
+}
+
+	多例是无法实现这种与switch直接连接的，多例要想实现它就需要大量的if判断
+————————————————————————————————————————————————————————————————————————————————————
+Enum类：
+	严格意义来讲枚举并不属于一种新的结构，他的本质相当于是一个类，但是这个类默认会继承Enum类，
+所以首先观察Enum类的基本定义：
+public abstract class Enum<E extends Enum<E>>
+extends Object
+implements Comparable<E>,Serializable
+	现在定义的枚举类的类型就是Enum中所使用的E类型 。观察Enum类中定义的方法：
+
+1、protected Enum（String name，int orbinal）		构造		传入名字和序号
+
+2、public final String name（）			普通		获得名字
+
+3、public final int  ordinal（）			普通		获得序号
+
+范例：观察Enum类的存在
+
+package println;	
+enum Color{	//枚举类
+	RED,GREEN,BLUE;	
+}
+public class Factory{
+	public static void main(String []args){
+		for(Color c:Color.values()){
+			System.out.println(c.ordinal()+"、"+c.name()+"、");
+		}
+	}
+}
+	在枚举之中每一个对象的序号都是根据枚举对象的定义顺序来决定的。
+面试题：请解释enum与Enum的区别？
+	·enum：是从1.5之后提供的一个关键字，用于定义枚举类的结构。
+	·Enum：是一个抽象类，所以使用enum关键字定义的类默认继承了此类。
+————————————————————————————————————————————————————————————————————————————————————————————————————————
+定义枚举结构：
+	一直在强调枚举本身就属于一种多例设计模式，那么既然是多例设计模式，那么在一个类之中可以定义的结构是非常多的
+例如：构造方法  普通方法、属性等，这么这些内容在枚举类中依然可以直接定义，但是需要注意的是：枚举类中定义的构造方法不能
+够采用非私有化定义（public无法使用）。
+范例：在枚举类中定义其他结构
+package println;	
+enum Color{	//枚举类
+	RED("红色"),GREEN("绿色"),BLUE("蓝色");	//枚举 对象实例必须放在枚举类的首行
+	private String title;	
+	private Color(String title){	//构造方法私有化
+		this.title=title;
+	}
+	public String toString(){
+		return this.title;
+	}
+}
+public class Factory{
+	public static void main(String []args){
+		for(Color c:Color.values()){
+			System.out.println(c.ordinal()+"、"+c.name()+"-"+c);
+		}
+	}
+}
+	本程序在简化程度上一定要远远高于多例设计模式。除了这种基本的结构之外，在枚举类中也可以实现接口的继承
+范例：让枚举实现接口
+package println;	
+interface IMessage{
+	public abstract  String getInfo();
+}
+enum Color implements IMessage{	//枚举类
+	RED("红色"),GREEN("绿色"),BLUE("蓝色");	//枚举 对象实例必须放在枚举类的首行
+	private String title;	
+	private Color(String title){	//构造方法私有化
+		this.title=title;
+	}
+	public String getInfo(){
+		return "wwwnnn";
+	}
+	public String toString(){
+		return this.title;
+	}
+}
+public class Factory{
+	public static void main(String []args){
+		for(Color c:Color.values()){
+			System.out.println(c.ordinal()+"、"+c.name()+"-"+c+"-"+c.getInfo());
+		}
+	}
+}
+	在枚举类里面最有意思的是它可以直接定义抽象方法，并且要求每一个枚举对象都要独立覆写抽象方法
+范例：枚举中定义抽象方法
+package println;	
+enum Color {	//枚举类
+	RED("红色") {
+		public String getInfo(){
+			return this.toString();
+		}
+	},GREEN("绿色"){
+		public String getInfo(){
+			return this.toString();
+			}
+		},BLUE("蓝色"){
+			public String getInfo(){
+				return this.toString();
+			}
+		};	//枚举 对象实例必须放在枚举类的首行
+	private String title;	
+	private Color(String title){	//构造方法私有化
+		this.title=title;
+	}
+	public String toString(){
+		return this.title;
+	}
+	public abstract String getInfo();
+}
+public class Factory{
+	public static void main(String []args){
+		System.out.println(Color.RED.getInfo());
+	}
+}
+
+	发现枚举的定义是非常灵活的，但是在实际的使用之中，枚举更多的情况下还是建议使用它的正确用法，就是定义几个实例对象
+即可。
+——————————————————————————————————————————————————————————————————————————————
+枚举的实际案例：
+	下面为了更好的巩固枚举的使用，编写一个程序来观察枚举的应用，例如：现在定义一个Person类，里面一定有性别，
+性别肯定不希望用户随意输入，所以使用枚举最合适。
+范例：使用枚举：
+
+package println;	
+enum Sex{
+	MEN("男"),WMEN("女");
+	private String title;
+	private Sex(String title){
+		this.title=title;
+	}
+	public String toString(){
+		return this.title;
+	}
+}
+class Person{
+	private String name;
+	private int age;
+	private Sex sex;
+	public Person(String name,int age,Sex sex){
+		this.name=name;
+		this.age=age;
+		this.sex=sex;
+	}
+	public String toString(){
+		return "姓名="+this.name+
+				"、年龄:"+this.age+
+				"、性别:"+this.sex;
+	}
+}
+public class Factory{
+	public static void main(String []args){
+		Person per=new Person("王南",20,Sex.MEN);
+		System.out.println(per.toString());
+	}
+}
+
+	这个程序实际上不适用枚举也可以正常实现，追加几个判断即可，所以对于枚举，愿意用就用，不愿意用就不用。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

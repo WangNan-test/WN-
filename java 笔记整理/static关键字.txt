@@ -1,0 +1,182 @@
+static 关键字：
+
+
+static属性：
+在所有定义的方法上以及属性上都可以使用static关键字进行定义。
+范例：
+package println;
+class Emp{
+	private int num;
+	private String name;
+	static String guojia="中国";
+	public Emp(int num,String name){
+		this.num=num;
+		this.name=name;
+	}
+	
+	public String getInfo(){
+		return "年龄："+this.num+
+				",姓名："+this.name+
+				",国家:"+this.guojia;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Emp p1=new Emp(10,"王");
+		Emp p2=new Emp(20,"李");
+		//static属性能够直接通过类名称调用
+		Emp.guojia="中华";		//修改对象的内容
+		System.out.println(p1.getInfo());
+		System.out.println(p2.getInfo());
+	}
+}
+
+结论：访问static属性都使用类名称
+
+所有的非static的属性必须在产生实例化对象后才能使用，而所有static的属性不受实例化对象的限制。
+也就是说是否有对象与static属性操作无关。
+
+
+选择：
+
+	关于static属性与非static属性定义选择？
+	·在定义类99%的情况下不会考虑static属性的
+	·如果需要描述共享属性的概念，或者不希望受到实例化对象控制的时候使用static 属性
+——————————————————————————————————————————————————————————————————————————————————————
+static方法：
+
+
+使用static定义的属性可以 被类名称直接访问，那么同样使用static定义的方法也可以直接被类名称进行访问。
+
+范例：
+package println;
+class Emp{
+	private int num;
+	private String name;
+	private static String guojia="中国";
+	public Emp(int num,String name){
+		this.num=num;
+		this.name=name;
+	}
+	public static void setGuojia(String g){
+		guojia=g;
+	}
+	
+	
+	public String getInfo(){
+		return "年龄："+this.num+
+				",姓名："+this.name+
+				",国家:"+this.guojia;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Emp.setGuojia("中华");
+		Emp p1=new Emp(10,"王南");
+		System.out.println(p1.getInfo());
+	}
+}
+
+现在类中已经存在有static方法和非static方法了，那么这个时候对于两者的相互调用就存在有限制：
+	·所有static方法不允许调用非static定义的属性或方法；
+	·所有的非static方法允许访问static属性或方法；
+原因：因为所有的static方法可以在没有实例化对象的时候访问，而所有的非static操作必须在有实例化
+对象产生之后才可以操作
+ 
+使用static的属性是共享目的（因为属性需要封装），但是使用static的方法目的只有一个：
+某些方法不希望受到类的限制，即可以在没有实例化对象的时候进行执行。
+——————————————————————————————————————————————————————————————
+分析主方法：
+
+主方法组成：
+在之前曾经说过一个问题：如果一个方法定义在主类之中，并且由主方法直接调用，那么该方法的定义语法如下：
+public  static  返回值类型  方法名称 （参数列表）{}。
+
+类中定义方法不用static  是因为static的限制。	
+
+
+java 中给出的主方法的名字是最长的一个
+	·public:表示的是公共的，主方法作为起点可以随意访问。
+	·static:执行java的时候执行的是类名称，不受实例化兑现限制。
+	·void:主方法是一切的起点。
+	·main:是一个系统定义号的主方法名称。（不可改）
+	·String[]args:表示该类执行时所需要的相关参数 
+
+————————————————————————————————————————————
+static 应用 
+	static属性的最大功能是进行，共享操作，所以在这一基础上可以使用static做一个对象的产生的
+技术统计。所有新对象一定使用构造方法完成，所以可以在构造方法中实现统计。
+范例：
+package println;
+class Emp{
+	private static int num=0;
+	public Emp(){
+		System.out.println("对象个数"+(++num));
+	}
+}
+public class println{
+	public static void main(String[]args){
+		new Emp();new Emp();
+	}
+}
+
+
+总结：
+	1、static定义的属性或方法并不是你在进行类设置的首要选择
+	2、static定义的属性和方法不受到一个类的实例化对象限制可以由类名称直接调用。
+
+
+
+
+
+
+类加载的时候我们会把.class信息以及静态属性加载到咋们的方法区内存
+此时我们并没有创建对象（没有开辟堆内存）此时我们的静态属性已经存在于方法区内存当中了，
+所以我们可以通过类名.属性名的方式调用。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

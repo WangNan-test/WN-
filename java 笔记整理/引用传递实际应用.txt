@@ -1,0 +1,89 @@
+引用传递时Java的核心，也正是因为有了引用传递，所以可以更好的
+表现出现实世界的抽象。
+class Ren{		//
+	private String name;
+	private int age;
+	private Car car;		//一个人有一辆车
+	private Ren child;		//一个人有一个孩子
+	public Ren(String name,int age){
+		this.name=name;
+		this.age=age;
+		
+	}
+	public void setChild(Ren child){
+		this.child=child;
+	}
+	public void setCar(Car car){
+		this.car=car;
+	}
+	public Ren getChild(){
+		return child;
+	}
+	public Car getCar(){
+		return this.car;
+	}
+		public String getRenInfo(){
+			return "姓名="+this.name+" ,年龄="+this.age;
+		}
+	
+}
+class Car{
+	private String name;
+	private double price;
+	private Ren ren;			//一辆车属于一个人
+	public Car(String name,double price){
+		this.name=name;
+		this.price=price;
+	}
+	public void setRen(Ren ren){
+		this.ren=ren;
+	}
+	public Ren getRen(){
+		return this.ren;
+	}
+	public String getCarInfo(){
+		return "车名="+this.name+" ,$$="+this.price;
+	}
+}
+public class println{
+	public static void main(String[]args){
+		//根据关系设置相应的数据
+		//1.分别创建各自对象的实例
+		Ren ren=new Ren("王南",18);
+		Car car=new Car("法拉利",1000000.0);
+		Ren child=new Ren("王小南",2);//我儿子
+		Car  c=new Car("玛莎拉蒂",2);//我儿子的车
+		//2.设置对象间的引用关系
+		ren.setCar(car);//一个人有一辆车
+		car.setRen(ren);//一辆车属于一个人
+		ren.setChild(child);//我有一个儿子
+		child.setCar(c);//我儿子有一个车
+		//根据关系取出数据 
+		System.out.println(ren.getRenInfo());
+		System.out.println(ren.getCar().getCarInfo());//通过人找车
+		System.out.println(car.getRen().getRenInfo());//通过车找人
+		//通过人找孩子
+		System.out.println(ren.getChild().getRenInfo());
+		//通过人找到他孩子的车
+		System.out.println(ren.getChild().getCar().getCarInfo());
+	}
+}
+
+
+这些关系的配置可以很好的反应现实生活
+
+
+以后的项目开发过程中所使用到的类基本上都要求由开发者自己定义的。
+这些里面使用的都是引用传递的概念。 
+
+
+
+
+
+
+
+
+
+
+
+

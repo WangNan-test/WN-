@@ -1,0 +1,70 @@
+//导入包
+import java.util.Scanner;
+
+/**
+ * @autho idwn
+ * @date 19-3-31
+ *@desc 演示分支结构
+ */
+
+public class Idwn {
+	/**
+	 * param args
+	 * @desc：他是主程序的入口
+	 */
+	public static void main(String[]args){
+		//调用键盘输入
+		Scanner sc=new Scanner(System.in);
+		//接受键盘输入整数的值
+		System.out.println("请输入小明分数");
+		int score=sc.nextInt();
+		if(score>=0&&score<=100){
+			if(score>80){
+				System.out.println("A");
+			}else if(score>70&&score<=80){
+				System.out.println("B");
+			}else if(score<=70&&score>=60){
+				System.out.println("C");
+			}else if(score<60){
+				System.out.println("D");
+			}
+			
+			
+		}
+		
+	
+	}
+		}
+
+
+
+
+
+
+import java.util.Scanner;
+public class Idwn{
+	public static void main(String[]args){
+		Scanner num=new Scanner(System.in);
+		System.out.println("请输入小明的分数");
+		int score=num.nextInt();
+		String cj="你输入的数据不正确";
+		if(score>=0&&score<=100){
+			 if(score>80){
+				cj="A";
+			 }else if(score<=80&&score>=70){
+				 cj="b";
+			 }else if(score<70&&score>=60){
+				cj="C";
+			 }else if(score<60){
+				 cj="D";
+			 }
+			 else{
+				 System.out.println(cj);
+			 }
+		}else{
+			System.out.println(cj);
+		}
+		 
+		
+	}
+}

@@ -1,0 +1,341 @@
+
+
+
+	所谓的比较器指的是进行大小关系的确定判断，下面首先来分析一下比较器存在的意义：
+
+比较器问题的引出：
+
+	如果要进行数组操作，肯定使用java.util.Arrays的操作类完成，这个类里面提供有绝大部分的数组操作支持，
+同时在这个类里面还提供有一种对象数组的排序支持：public static void sort(Object[] a)；
+
+范例，实现对象数组的排序
+
+package println;
+
+import java.util.Arrays;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		int [] array=new int[]{1,7,5,8,9,2,43,12};	//数组
+		Arrays.sort(array);	//进行对象排序
+		System.out.println(Arrays.toString(array));
+	}
+}
+
+	同样，如果说现在给定的是一个String型的对象数组，那么也是可以进行排序处理的。
+
+范例：String对象数组排序
+
+package println;
+
+import java.util.Arrays;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		String[] array=new String[]{"x","A","占山","三十六","9","O"};
+		Arrays.sort(array);	//进行对象排序
+		System.out.println(Arrays.toString(array));
+	}
+}
+
+
+	java.long.Integer与java.lang.String两个类都是由系统提供的程序类，那么如果说现在有一个自定义的类需要实现
+排序处理？
+
+范例：采用自定义类型进行排序
+public class Person {
+	private String name;
+	private int age;
+	public Person(String name, int age) {
+		super();
+		this.name = name;
+		this.age = age;
+	}
+	@Override
+	public String toString() {
+		return "Person [name=" + name + ", age=" + age + "]";
+	}
+	
+}
+package println;
+
+import java.util.Arrays;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Person[] per=new Person[]{
+			new Person("张三",18),
+			new Person("李四",46),
+			new Person("王五",20)
+		};
+		Arrays.sort(per);
+		System.out.println(Arrays.toString(per));
+	}
+}
+
+
+运行时异常：Exception in thread "main" java.lang.ClassCastException: println.Person cannot be cast to java.lang.Comparable
+	   
+	任意的一个类默认情况下是无法使用系统内部的类实现数组排序或比较需求的，是因为没有明确的指定出到底
+该如何进行比较的定义（没有比较规则），那么这个时候在java里面为了统一比较规则的定义，所以提供有比较器的接口：Comparable接口。
+
+
+
+Comparable比较器
+
+	通过分析可以发现如果要实现对象的比较肯定需要有比较器来指定比较规则，而比较的规则就通过Comparable
+来实现。对于Comparable而言，需要清楚其基本的定义结构：public interface Comparable<T>。
+
+public interface Comparable<T>{
+		/**
+		 * 实现对象的比较处理操作
+		 * @param o 要比较的对象
+		 * @return	当前数据比传入的对象小返回负数，如果比传入对象大返回整数，如果相等返回0
+		 */
+		
+		public int compareto(T o);
+}
+
+范例：实现自定义对象排序操作
+package println;
+
+public class Person implements Comparable<Person> {
+	private String name;
+	private int age;
+	public Person(String name, int age) {
+		super();
+		this.name = name;
+		this.age = age;
+	}
+	@Override
+	public String toString() {
+		return "Person [name=" + name + ", age=" + age + "]";
+	}
+	@Override
+	public int compareTo(Person o) {
+		// TODO Auto-generated method stub
+		return this.age-o.age;
+	}
+}
+import java.util.Arrays;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Person[] per=new Person[]{
+			new Person("张三",18),
+			new Person("李四",46),
+			new Person("王五",20)
+		};
+		Arrays.sort(per);
+		System.out.println(Arrays.toString(per));
+	}
+	
+}
+
+	排序里面只需要有一个compareTo()方法进行排序规则的定义，而后整个java 系统里面就可以为其实现排序处理了。
+
+——————————————————————————————————————————————————————————————————
+
+Comparator比较器
+
+
+	Comparator属于一种挽救的比较器支持，其主要的目的是解决一些没有使用Comparable排序的类的对象排序操作.
+
+范例现在程序项目已经开发完成了，并且由于先期的设计并没有去考虑到所谓的比较器功能，后来经过了若干版本的迭代更新之后
+发现需要对Person类进行排序处理，但是又不能够去修改Person类（无法实现Comparable接口），所以这个时候就需要采用
+一种挽救的实行来实现比较，在Arrays类里面排序有另外一种实现。
+	·基于Comparator的排序处理：public static <T> void sort(T[] a,Comparator<? super T> c)
+
+
+	在java.util.Comparator里面最初只定义有一个排序的compare（）方法,public intcompare(T o1,To1),但是后来
+持续发展1.8之后又出现了许多static方法。
+class PersonComparator implements Comparator<Person>{
+
+	@Override
+	public int compare(Person o1, Person o2) {
+		// TODO Auto-generated method stub
+		return o1.getAge()-o2.getAge();
+	}
+	
+}
+
+	在测试类进行排序处理的时候就可以利用排序规则实现操作。
+范例：排序
+
+package println;
+
+import java.util.Arrays;
+import java.util.Comparator;
+class PersonComparator implements Comparator<Person>{
+
+	@Override
+	public int compare(Person o1, Person o2) {
+		// TODO Auto-generated method stub
+		return o1.getAge()-o2.getAge();
+	}
+	
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Person[] per=new Person[]{
+			new Person("张三",18),
+			new Person("李四",46),
+			new Person("王五",20)
+		};
+		Arrays.sort(per,new PersonComparator());
+		System.out.println(Arrays.toString(per));
+	}
+}
+
+·	对于这种排序的操作如果不是必须的情况下强烈不建议使用Comparator，最好以Comparable为主
+
+面试题：请解释Comparable与Comparator的区别？
+
+	·java.lang.Comparable是在类定义的时候实现的父接口，主要用于定义排序规则，里面只有一个compareTo（）方法
+	·java.util.Comparator是在挽救的比较器操作，需要设置单独的比较器规则类实现排序，里面又compareTo()方法
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

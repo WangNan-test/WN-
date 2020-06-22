@@ -1,0 +1,156 @@
+AutoCloseable接口：
+
+	AutoCloseable主要是用与日后进行资源开发的处理上，以实现资源的自动关闭（释放资源），例如：在以后进行文件、网络
+数据库开发的过程之中由于服务器的资源有限，所以使用之后一定要关闭资源，这样才可以被更多的使用者所使用
+
+	下面为了更好的说明资源的问题，将通过一个消息的发送处理来完成。
+范例：手工实现资源处理
+package println;
+interface IMessage{
+	public abstract void send();	//消息的发送
+}
+class Message implements IMessage{	//实现消息的处理机制
+	private String str;
+	public Message (String str){
+		this.str=str;
+	}
+	public boolean open(){		//获取资源连接
+		System.out.println("【OPEN】资源已连接");
+		return true;
+	}
+
+	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		if(this.open()){
+			System.out.println("【SEND】发送消息:"+this.str);
+		}else{
+			System.out.println("消息发送失败");
+		}
+		this.close();
+	}
+	public void close(){
+		System.out.println("【CLOSE】关闭消息发送通道");
+	}
+}
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		IMessage msg=new Message("王南爱李欢");
+		msg.send();
+	}
+}
+
+	此时既然所有的资源完成处理之后都必须进行关闭操作，那么能否实现一种自动关闭的功能呢？在这样的
+要求下，推出了AutoCloseable访问接口，这个接口是在JDK1.7的时候才有的，并且该接口只提供有一个抽象方法：
+	·关闭方法：public void close()throws Exception
+	要想实现自动关闭处理，除了要使用AutoCloseable之外，该需要结合异常处理语句完成。
+
+范例：实现自动关闭处理
+package println;
+interface IMessage extends AutoCloseable{
+	public abstract void send();	//消息的发送
+}
+class Message implements IMessage{	//实现消息的处理机制
+	private String str;
+	public Message (String str){
+		this.str=str;
+	}
+	public boolean open(){		//获取资源连接
+		System.out.println("【OPEN】资源已连接");
+		return true;
+	}
+
+	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		if(this.open()){
+			System.out.println("【SEND】发送消息:"+this.str);
+		}else{
+			System.out.println("消息发送失败");
+		}
+		
+	}
+	public void close() throws Exception{
+		System.out.println("【CLOSE】关闭消息发送通道");
+	}
+}
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		try(IMessage msg=new Message("王南爱李欢");){
+			msg.send();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
+}
+
+	在以后的章节中会接触到资源的关闭问题，往往都会见到AutpCloseable接口的使用。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

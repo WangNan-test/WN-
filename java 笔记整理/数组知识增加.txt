@@ -1,0 +1,104 @@
+foreach输出：
+从JDK1.5之后为了坚强下标对程序的影响（如果下标处理不当则会出现数组越界异常），所以参考了".NET"的设计，
+引入了一个增强型的for循环（foreach）利用foreach的语法结构可以自动获取数组中的每一个元素，避免下标访问
+语法：
+for（数据类型 变量 ：数组|集合）{
+	
+}
+最大的特点在于可以自动将数组中的每一个元素内容取出保存在变量里面，这样就可以直接通过变量获取数组内容，
+二避免下标的方法来获取
+范例：使用foreach语法输出
+package println;	
+
+public class println{
+	public static void main(String []args){
+		int[] num=new int[]{1,2,12,31,23,2,31,23};
+		for(int temp:num){	//自动循环	将num里面的内容交给temp
+			System.out.print(emp+"、");	//输入循环
+		}
+		
+	}
+}
+	这种语法的好处是可以避免下标的操作。
+——————————————————————————————————————————————————
+方法可变参数：
+如果说现在要求定义一个方法，这个方法可以实现任意多个整形数据的相加处理。这样的情况下最早的时候可以通过
+数组来进行处理。
+package println;	
+class ArrayUtil{
+	public static int sum(int[] data){
+		int num=0;
+		for(int temp:data){
+			num+=temp;
+		}
+		return num;
+	}
+}
+public class println{
+	public static void main(String []args){
+		System.out.println(ArrayUtil.sum(new int[]{2,1,21,2}));
+	}
+}
+
+	虽然以上的程序可以实现任意多个数字的参数内容传递，但是与实际的要求并不符合，实际要求的是
+可以任意传递多个参数。而不是一个数组。从JDK1.5开始为了方法开发者进行可变参数的定义，对于方法的参数提供
+有新的支持
+范例采用可变参数
+package println;	
+class ArrayUtil{
+	public static int sum(int...data){		//变种数组
+		int num=0;
+		for(int temp:data){
+			num+=temp;
+		}
+		return num;
+	}
+}
+public class println{
+	public static void main(String []args){
+		System.out.println(ArrayUtil.sum(2,1,21,2));	//可变参数  而不是数组
+	}
+}
+	可变参数的最大作用在于，在以后进行一些程序类设计或者开发者调用的时候，利用此种形式就可以避免
+数组的传递操作了可变参数的本质需要清楚的是：依然属于数组。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,490 @@
+
+	再之前已经学习了Collection接口以及其对应的子接口，可以发现再Collection之中所保存的数据全部都只是单个对象，
+再数据结构里面除了可以进行单个对象的保存之外，实际上也可以进行二元偶对象的保存（key=value）的形式来储存，而储存
+二元偶对象的核心意义在于，需要通过Key获取Value
+
+	在开发里面：Collection集合保存数据的目的是为了输出，Map集合保存数据的目的是为了进行Key的查找
+
+
+Map接口简介：
+
+	Map接口是进行二元偶对象保存的最大父接口。该接口定义如下：
+
+
+public interface Map<K,?V>
+
+	该接口为一个独立的父接口，并且在进行接口对象实例化的时候需要设置Key与Value的类型，也就是说再整体操作
+的时候需要保存两个内容。再Map接口里面定义有许多的操作方法，但是需要记住以下的核心操作方法：
+
+	public V put?(K key, V value)			普通	向集合之中保存数据
+	public V get?(Object key)			普通	通过Key查询数据
+	public Set<Map.Entry<K,?V>> entrySet()	普通	将Map集合转为Set集合
+	public boolean containsKey?(Object key)	普通	查询指定的Key是否存在。
+	public Set<K> keySet()			普通	将Map中的Key转为Set集合；
+	public V remove?(Object key)			普通	根据Key值删除指定数据；
+	
+
+	从JDK1.9之后Map接口里面也扩充了一些静态的方法供用户使用。
+
+
+	再Map集合之中数据的保存就是按照“Key=value”的形式存储的。
+
+
+	对于现在见到的of()方法严格意义上来讲并不是Map集合的标准用法，因为正常的开发之中需要通过Map集合的子类
+来进行接口对象的实例化，而常用的子类:HashMap、Hashtable、TreeMap、LinkedHashMap.
+_________________________________________________________________________________________________________________________________________
+
+HashMap子类
+
+	HashMap是Map接口之中最为常见的一个子类，改了主要特点是无序储存，通过java文档首先来观察一下HashMap子类的定义形式：
+
+public class HashMap<K,?V>
+extends AbstractMap<K,?V>
+implements Map<K,?V>, Cloneable, Serializable
+
+
+	该类的定义的继承形式符合之前的集合定义形式，依然提供有抽象类并且依然需要重复实现Map接口
+
+范例：观察Map集合的使用
+package println;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Map<String,Integer> all=new HashMap<String,Integer>();
+		all.put("one", 1);
+		all.put("two", 2);
+		all.put("one", 101);	//key重复
+		all.put(null, 0);	//key为null
+		all.put("zero", null);	//value为null
+		System.out.println(all.get("one"));//key存在
+		System.out.println(all.get(null));
+		System.out.println(all.get("ss"));
+	}
+}
+
+
+	以上的操作形式为Map集合使用的最标准的处理形式，通过代码可以发现，通过HashMap实例化的Map
+接口可以针对Key或Value保存null的数据，同时也可以发现即便保存数据的Key重复，也不会出现错误，而是出现内容的
+替换。
+
+	但是对于Map接口中提供的put()方法本身是提供有返回值的，那么这个返回值指的是再重复key的情况下返回旧
+的value
+范例：观察put方法
+package println;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Map<String,Integer> all=new HashMap<String,Integer>();
+		System.out.println(all.put("one", 1));	//key不重复的时候返回null
+		System.out.println(all.put("one", 191));	//key重复的时候返回旧数据
+	}
+}
+
+	在设置了相同的Key的内容的时候put()方法会返回原始的数据内容。
+
+	清楚了HashMap的基本功能之后下面就需要来研究一下HashMap之中给出的源代码。
+HashMap之中肯定需要存储大量的数据，那么对于数据的存储
+
+public HashMap() {
+        this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
+    }
+
+	当使用无参构造的时候会出现有一个loadFactor属性，并且该属性默认 的内容为“0.75”
+ static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+ public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+    }
+
+	再使用Put()方法进行数据保存的时候会调用以一个putval()方法，同时会将Key进行hash处理（生成一个hash码）
+而对于putval()方法里面会发现依然会提供有Node节点类进行数据保存，而再使用putVal()方法操作的过程之中会调用有一个
+resize()方法可以进行容量的扩充
+
+面试题：在进行HashMap的put()操作的时候，如何实现容量扩充的？
+
+	·再HashMap类里面提供有一个“DEFAULT_INITIAL_CAPACITY”常量，作为初始化的容量配置，而后这个常量
+默认大小为16个元素，也就是说默认可以保存的最大内容是16；
+	·当保存的内容的容量超过了一个阈值（DEFAULT_LOAD_FACTOR = 0.75f）相当与”容量*阈值=12“保存12个
+元素的时候就会进行容量的扩充；
+	·在进行扩充的时候HashMap采用了成倍的过程模式，即:每一次都扩充两倍的容量。
+
+面试题：请解释HashMap的工作原理（1.8之后开始的）
+
+	·再HashMap之中进行数据存储的依然是利用了Node类完成的，那么这种情况下旧证明可以使用的数据
+结构只用两种：链表”（时间复杂度O（n））“、二叉树（时间复杂度”O（log n）“）；
+
+	·从JDK1.8开始，HashMap的实现出现了改变，因为其要适应于大数据时代的海量数据问题，所以
+对于其存储发生了变化并且再HashMap类的内部提供有了一个重要的常量：static final int TREEIFY_THRESHOLD = 8;
+再使用HashMap进行数据保存的时候，如果保存的数据个数没有超过阈值8(TREEIFY_THRESHOLD),那么会按照链表的
+形式进行存储，而如果超过了这个阈值则会将链表转为红黑数以实现树的平衡，并且利用左旋于右旋保证数据的查询性能。
+
+
+——————————————————————————————————————————————————————————————————
+LinkedHashMap子类
+
+	HashMap虽然是Map集合最为常用的一个子类，但是其本身所保存的数据都是无序的（有序与否对于Map没有影响），如果
+现在希望Map集合中保存的数据顺序为其增加顺序，则就可以更换子类为LinkedHashMap（基于链表实现的），下面观察LinkedHashMap
+的类定义形式:
+
+public class LinkedHashMap<K,?V>
+extends HashMap<K,?V>
+implements Map<K,?V>
+
+	既然是链表的保存，所以一般再使用LinkedHashMap类的时候往往数据量都不要特别大，因为会造成时间复杂度攀升。
+通过继承的结构可以发现LinkedHashMap是HashMap的子类，继承关系如下：
+
+
+
+
+
+范例：使用LinkedHashMap
+package println;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Map<String,Integer> all=new LinkedHashMap<String,Integer>();
+		all.put("one", 1);
+		all.put("two", 2);
+		all.put("one", 101);	//key重复
+		all.put(null, 0);	//key为null
+		all.put("zero", null);	//value为nulls
+		System.out.println(all);
+	}
+}
+
+	通过此时的程序执行可以发现当使用LinkedHashMap进行存储之后所有数据的保存顺序为添加顺序。
+——————————————————————————————————————————————————————————————————————
+
+Hashtable子类
+
+
+	Hashtable雷是从JDK1.0的时候提供的，于vertor、Enumertion属于最早的一批动态数组的实现类，后再为了将其继续保存
+下来所以让其多实现了一个Map接口，Hashtable类定义如下：
+public class Hashtable<K,?V>extends Dictionary<K,?V>
+implements Map<K,?V>, Cloneable, Serializable
+
+范例：观察Hashtable子类的使用
+
+package println;
+
+import java.util.Hashtable;
+import java.util.Map;
+
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Map<String,Integer> all=new Hashtable<String,Integer>();
+		all.put("one", 1);
+		all.put("two", 2);
+		all.put("one", 101);	//key重复
+		System.out.println(all);
+	}
+}
+
+
+	通过观察可以发现再Hashtable里面进行数据储存的时候设置的Key或Value都不允许为null,否则会出现NullPointException的异常。
+
+
+面试题：请解释HashMap于Hashtable的区别
+
+	·HashMap中的方法都属于异步操作，非线程安全；HashMap允许保存null的数据
+	·Hashtable中的方法都属于同步方法,线程安全；Hashtable不允许保存null的数据，否则会出现NullPointException
+——————————————————————————————————————————————————————————————————
+
+TreeMap子类
+
+
+	TreeMap属于有序的Map集合类型，他可以按照key进行排序，所以来讲在使用这个子类的时候一定要配合Comparable接口
+共同使用，TreeMap类定义如下：
+public class TreeMap<K,?V>
+extends AbstractMap<K,?V>
+implements NavigableMap<K,?V>, Cloneable, Serializable
+
+
+
+
+package println;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Map<String,Integer> all=new TreeMap<String,Integer>();
+		all.put("a", 1);
+		all.put("b", 2);
+		all.put("c", 101);	//key重复
+		all.put("d", 0);	//key为null
+		System.out.println(all);
+	}
+}
+
+	再使用TreeMap的时候可以根据Key实现数据的排序处理，但是对于Key是不允许设置为null的（因为需要Compatable接口中的CompateTo方法排序，
+如果传入对象的对象为null，那么调用方法返回的NullPointException），而value允许为null。
+
+
+——————————————————————————————————————————————————————————————————————
+
+Map.Entry接口
+
+	虽然已经清楚了整个的Map集合的基本操作形式，但是依然需要有一个核心的问题要解决，Map集合里面是如何进行
+数据存储的？对于List而言（LinkerList子类）依靠的是链表的形式实现的数据存储，那么再进行数据存储的时候一定要将数据
+保存再Node节点之中，虽然再HashMap里面也可以见到Node类型定义，通过源代码定义可以发现，HashMap中的Node内部类
+本身实现了Map.Entry接口。
+
+		 static class Node<K,V> implements Map.Entry<K,V>
+
+
+	所以可以得出结论:所有的Key和Value的数据都被封装再Map.Entry接口中，而此接口定义如下：
+
+		public static interface Map.Entry<K,?V>
+
+	并且在这个内部接口里面提供有两个重要的操做方法：
+		·获取Key：public K getKey()
+		·获取Value：public V getValue();
+
+
+	再JDK1.9以前的开发版本之中，使用者都不会考虑创建Map.Entry的对象，实际上再正常的开发过程之中使用者也不需要关心
+Mao.Entry对象创建，可是从JDK1，9之后,Map接口里面追加有一个新的方法
+		·创建Map.Entry的对象：static <K,?V> Map.Entry<K,?V> entry?(K k, V v)
+
+
+
+
+	通过分析可以发现再整个Map集合里面，Mao.Entry的正要作用就是作为Key,Value的包装类型使用，而大部分情况下在进行
+数据存储的时候都会将Key和Value包装为一个Map.Entry对象继续宁使用。
+————————————————————————————————————————————————————————————————————————————————
+
+使用Iterator使出Mao集合
+
+
+	对于集合的输出而言，最标准的做法就是利用Iterator接口来完成但是需要明确一点的是在Map集合里面并没有一个方法
+可以直接返回Iterator接口对象。所以这种情况下就必须分析不直接提供Iterator接口实例化的方法的原因，下面使用Collertion集合
+的存储结构进行一个比较处理。
+
+	发现在Map集合里面保存的实际上是一组Map.Entry接口对象（里面包装的是Key于Value），所以整个来讲Map依然实现
+的是单指的保存，这样在Map集合里面提供有一个方法：”public Set<Map.Entry<K,?V>> entrySet()“将全部的Map集合转为Set
+集合。
+
+
+	经过分析可以发现如果要想使用Iterator实现Map集合的输出则必须按照如下步骤进行处理：
+
+		·利用Map接口中提供的entrySet()方法，将Map集合转为Set集合
+		·利用Set接口中Iterator方法将Set集合转为Iterator接口实例；
+		·利用Iterator进行迭代输出获取每一组的Map.Entry对象，随后通过getKey()与getValue()获取数据
+
+范例：利用Iterator输出Map集合
+
+package println;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Map<String, Integer> all = new HashMap<String, Integer>();
+		all.put("one", 1);
+		all.put("tow", 2);
+		all.put("thre", 3);
+		Set<Entry<String, Integer>> set = all.entrySet();// 将Map集合变为Set集合
+
+		Iterator<Entry<String, Integer>> iterator = set.iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<String, Integer> me = iterator.next();
+			System.out.println(me.getKey() + " = " + me.getValue());
+		}
+	}
+}
+
+	虽然Map结合本身支持有迭代输出的支持，但是如果从实际的开发来讲，Map最主要的用法在于实现数据的Key的查找操作
+，另外需要提醒的使，如果现在不适用Iterator而使用foreach语法输出则也需要将Map集合转为Set集合。
+范例：使用Foreach使出Map集合
+
+package println;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Map<String, Integer> all = new HashMap<String, Integer>();
+		all.put("one", 1);
+		all.put("tow", 2);
+		all.put("thre", 3);
+		Set<Entry<String, Integer>> set = all.entrySet();// 将Map集合变为Set集合
+		for(Map.Entry<String, Integer> me:set){	//Foreach输出
+			System.out.println(me.getKey()+"="+me.getValue());
+		}
+	}
+}
+
+	由于Map迭代输出的情况相对较少，所以对于此类的语法应该深入理解一下，并且一定要灵活掌握。
+————————————————————————————————————————————————————————————————
+
+关于KEY的定义
+
+
+	在使用Map集合的时候可以发现对于Key和Value的类型实际上都可以由使用者任意决定，那么也就意味着可以
+使用自定义的类来进行Key类型的设置。对于自定义Key类型所在的类中一定要覆写hashCode(）与equals方法
+
+public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+    }
+
+	在进行数据保存的时候发现会自动使用传入的Key的数据生成一个Hash码，也就是说存储的时候是有Hash数值的。
+
+ public V get(Object key) {
+        Node<K,V> e;
+        return (e = getNode(hash(key), key)) == null ? null : e.value;
+    }
+
+	在根据Ket获取数据的时候依然要传入的Key通过Hash()方法来获取对应的hash码，那么也就证明，查询的过程之中首先要
+利用hashCode来进行数据查询，当使用getNode()方法查询的时候还需要使用到equals()方法；
+
+范例：使用自定义类作为Key类型
+package println;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+class Person{
+	private String name;
+	private int age;
+	public Person(String name, int age) {
+		super();
+		this.name = name;
+		this.age = age;
+	}
+	public String getName() {
+		return name;
+	}
+	public int getAge() {
+		return age;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public void setAge(int age) {
+		this.age = age;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + age;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Person other = (Person) obj;
+		if (age != other.age)
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
+	}
+	@Override
+	public String toString() {
+		return "Person [姓名=" + name + ", 年龄=" + age + "]";
+	}
+	
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Map<Person, String> all = new HashMap<Person, String>();
+		all.put(new Person("张三",10), "帅哥");	//使用自定义类
+		System.out.println(all.get(new Person("张三",10)));	//通过Key找到Value
+	}
+}
+
+	虽然允许你是用自定义的类作为Key的类型，但是也需要注意一点，在实际的开发之中对于Map集合的Key常用的类型
+就是三种：String、lang、Integer尽量使用系统类。
+
+面试题：当如果在进行HashMap进行数据操作的时候出现了Hash冲突(hash码相同)，HashMap是如何解决的？
+
+	当出现了Hash冲突之后为了保证程序的正常执行，会在冲突的位置上将所有Hash冲突的内容转为链表。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

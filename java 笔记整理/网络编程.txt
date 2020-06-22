@@ -1,0 +1,493 @@
+
+	所谓的网络编程指的就是多台主机之间的数据通讯操作。
+
+网络编程简介
+
+	网络的核心定义在于：有两台以上的电脑就称为网络。实际上在世界上产生第一台电脑之后就有人开始去思考如何可以将
+更多的电脑生产出来并且将其进行有效的连接。
+
+	网络连接的目的不仅仅是为了进行电脑的串联，更多的情况下是为了进行彼此之间的数据通讯，包括现在所谓的网络游戏
+本质上还是网络通讯的问题。而在通讯的实现上就产生了一系列的处理的协议：IP、TCP、UDP等等，也就是说所谓的网络编程实际
+上实现的就是一个数据的通讯操作而已，只不过这个通讯操作需要分为客户端和服务区端
+
+
+	于是针对于网络程序的开发就有了两种模型：
+
+		·C/S（Client/Server、客户端与服务器端）：要开发出两套程序，一台为客户端，另外一套程序为服务器端
+	现在服务器端发生了改变之后客户端也应该进行更新处理,这种开发可以由开发者自定义传输协议，并且使用一些比较
+	私密的端口，所以安全性是比较高的，但是开发与维护成本比较高；
+
+		·B/S（Browse/Server 浏览器于服务器）：要开发一台服务器端的程序，而后利用浏览器作为客户端进行访问，
+	这种开发与维护的成本较低（只有一套程序），但是由于其使用的是公共的HTTP协议并且使用的是公共的80端口，所以
+	其安全性较差，现在的开发基本上以“B/S”结构为主。
+
+
+	本次所要讲解的网络编程主要就是C/S程序模型其分为两种开发：TCP（可靠的数据连接）、UDP（不可靠的数据连接）；
+
+
+——————————————————————————————————————————————————————————————————————
+
+Echo程序模型
+
+
+	TCP的程序开发是网络程序的最基本的开发模型，其核心的特点是使用两个类实现数据的交互处理：ServerSocket（服务器端）
+、Socket(客户端）	
+
+
+
+	ServerSocket的主要目的是设置服务器监听端口，而Socket需要指明连接的服务器地址与端口，下面实现一个最简单
+的数据处理操作，即：Echo的程序实现。
+
+
+
+
+范例：实现服务器端的定义
+package println;
+
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class EchoServer {
+	public static void main(String[] args) throws Exception {
+		ServerSocket server = new ServerSocket(9999); // 设置服务区端的监听端口
+		System.out.println("等待客户端连接.............");
+		Socket client = server.accept(); // 有客户端连接
+		// 1、首先先接受客户端发送来的信息，而后才可以将信息处理后发送会客户端
+		Scanner scan = new Scanner(client.getInputStream()); // 客户端输入流
+		scan.useDelimiter("\n"); // 设置分隔符
+		PrintStream out = new PrintStream(client.getOutputStream()); // 客户端输出流
+		boolean flag = true; // 循环标记
+		while (flag) {
+			if (scan.hasNext()) { // 现在有数据发送
+				String val = scan.next().trim(); // 接收发送的数据
+				if ("byebye".equalsIgnoreCase(val)) {
+					out.print("ByeByeBye");
+					flag = false;
+				} else {
+					out.println("【ECHO】" + val);
+				}
+			}
+		}
+		server.close();
+		client.close();
+		scan.close();
+		out.close();
+	}
+}
+
+
+范例：客户端代码
+package println;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class EchoClient {
+	private static final BufferedReader BUFF=new BufferedReader(new InputStreamReader(System.in));
+	public static void main(String[] args)throws Exception {
+		Socket soc=new Socket("localhost",9999);//定义服务端的连接信息
+		//现在客户端需要有输入于输出的操作支持，所以依然需要准备Scanner于PringWriter
+		Scanner sca=new Scanner(soc.getInputStream());	//接收服务器端的输入内容
+		sca.useDelimiter("\n");
+		PrintStream out=new PrintStream(soc.getOutputStream());	//向服务器端发送内容
+		boolean flag=true;
+		while (flag){
+			String input=getString("请输入要发送的内容：").trim();
+			out.println(input);	//加换行
+			if(sca.hasNext()){
+				System.out.println(sca.next());
+				if("byebye".equalsIgnoreCase(input)){
+					flag=false;
+				}
+			}
+		}
+		soc.close();
+		sca.close();
+		out.close();
+	}
+	public static String getString(String prompt) throws Exception{
+		System.out.println(prompt);
+		String str=BUFF.readLine();
+		return str;
+	}
+}
+
+
+	此时就是先了一个最基础的客户端于服务器端之间的数据通讯操作。
+————————————————————————————————————————————————————————————————————————————
+多线程与网络编程
+
+	现在尽管已经实现了一个标准的网络程序开发，但是在整个的开发过程之中本程序存在有严重的性能缺陷，因为该服务器
+只能够为一个线程提供Echo服务，如果说现在的服务器需要有多人进行进行访问的时候那么其他的使用者将无法连接(等待连接)。
+
+	所以现在就可以发现单线程的服务器开发本身就是一种不合理的做法，那么此时最好的解决方案将每一个连接到服务器上
+的客户端都通过一个线程对象来进行处理，即：服务器上启动多个线程，每一个线程单独为每一个客户端实现Echo服务支持。
+
+
+范例：修改服务器端程序
+package println;
+
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class EchoServer {
+	private static class ClientThread implements Runnable{
+		private Socket client=null;	//描述每一个不同的客户端
+		private Scanner scan=null;
+		private PrintStream out=null;
+		private boolean flag = true; // 循环标记;
+		public ClientThread(Socket client)throws Exception{
+			this.client=client;
+			// 1、首先先接受客户端发送来的信息，而后才可以将信息处理后发送会客户端
+			this.scan = new Scanner(this.client.getInputStream()); // 客户端输入流
+			this.scan.useDelimiter("\n"); // 设置分隔符
+			this.out = new PrintStream(this.client.getOutputStream()); // 客户端输出流
+		}
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			while (this.flag) {
+				if (this.scan.hasNext()) { // 现在有数据发送
+					String val = this.scan.next().trim(); // 接收发送的数据
+					if ("byebye".equalsIgnoreCase(val)) {
+						this.out.print("ByeByeBye");
+						this.flag = false;
+					} else {
+						this.out.println("【ECHO】" + val);
+					}
+				}
+			}
+			try {
+				this.client.close();
+				this.scan.close();
+				this.out.close();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}  
+	public static void main(String[] args) throws Exception {
+		ServerSocket server = new ServerSocket(9999); // 设置服务区端的监听端口
+		System.out.println("等待客户端连接.............");
+		
+		boolean flag = true; // 循环标记;
+		while (flag) {
+			Socket client = server.accept(); // 有客户端连接
+			new Thread(new ClientThread(client)).start();
+		}
+		server.close();
+	}
+}
+
+	如果你在这类的代码里面再追加一些集合的数据控制，实际上就可以实现一个80年代的聊天室了。
+————————————————————————————————————————————————————————————————————————————
+UDP程序
+
+	之前所见到都属于TCP程序开发范畴，TCP程序最大的特点是可靠的网络连接，但是在程序开发之中还存在有一种UDP程序，
+基于数据报的网络编程实现，如果要想实现UDP程序需要两个类：DatagramPacket（数据内容）DatagramSocket（网络发送与接收）
+数据报就好比发送的短消息一样，客户端是否接收到与发送者无关。
+
+范例：实现一个UDP客户端
+
+package println;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+public class UDPClient {
+	public static void main(String[] args)throws Exception {	//接收数据信息
+		DatagramSocket client=new DatagramSocket(9999);	//连接到9999端口
+		byte[] data=new byte[1024];		//接收消息
+		DatagramPacket packet=new DatagramPacket(data, data.length);//接收数据的对象
+		System.out.println("客户端等待接收发送的消息......");
+		client.receive(packet);//接收消息，所有的消息都在data的字节数组之中
+		System.out.println("接收到消息内容为"+new String(data,0,packet.getLength()));
+		client.close();
+	}
+}
+
+范例：实现UDO服务器
+
+
+package println;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
+public class UDPService {
+	public static void main(String[] args) throws Exception{
+		DatagramSocket server=new DatagramSocket(9000);	//连接到9999端口
+		String str="王南爱李欢";		//要发送的消息的内容
+		DatagramPacket packet=new DatagramPacket(str.getBytes(),0,str.length(),InetAddress.getByName("localhost"),9999);//接收数据的对象
+		server.send(packet);
+		System.out.println("消息发送完毕......");
+		server.close();
+	}
+}
+	UDP发送的数据一定是不可靠的，但是TCP由于需要可靠的连接所以所需要的服务器资源就越多。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

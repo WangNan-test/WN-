@@ -1,0 +1,164 @@
+	JDBC是JDK之中提出的数据库的操作标准，但是这个标准实际上是在不断进化的，最新的JDBC标准应该是4.x
+的标准，在之前所讲解的全部的操作代码都属于JDBC1.0的时候就开始提供支持了。从JDBC2.0开始实际上就提出了许多新的功能（没用）
+，它提出了应该可以实现结果集的滚动操作、利用结果集进行更行操作、数据批量处理
+
+
+数据批处理：
+
+	在进行数据库操作的时候如果使用Statement、preparedStatement每一次调用executeUpdate()方法只能够向数据库执行
+单条语句，但是如果现在假设需要进行批量的更新操作，那么就需要创建多个数据库的操作对象，这样除了浪费空间之外，也会造成数据库
+资源的浪费，正是在这样的背景下，就希望数据库再一次执行的时候可以同时执行多条更新SQL所以才有了批处理的概念，而批处理
+操作的方法需要考虑两个接口：
+
+	Statement：
+		|-追加批处理：public void addBatch​(String sql) throws SQLException
+		|-执行批处理：public int[] executeBatch() throws SQLException
+	PreparedStatement：
+
+		|-追加批处理数据：void addBatch() throws SQLException
+
+范例：使用Statement实现批处理
+package drill;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.util.Arrays;
+
+public class JDBCDemo {
+    public static final String OBDRIVER="oracle.jdbc.driver.OracleDriver";
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        Class.forName(OBDRIVER);
+        Connection conn= DriverManager.getConnection(DBURL,USER,PASSWORD);
+        Statement stmt=conn.createStatement();
+        stmt.addBatch(" INSERT INTO news(nid,title)VALUES(news_seq.nextval,'Hello')");
+        stmt.addBatch(" INSERT INTO news(nid,title)VALUES(news_seq.nextval,'WORLD')");
+        stmt.addBatch(" INSERT INTO news(nid,title)VALUES(news_seq.nextval,'Wwww')");
+        stmt.addBatch("UPDATE news SET pubdate=SYSDATE");   //多行更新
+        stmt.addBatch("UPDATE news SET price=6.6 WHERE content IS NULL");   //多行更新
+        int[] ints = stmt.executeBatch();   //执行批处理并返回执行结果
+            System.out.println("【批处理的执行结果】："+ Arrays.toString(ints));
+        conn.close();
+    }
+}
+
+【批处理的执行结果】：[1（INSERT）, 1(INSERT), 1(INSERT), 19(UpDate), 9(UPDate)]
+
+
+	实际上此时可以发现在Statement接口中执行批处理的时候，所返回的结果过会将每行语句营销给的数据行的
+个数通过数组返回，那么就可以依据数组中的及俄国来判断当前的操作是否成功。
+
+范例：使用PreparedStatement实现批处理
+
+package drill;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.util.Arrays;
+
+public class JDBCDemo {
+    public static final String OBDRIVER="oracle.jdbc.driver.OracleDriver";
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        Class.forName(OBDRIVER);
+        Connection conn= DriverManager.getConnection(DBURL,USER,PASSWORD);
+        String sql="INSERT INTO news(nid,title) VALUES(news_seq.nextval,?)";
+        PreparedStatement pstmt=conn.prepareStatement(sql);
+        for(int x=0;x<10;x++){
+            pstmt.setString(1,"lll--"+x);   //设置数据
+            pstmt.addBatch();   //追加批处理
+        }
+
+        int[] ints = pstmt.executeBatch();   //执批处理并返回执行结果
+            System.out.println("【批处理的执行结果】："+ Arrays.toString(ints));
+        conn.close();
+    }
+}
+
+
+	可以发现PrepareStatement执行批处理后的结果并不是SQL语句所影响到的数据行数，而是一个-2的数字。
+
+这个地方返回的就是在Statement里面定义的常量信息，主要有两个信息；
+
+	·执行成功：Statement.SUCCESS_NO_INFO(-2);
+	·执行失败：Statement.EXECUTE_FAILED(-3)
+
+	此时只能够利用常量来进行执行成功与否的判断。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

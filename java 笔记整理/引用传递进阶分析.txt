@@ -1,0 +1,83 @@
+引用传递进阶分析：
+	引用传递是java的整体核心，如果不懂引用传递基本上所有的代码都无法正常分析。
+
+
+class Emp{
+	private int num;
+	public void setNum(int num){
+		this.num=num;
+	}
+	public int getNum(){
+		return this.num;
+	}
+}
+public class println{
+	public static void main(String[]args){
+		Emp ste=new Emp();
+		ste.setNum(100);
+		fino(ste);
+		System.out.println(ste.getNum());
+	}
+	public static void fino(Emp msg){
+		msg.setNum(30);
+	}
+}
+——————————————————————————————————————————————————
+public class println{
+	public static void main(String[]args){
+	String num="hello";
+	fino(num);
+	System.out.println(num);
+	}
+	public static void fino(String nmm){
+		nmm="world";
+	}
+}
+本程序的最终结果为"hello"。本题目分析的关键在于：字符串常量一旦声明则不可改变，字符串对象的 内容改变依靠的是地址
+的引用关系变更。
+
+
+
+————————————————————————————————————————————————————
+class Message{
+	private String note;
+	public void setNote(String note){
+		this.note=note;
+	}
+	public String getNote(){
+		return this.note;
+	}
+}
+public class println{
+	public static void main(String[]args){
+		Message msg=new Message();
+		msg.setNote("hello");
+		fino(msg);
+		System.out.println(msg.getNote());
+	}
+	public static void fino(Message temp){
+		temp.setNote("world");;
+	}
+}
+以上代码要想进行分析有一个前提：你先把String类的使用当做一个基本数据。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

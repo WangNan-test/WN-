@@ -1,0 +1,578 @@
+
+二叉树结构
+
+	在进行链表结构开发的过程之中会发现所有的数据按照收尾相连的状态进行保存，那么当要进行某一个数据查询的时候
+（判断该数据是否存在），这种情况下它所面对的时间复杂度是“N”，如果说现在它的数据量小（不超过30个），那么性能上
+是不会有太大差别的，而一旦保存的数据量很大，这个时候时间复杂度就会严重损耗程序的运行性能，那么现在对于数据存储
+结构就必须发生改变，应该可以尽可能的减少检索此时为出发点进行设计。对于现在的数据结构而言，最好的性能就是“O（logn）”
+所以现在要想实现它就可以利用二叉树的结构来完成。
+
+
+
+	如果要想实现一棵树结构的定义，那么就需要去考虑数据的存储形式，在二叉树的实现之中其基本的实现原理如下：
+取第一个数据为保存的根节点，小于等于根节点的数据要放在节点的左子树，而大于节点的要放在该节点的右子树。
+
+
+
+
+	如果要进行数据检索的话，此时就需要进行每个节点的判断。，但是它的判断是区分左右的，所以不会是整个的结构都及进行
+判断处理，那么它的时间复杂度就是O（longn）。
+
+	而对于二叉树而言，在进行数据获取的时候也有三种形式：前序遍历（根-左-右），中序遍历（左-根-右），后续遍历（左-右-根）。
+那么现在只是以中序遍历为主则以上的数据进行中序遍历的时候最终的结果。可以发现二叉树中的内容全部属于排序的结果。
+————————————————————————————————————————————————————————————————————————
+
+二叉树基础实现：
+
+	在现实二叉树的处理之中最为关键性的问题在于数据的保存，而且数据由于牵扯到对象比较的问题，那么一定要有比较器的支持
+，而这个比较器首选的是一定是Comparable，所以本次将保存一个Person类数据：
+
+package println;
+public class Person implements Comparable<Person>  {
+	private String name;
+	private int age;
+	public Person(String name, int age) {
+		super();
+		this.name = name;
+		this.age = age;
+	}
+	@Override
+	public int compareTo(Person o) {
+		// TODO Auto-generated method stub
+		return this.age-o.age;
+	}
+	@Override
+	public String toString() {
+		return "Person [name=" + name + ", age=" + age + "]";
+	}
+}
+
+
+	随后如果要想进行数据的保存，首先一定要有一个节点类。节点类里面由于牵扯到数据的保存问题，所以必须使用
+Comparable（可以区分大小）
+package println;
+
+/**
+ * 实现二叉树操作
+ *
+ * @param <T>
+ *            要进行二叉树的实现
+ */
+class BinaryTree<T extends Comparable<T>> {
+	private class Node {
+		private Comparable<T> data; // 存放Comparable，可以比较大小
+		private Node parrent; // 保存父节点
+		private Node left; // 保存左子树
+		private Node right; // 保存右子树
+
+		private Node(Comparable<T> data) { // 构造方法直接负责进行数据的储存
+			this.data = data;
+		}
+
+		/**
+		 * 实现节点数据适当位置存储
+		 * 
+		 * @param newNode
+		 *            创建的新节点
+		 */
+		public void addNode(Node newNode) {
+			if (newNode.data.compareTo((T) this.data) <= 0) { // 比当前节点数据小
+				if (this.left == null) { // 没有左子树
+					this.left = newNode; // 保存左子树
+					newNode.parrent = this;// 保存父节点
+				} else { // 需要向左边继续判断
+					this.left.addNode(newNode); // 继续向下判断
+				}
+			} else { // 比根节点的数据要大
+				if (this.right == null) { // 没有右子树
+					this.right = newNode;
+					newNode.parrent = this; // 保存父节点
+				} else {
+					this.right.addNode(newNode); // 继续向下判断
+				}
+			}
+		}
+
+		/**
+		 * 实现所有数据的获取处理，按照中序遍历的形式来完成
+		 */
+		public void toArrayNode() {
+			if (this.left != null) { // 有左子树
+				this.left.toArrayNode(); // 递归调用
+			}
+			BinaryTree.this.returnData[BinaryTree.this.foot++] = this.data;
+			if (this.right != null) { // 有右子树
+				this.right.toArrayNode(); // 递归调用
+			}
+		}
+	}
+
+	// ------------------以下为二叉树的功能实现------------------------------
+	private Node root; // 保存根节点
+	private int count; // 保存数据个数
+	private Object[] returnData; // 返回数据
+	private int foot; // 角标控制
+
+	/**
+	 * 进行数据的保存
+	 * 
+	 * @param data
+	 *            要保存的数据内容
+	 * @exception NullpointerException
+	 *                保存数据为null是保存的异常
+	 *
+	 */
+	public void add(Comparable<T> data) {
+		if (data == null) {
+			throw new NullPointerException("保存的数据不允许为null！");
+		}
+		// 所有的数据本身不具备右节点关系的匹配，那么一定要将其包装在Node类之中
+		Node newNode = new Node(data); // 保存节点
+		if (this.root == null) { // 现在没有根节点，则第一个节点作为根节点
+			this.root = newNode;
+		} else { // 需要为其保存到一个合适节点
+			this.root.addNode(newNode);
+		}
+		this.count++;
+	}
+
+	/**
+	 * 以对象数组的形式返回全部数据，如果没有数据返回null
+	 * 
+	 * @return全部数据
+	 */
+	public Object[] toArray() {
+		if (this.count == 0) {
+			return null;
+		}
+		this.foot = 0; // 角标清0
+		this.returnData = new Object[this.count]; // 保存长度为数组长度
+		this.root.toArrayNode(); // 直接通过Node类负责
+		return this.returnData; // 返回全部的数据
+	}
+}
+
+ class Person implements Comparable<Person> {
+	private String name;
+	private int age;
+
+	public Person(String name, int age) {
+		super();
+		this.name = name;
+		this.age = age;
+	}
+
+	@Override
+	public int compareTo(Person o) {
+		return this.age - o.age;
+	}
+
+	@Override
+	public String toString() {
+		return "Person [name=" + name + ", age=" + age + "]";
+	}
+}
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		BinaryTree<Person> tree=new BinaryTree<>();
+		tree.add(new Person("张三",32));
+		tree.add(new Person("李四",17));
+		tree.add(new Person("王五",18));
+		tree.add(new Person("赵六",26));
+		tree.add(new Person("李欢",20));
+		Object[] temp=tree.toArray();
+		for(Object obj :temp ){
+			System.out.println(obj);
+		}
+	}
+}
+
+	在进行数据添加的时候只是实现了节点关系的保存，而这种关系保存的结构就是所有的数据都属于有序排列。
+
+————————————————————————————————————————————————————————————————————————————————
+
+二叉树数据查询
+
+	二叉树与普通的链表相比最大的优势在于其检索速度的提升，传统的链表在进行数据检索的时候往往都需要进行全部数据的检索
+而二叉树由于其排列的有序性，所以整体的检索的速度会有很大的提升（小数据量是感受不到的）。
+
+	如果说现在要想进行检索处理，那么就有一个实际的情况出现了，下面首先先实现一个简单的信息检索，这个信息检索根据对象
+的信息来查询。
+
+范例：根据对象信息来查询
+	·在Node类里面扩充有新的操作
+public boolean containsNode(Comparable<T> data) {
+	if(data.compareTo((T)this.data)==0){	
+		return true;
+	}else if(data.compareTo((T)this.data)<0){//左边有数据
+		if(this.left!=null){	//如果有左子树
+			return this.left.containsNode(data); //进行判断
+		}else{	
+			return false;	//如果没有返回false
+		}
+			
+	}else{
+		if(this.right!=null){	//如果有右子树
+			return this.right.containsNode(data);	//进行判断
+		}else{
+			return false;	//如果没有返回false
+		}
+	}
+}
+
+
+·在BinaryTree类里面扩充有新的方法
+public boolean contains(Comparable<T> data){
+	if(this.count==0){	//还没有数据
+		return false;
+	}
+	return this.root.containsNode( data);	//该操作一定要交给Node类完成
+}
+
+	那么这个时候实际上应该去思考一个问题了，对于这样的数据保存有什么意义？那么如过换一个思路，假设现在
+要保存的数据不是一个单独的Person类对象，可能是一个复合对象（二元偶对象）。着种对象的主要特点是可以根据“Key”
+获取对象的value（对象），则可以单独定义一个包装的实体类：
+
+
+	可以轻松的实现根据某一个key查找队形value数据的处理，时间复杂度是很低的。
+
+————————————————————————————————————————————————————————————————————
+数据删除：
+
+
+	二叉树之中的数据删除操作是非常复杂的，因为在进行数据删除的时候需要考虑的情况是比较多的。
+
+
+		1、如果待删除节点没有子节点，那么直接删除即可；
+		2、如果待删除节点只有一个子节点，那么直接删除，并用其子节点去顶替他；
+			这个时候考虑两种情况分析，只有一个左子树。
+			
+			只有一个右子树
+
+
+		3、如果待删除节点有两个子节点，这种情况比较复杂:首选找出它的后续节点，然后处理“后续节点”和被删除节点的父节点
+		之间的关系，最后处理“后继节点的子节点”和“被删除节点的子节点”之间的关系。
+
+	下面通过具体 的代码 实现操作功能
+
+范例:在Node类中添加
+/**
+ * 找到要删除的节点
+ * @param data	要比较的数据
+ * @return	如果比较相等找到对应的节点并返回
+ */
+@SuppressWarnings("unchecked")
+public Node getRemoveNode(Comparable<T> data) {
+	if (data.compareTo((T)this.data) == 0) {
+		return this ; // 查找到了
+	} else if (data.compareTo((T)this.data) < 0) {	// 左边有数据
+		if (this.lift != null) {
+			return this.lift.getRemoveNode(data) ;
+		} else {
+			return null ;
+		}
+	} else {
+		if (this.right != null) {
+			return this.right.getRemoveNode(data) ;
+		} else {
+			return null ;
+		}
+	} 
+}
+
+
+在BinaryTree类中添加：
+/**
+ * 执行数据的删除处理
+ * @param data	要删除的数据
+ */
+public void remove(Comparable<T> data) {
+	if (this.root == null) {	// 根节点不存在
+		return ;// 结束调用
+	} else {
+		if (this.root.data.compareTo((T)data) == 0) {	// 要删除的是根节点
+			Node moveNode = this.root.right ; // 移动的节点
+			while(moveNode.lift != null) {	// 现在还有左边的节点
+				moveNode = moveNode.lift ; // 一直向左找
+			}	// 就可以确定删除节点的右节点的最小的左节点
+			moveNode.lift = this.root.lift ;
+			moveNode.right = this.root.right ;
+			moveNode.parrant.lift = null ;
+			this.root = moveNode ;// 改变根节点
+		} else {
+			Node removeNode = this.root.getRemoveNode(data) ;// 找到要删除的节点
+			if (removeNode != null) {	// 找到要删除的对象信息
+				// 情况一：没有任何的子节点
+				if (removeNode.lift == null && removeNode.right == null) {
+					removeNode.parrant.lift = null ;
+					removeNode.parrant.right = null ;
+					removeNode.parrant = null ; // 父节点直接断开引用
+				} else if (removeNode.lift != null && removeNode.right == null) {	// 左边不为空
+					removeNode.parrant.lift = removeNode.lift ;
+					removeNode.lift.parrant = removeNode.parrant ;
+				} else if (removeNode.lift == null && removeNode.right != null) {	// 右边不为空
+					removeNode.parrant.lift = removeNode.right ;
+					removeNode.right.parrant = removeNode.parrant ;
+				} else {	// 两边都有节点，则将右边节点中最左边的节点找到，改变其指向；
+					Node moveNode = removeNode.right ; // 移动的节点
+					while(moveNode.lift != null) {	// 现在还有左边的节点
+						moveNode = moveNode.lift ; // 一直向左找
+					}	// 就可以确定删除节点的右节点的最小的左节点
+					removeNode.parrant.lift = moveNode ;
+					moveNode.parrant.lift = null ; // 断开原本的连接
+					moveNode.parrant = removeNode.parrant ;
+					moveNode.right = removeNode.right ; // 改变原始的右节点的指向
+					moveNode.lift = removeNode.lift ;
+				}
+			}
+		}
+		this.rount -- ;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

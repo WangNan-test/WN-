@@ -1,0 +1,856 @@
+	泛型是从JDK1.5之后追加到java 语言里面的其只要目的是为了解决ClassCastExseption的问题，再进行对象的
+向下转型是都有可能存在安全隐患，而java希望通过泛型可以慢慢解决掉此类问题。
+
+泛型的问题引出：
+	
+	假设定义一个描述X于Y的坐标的处理类，并且再这个类之中允许开发者保存有三类数据：
+		·整型数据：x=10，y=20；
+		·浮点型数据：x=10.1，y=20.9；
+		·字符串型数据：x=东经120度，北纬30度。
+	于是再设计Point类的时候就需要去考虑具体的X和Y属性的类型，这个类型要求可以保存以上三种数据，
+我们最为原始的做法就是利用Object类来进行定义，因为存在有如下的转型关系。
+		·整形数据：基本数据类型  →  包装为integer类对象  →  自动的向上转型为Object（装箱）
+		·浮点型数据：基本数据类型  →  包装为double类对象  →  自动的向上转型为Object（装箱）
+		·字符串数据：String类对象 →  自动的向上转型为Object（装箱）
+范例：解决多类型定义
+package println;	
+import java.util.Scanner;					
+class Point{
+	private Object x;
+	private Object y;
+	public Point(){}
+	public Point(Object x,Object y){
+		this.x=x;
+		this.y=y;
+	}
+	public Object getX() {
+		return x;
+	}
+	public void setX(Object x) {
+		this.x = x;
+	}
+	public Object getY() {
+		return y;
+	}
+	public void setY(Object y) {
+		this.y = y;
+	}
+	
+}
+
+public class println{
+	public static void main(String []args){
+		Point point=new Point();
+		point.setX(10);
+		point.setY(20);
+		int x=(int)point.getX();
+		int y=(int)point.getY();
+		System.out.println("x坐标为"+x+"，Y坐标为"+y);
+		
+	}
+}
+
+	本程序之所以可以解决当前的设计问题，主要的原因在于，Object可以接受所有的数据类型，
+但是正因为如此本代码也会出现有严重的安全隐患。
+范例：观察错误
+public class println{
+	public static void main(String []args){
+		Point point=new Point();	//自动装箱
+		point.setX(10);
+		point.setY("北纬20度");
+		int x=(int)point.getX();	//自动拆箱
+		int y=(int)point.getY();
+		System.out.println("x坐标为"+x+"，Y坐标为"+y);
+	}
+}
+	
+	此时的程序明显出现了问题，如果在程序编译的时候实际上是不会有任何的错误产生的，而程序执行的时候
+会出现"java.lang.ClassCastException"异常类型，本程序的设计是存在有安全隐患的。而这个安全隐患存在的一句在于
+使用了Object类型，因为Object可以涵盖的范围太广了，而对于这样的错误如果可以直接出现在编译的错误之中，
+那么就可以避免运行时的尴尬。所以才会出现泛型
+——————————————————————————————————————————————————————————————————————————————————————————————
+泛型定义：
+	如果想要避免项目之中出现“ClassCastException”最好的做法时可以回避掉对象的强制转换，所以在JDK1.5
+以后提供有泛型技术，而泛型的本质在于，类中的属性或方法的参数与返回值的类型可以由对象实例化的时候动态决定。
+那么此时就需要在类定义的时候明确的定义占位符（泛型标记）。
+范例：泛型标记
+
+class Point<T>{		//泛型定义<T>是tymp的缩写，如果有需要可以定义多个泛型
+	private T x;
+	private T y;
+	public Point(){}
+	public Point(T x,T y){
+		this.x=x;
+		this.y=y;
+	}
+	public Object getX() {
+		return x;
+	}
+	public void setX(T x) {
+		this.x = x;
+	}
+	public Object getY() {
+		return y;
+	}
+	public void setY(T y) {
+		this.y = y;
+	}
+	
+}
+
+	此时point类中的X与Y属性的数据类型并不确定，而是由外部而决定的。
+提示：关于默认的泛型类型
+	·由于泛型是属于JDK1.5之后的产物，但是在这之前已经有不少内置的程序类，或者接口广泛的引用在了项目开发之中，于是
+为了保证这些类或接口之后，原始的程序类依然可以使用，所以不设置泛型类型时，自动将使用Object作为类型以保证程序的正常
+执行，但是在编译的过程中会出现警告信息。
+
+
+	泛型定义完成后可以在实例化对象的时候进行泛型类型的设置，一旦设置之后，里面的x，于y的属性的类型就与当前对象直接绑定了
+
+package println;	
+import java.util.Scanner;					
+class Point<T>{		//泛型定义<T>是tymp的缩写，如果有需要可以定义多个泛型
+	private T x;
+	private T y;
+	public Point(){}
+	public Point(T x,T y){
+		this.x=x;
+		this.y=y;
+	}
+	public T getX() {
+		return x;
+	}
+	public void setX(T x) {
+		this.x = x;
+	}
+	public T getY() {
+		return y;
+	}
+	public void setY(T y) {
+		this.y = y;
+	}
+	
+}
+
+public class println{
+	public static void main(String []args){
+		Point<Integer> point=new Point<Integer>();	/定义为Integer型
+		point.setX(10);
+		point.setY(20);
+		int x=point.getX();
+		int y=point.getY();
+		System.out.println("x坐标为"+x+"，Y坐标为"+y);
+	}
+}
+
+	现在的程序代码之中，由于point类里面设置的泛型类型为Integer，这样所有的对应此泛型类型的属性、变量、方法返回值
+就将全部替换为Integer（只局限于此对象之中），这样在进行处理的时候如果发现设置的内容有错误则会在程序编译的时候会自供
+错误提示，同时也会避免了对象的向下转型处理（可以避免安全隐患）。
+
+
+泛型的使用注意点：
+	1、泛型之中只允许设置引用类型，如果现在要操作基本类型必须使用包装类；
+
+	2、从JDK1.7开始，泛型对象实例化可以简化为Point<Integer> point=new Point<>();后面的可以省略
+
+	使用泛型可以解决大部分的类对象的强制转换处理，这样的程序才是一个合理的设计。
+
+——————————————————————————————————————————————————————————————————————————————————————————————————
+泛型通配符：
+	虽然泛型帮助开发者解决了以系列的对象的强制转换所带来的安全隐患，但是从另外一个角度来讲，泛型也带来一个
+新的问题：引用传递处理
+范例：泛型的引用传递
+package println;	
+class Message<T>{
+	private T temp;
+	public void setTemp(T temp){
+		this.temp=temp;
+	}
+	public T getTemp(){
+		return this.temp;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Message<String> mes=new Message<String>();
+		mes.setTemp("王南");
+		comm(mes);				//引用传递
+	}
+	public static void comm(Message<String> dept){
+		System.out.println(dept.getTemp());
+	}
+}
+	但是这个时候问题也就出现了，而问题的关键在于comm（）方法上，如果真的去使用泛型不可能只是一种类型，
+也就是说comm方法因该可以接受任意种泛型类型的Message对象。但是这个之后他只能够接受“Message<String>”类型
+这种情况就有人提出了不设置泛型可不可以接受更多种类型。
+范例:如果不设置泛型
+public class println{
+	public static void main(String []args){
+		Message<String> mes=new Message<String>();
+		Message<Integer> mes1=new Message<Integer>();
+		mes.setTemp("王南");
+		mes1.setTemp(110);
+		comm(mes);				//引用传递
+		comm(mes1);
+	}
+	public static void comm(Message dept){
+		System.out.println(dept.getTemp());
+	}
+}
+
+不设置泛型的安全隐患：
+	public static void comm(Message dept){
+		dept.setTemp(1.1);
+		System.out.println(dept.getTemp());
+	}
+}
+	这个时候发现如果不设置泛型，那么在方法之中就有可能对你的数据进行修改。所以此时需要找一种方案：
+可以接受所有的泛型类型，并且不能够修改里面的数据（允许获取），那么就需要通过通配符”？“来解决
+
+范例：使用通配符
+package println;	
+class Message<T>{
+	private T temp;
+	public void setTemp(T temp){
+		this.temp=temp;
+	}
+	public T getTemp(){
+		return this.temp;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Message<String> mes=new Message<String>();
+		Message<Integer> mes1=new Message<Integer>();
+		mes.setTemp("王南");
+		mes1.setTemp(110);
+		comm(mes);				//引用传递
+		comm(mes1);
+	}
+	public static void comm(Message<?> dept){	//使用通配符
+		System.out.println(dept.getTemp());
+	}
+}
+
+	此时在comm()方法里面由于采用了Message结合通配符的处理所以可以接收所有的类型，并且不允许修改
+只允许获取数据
+
+
+	在”？“这个通配符的基础之上实际上还提供有两类小的通配符：
+		·？extends 类：设置泛型的上限：
+			|—例如：定义”？extends Number“：表示该泛型类型之允许设置Number或Number的子类
+		·？super 类：设置泛型的下限：
+			|-例如：定义”？super String“：只能够使用String或其父类；
+范例：观察泛型的上限配置：
+
+package println;	
+class Message<T extends Number>{
+	private T temp;
+	public void setTemp(T temp){
+		this.temp=temp;
+	}
+	public T getTemp(){
+		return this.temp;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Message<Integer> mes1=new Message<Integer>();
+		mes1.setTemp(110);
+		comm(mes1);
+	}
+	public static void comm(Message<? extends Number> dept){
+		System.out.println(dept.getTemp());
+	}
+}
+只能定义Number类和其子类种的
+
+范例：设置泛型下限
+package println;	
+class Message<T >{
+	private T temp;
+	public void setTemp(T temp){
+		this.temp=temp;
+	}
+	public T getTemp(){
+		return this.temp;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Message<Double> mes1=new Message<Double>();
+		mes1.setTemp(110.0);
+		comm(mes1);
+	}
+	public static void comm(Message<? super Double> dept){	//泛型的下线  只能接受double的父类
+		System.out.println(dept.getTemp());
+	}
+}	
+	对于通配符而言是一个重要的概念，并且要求你一定可以理解吃概念的定义，在日后学习Java类库的时候会见到大量
+的通配符使用
+————————————————————————————————————————————————————————————————————————————————————————
+泛型接口：
+	泛型除了可以在我们类上定义之外也可以直接在接口之中进行使用，例如下面定义一个泛型接口：
+
+interface Massage<T>{			//泛型接口
+	public String emp(T t);
+}
+	对于泛型接口的子类而言现在就有两种实现方式：
+实现方式一：在子类之中继续设置泛型定义。
+package println;	
+interface Massage<T>{			//泛型接口
+	public String emp(T t);
+}
+class Mass<S> implements Massage<S>{	//chong'xin
+	public String emp(S t){
+		return "王南"+t;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Massage<String> mas=new Mass<String>();
+		System.out.println(mas.emp("爱李欢"));
+	}
+}
+实现方式二：在子类实现父接口的时候直接定义出具体泛型类型。
+
+package println;	
+interface Massage<T>{			//泛型接口
+	public String emp(T t);
+}
+class Mass implements Massage<String>{	
+	public String emp(String t){
+		return "王南"+t;
+	}
+}
+public class println{
+	public static void main(String []args){
+		Massage<String> mas=new Mass();
+		System.out.println(mas.emp("爱李欢"));
+	}
+}
+	如果从概念和现实上来讲并不复杂，但是在日后会遇见大量出现有泛型的接口，这个时候一定要清楚两种实现原则。
+————————————————————————————————————————————————————————————————————————————————
+泛型方法：
+	在之前的程序类里面实际上已经可以发现在泛型类之中如果将泛型标记写在了方法上，那么这样的方法就被称为泛型方法
+但是需要注意的是泛型方法不一定非要出现泛型类之中。即：如果一个类上没有定义泛型，那么也可以使用泛型方法。
+
+package println;	
+
+public class println{
+	public static void main(String []args){
+		Integer [] num=fun(1,2,3);
+		for(int temp:num){
+			System.out.println(temp+"、");
+		}
+	}
+	public static <T>T[] fun(T...t){
+		return t;
+	}
+}
+	在后期进行项目开发的时候，这种泛型方法很常见
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

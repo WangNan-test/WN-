@@ -1,0 +1,514 @@
+
+	从整体的java来讲一直在强调简单java类的主要的设计来自于数据表的结构，那么在数据表的结构结构里面对于
+常用的类型有：数字、字符串、日期，所以现在的程序之中之差日期了。
+
+	在java里面提供有一个java.util.Date的类，这个类如果直接实例化就可以获取当前的日期时间
+
+Date类：
+
+范例：观察java.util.Date类
+
+package println;
+
+import java.util.Date;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Date date = new Date();
+		System.out.println(date); // Wed Jun 19 18:05:12 CST 2019
+	}
+}
+
+	这个时候需要进一波去观察Data类中的构造方法：
+无参构造：
+ public Date() {
+        this(System.currentTimeMillis());
+    }
+有参构造：
+ public Date(long date) {
+        fastTime = date;
+    }
+
+	通过以上的源代码分析可以得出一个结论：Date类中只是对long数据的一种包装。所以Data类中一定提供有
+所谓日期于long数据类型之间转换的方法：
+
+	·将long转为日期： public Date(long date);
+	·将Date转为long：public long getTime();
+
+范例：观察Date于long之间的转换
+package println;
+import java.util.Date;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Date date = new Date();
+		long l=date.getTime();	//Data转为long
+		l+=864000000;	//十天的秒数
+		System.out.println(new Date(l));	//long转为Date
+	}
+}
+
+
+	long之中可以保存毫秒的数据量级，这样方便程序处理。
+
+
+——————————————————————————————————————————————————————————————————————————————————————————
+
+SimpleDateFormat日期处理类：
+
+日期格式化：
+
+	虽然Date可以获取当前的日期时间，但是默认情况下Date类输出的日期时间结构并不能够被国人所习惯，那么现在就
+需要对显示的格式进行格式化的处理，为了格式化日期，在java.text包中提供有SimpleDateFormat程序类。该类是DateFormat
+的子类，在该类中提供有如下的方法：
+		·【DateFormat继承】将日期格式化：public final String format(Object obj)；
+		·【DateFormat继承】将字符串转为日期：public Date parse(String source)throws ParseException；
+		·构造方法：public SimpleDateFormat(String pattern)；
+		    |——日期格式：年（yyyy）、月（MM）、日（dd）、时（HH）、分（ff）、秒（ss）、毫秒（SS）//要区分大小写
+范例：格式化日期显示
+
+package println;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Date date=new Date();
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");	//设置时间格式
+		String str=sdf.format(date);	//格式化时间
+		System.out.println(str);
+	}
+}
+
+	处理可以将日期格式化为字符串之后，也可以实现字符串与日期之间转换处理。
+
+范例：将日期转为Date
+
+package println;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		String birthday="2018-04-13 11:11:11.111";
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");	//设置时间格式
+		Date date=sdf.parse(birthday); //将字符串转为Date型
+		System.out.println(date);
+	}
+}
+
+	需要注意的是，正则表达式无法对里面的内容进行判断，只能够对格式及逆行判断处理。
+————————————————————————————————————————————————————————————————————
+Calendar类
+
+	再进行日期时间处理的时候实际上日期的计算处理难度要远远高于时间，时间就是24个小时，但是日期需要考虑
+各种加减计算，同时还需要闰年问题，以及每个月的30还是31天的问题。再Java里面为了方便日期的处理专门提供了一个
+日历的功能类Calendar类。这个类是一个抽象类，同时内部提供有一个获取本类实例化的getInstance（）；
+
+范例：得到当前的日期时间
+
+
+import java.util.Calendar;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        Calendar calendar=Calendar.getInstance();
+        System.out.println(String.format("%s-%s-%s %s:%s:%s",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONDAY)+1,
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND)));
+    }
+}
+
+	再使用Calendar类操作的时候所有的月份都是从0月开始计算的，这样必须自己手工来进行手工处理的
+
+范例：实现日期类的准确计算
+import java.util.Calendar;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        Calendar calendar=Calendar.getInstance();
+        calendar.add(Calendar.MINUTE,1);    //一个月之后的日期
+        calendar.add(Calendar.YEAR,5);  //5年之后是什么时候
+        System.out.println(String.format("%s-%s-%s %s:%s:%s",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONDAY),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND)));
+    }
+}
+	如果此时使用了Date类处理，则必须进行毫秒数的计算，这样的计算是非常不准确的。
+范例：计算8月的最后一天
+
+import java.util.Calendar;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        Calendar calendar=Calendar.getInstance();
+        calendar.set(calendar.get(Calendar.YEAR),8,1);    //这设置到本年9月的第一天
+        calendar.add(Calendar.DATE,-1);  //9月减一
+        System.out.println(String.format("%s-%s-%s %s:%s:%s",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONDAY),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND)));
+    }
+}
+
+	Calendar所有的月都是从0开始的（而且数据不再前面补0）但是这个类作为日期的计算是非常方便的，也是最早的日期计算类
+可以得到准确的日期计算（相对于直接使用Date而言）；
+————————————————————————————————————————————————————————————————————————————————
+LocalDate类
+
+	从JDK1.8开始追加了一个新的包java。time包，在这个包里面提供有三个描述日期时间数据的处理类：LocalDate,LocalTime，LocalDateTime
+而且这三个类里面实际上最为重要的一个类就是LocalDate。这个类可以解决之前Calendar类操作的反人类结构，使用更加简化的模式来实现日期的处理操作。
+
+范例：获取当前的日期时间
+
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Calendar;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        LocalDate today=LocalDate.now();//获取当前日期
+        LocalTime time=LocalTime.now();//获取当前时间
+        LocalDateTime dateTime=LocalDateTime.now();
+        System.out.println(today);
+        System.out.println(time);
+        System.out.println(dateTime);
+    }
+}
+程序执行结果：2019-11-03
+17:13:25.536
+2019-11-03T17:13:25.536
+
+	使用此类获得的日期操作实际上要比通过SimpleDateFormat类格式化后的日期处理更加简单。而处理这些基本的功能之外、
+还可以获取更多的日期时间信息。
+范例：通过LocalDate获取详细的日期数据
+
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.util.Calendar;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        LocalDate today=LocalDate.now();//获取当前日期
+        System.out.println(String.format("%s-%s-%s",    //格式化
+                today.getYear(),    //格式化年
+                today.getMonthValue(),  //格式化月
+                today.getDayOfMonth()));    //格式化天
+        System.out.println(today.getDayOfWeek().getValue());   //获取一周时间数
+        System.out.println(today.get(ChronoField.ALIGNED_WEEK_OF_MONTH));   //获取当前月的第几周
+        System.out.println(today.getDayOfYear());   //获取一年中的第几天
+    }
+}
+
+
+	此时操作的LocalDate只是简单的获取了当前的日期时间的数据，但是很多的时候有可能需要由用户自定义日期时间。LocalDate
+类里面也提供有同样与之匹配的功能。
+范例：操作特定的日期
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.util.Calendar;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        LocalDate date=LocalDate.parse("1996-11-11");
+        System.out.println("是否为闰年:"+date.isLeapYear());
+        System.out.println(date.getDayOfWeek().getValue()); //一周的几天
+    }
+}
+
+	使用LocalDate最为强大的功能是可以方便的进行日期的计算处理。
+
+范例： LocalDate进行日期的推算
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Calendar;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        LocalDate date=LocalDate.parse("1996-11-11");
+        System.out.println("所在月第一天："+date.with(TemporalAdjusters.firstDayOfMonth()));
+        System.out.println("所在月的第二天"+date.withDayOfMonth(2));
+        System.out.println("所在月的最后一天："+date.with(TemporalAdjusters.lastDayOfMonth()));
+        System.out.println("300年后的日期："+date.plusYears(300));
+        System.out.println("所处月的第一个周一"+date.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY)));
+        System.out.println("所处年的第一个周一"+LocalDate.parse("2019-01-10").with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY)));
+    }
+}
+
+	对于早期的日期实现实际上都给了比较简单的实现模式，但是你们可以发现Java许多类结构的设计开始变得越来越复杂。
+
+————————————————————————————————————————————————————————————————————————————————
+SimpleDateFormat并发问题
+
+	SimpleDateFormat是Java.text包中提供的一个日期格式化的处理操作，但是对于这个操作类本身会存在有一个极为麻烦
+的多线程并发处理问题，而这种处理问题主要出现再将字符串转为Date型的数据上。
+
+范例：观察单一线程下的SimpleDateFormet操作
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        List<String >all=new ArrayList<>();
+        all.add("2017-10-10 11:12:13");
+        all.add("2015-08-08 15:13:17");
+        all.add("2006-11-11 11:11:11");
+        all.add("2008-08-08 08:08:08");
+        all.add("2019-08-15 22:22:22");
+        for (String str:all) {
+            new Thread(()->{
+                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                try {
+                    System.out.println(sdf.parse(str));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+    }
+}
+
+	于是这个时候有人会发现，既然所有的线程对象之中的SimpleDateFormat的对象的内容都是相同的，那么重复
+定义相同内容的对象就没有任何意义了，自然会想到将SimpleDateFormat作为多个线程的公共对象使用。
+
+范例:多线程并发访问下的SimpleDateFormat类
+
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        List<String >all=new ArrayList<>();
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        all.add("2017-10-10 11:12:13");
+        all.add("2015-08-08 15:13:17");
+        all.add("2006-11-11 11:11:11");
+        all.add("2008-08-08 08:08:08");
+        all.add("2019-08-15 22:22:22");
+        for (String str:all) {
+            new Thread(()->{
+                try {
+                    System.out.println(sdf.parse(str));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+    }
+}
+
+
+执行结果：NumberFormatException: multiple points
+
+	再并发访问下，当前的共享实现的SimpleDateFotmat的操作对象在进行转换的时候就会出现“NumberFormatException”，
+但是需要说明的是，这种并发的访问问题只会发生再将字符串转为Date型的处理上。
+范例：观察将Date格式化为字符串
+
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+
+        List<Date> all=new ArrayList<>();
+        all.add(new Date());
+        all.add(new Date());
+        all.add(new Date());
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (Date date:all) {
+            new Thread(()->{
+                    System.out.println(sdf.format(date));
+            }).start();
+        }
+    }
+}
+	但是再很多的情况下，对于用户输入数据的处理里面，使用最多的一定就是String类型，那么现在如果要是不解决当前的
+问题，那么就会产生多个重复的SimpleDateFormat类对象，所以为了解决当前的设计问题，再JDK1.8的时候推出了LocalDate
+LocalDateTime类，利用这个类实现的转换就可以解决之前的设计问题。
+
+范例:使用LocalDateTime类实现并发转换
+
+
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        List<String >all=new ArrayList<>();
+        all.add("2017-10-10 11:12:13");
+        all.add("2015-08-08 15:13:17");
+        all.add("2006-11-11 11:11:11");
+        all.add("2008-08-08 08:08:08");
+        all.add("2019-08-15 22:22:22");
+        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        ZoneId zoneId=ZoneId.systemDefault();   //获取当前的时区
+       SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (String str:all) {
+            new Thread(()->{
+               LocalDateTime dateTime= LocalDateTime.parse(str,formatter);    //实现转换
+                Instant instant=dateTime.atZone(zoneId).toInstant();    //获取一个当前时区的实例
+                Date date = Date.from(instant);//实现最终的转换处理
+                String format = sdf.format(date);   //格式化时间
+                System.out.println(format);
+            }).start();
+        }
+    }
+}
+
+
+	除了日期时间之外，还可能只包含有日期型的数据，那么对于日期型的数据转换应该使用LocalDate类完成
+范例：并发实现字符串转为Date型操作
+
+
+import java.text.SimpleDateFormat;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class Test {
+    public static void main(String[] args) throws InterruptedException {
+        List<String >all=new ArrayList<>();
+        all.add("2017-10-10");
+        all.add("2015-08-08");
+        all.add("2006-11-11");
+        all.add("2008-08-08");
+        all.add("2019-08-15");
+        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        ZoneId zoneId=ZoneId.systemDefault();   //获取当前的时区
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        for (String str:all) {
+            new Thread(()->{
+               LocalDate localDate= LocalDate.parse(str,formatter);    //实现转换
+                Instant instant=localDate.atStartOfDay().atZone(zoneId).toInstant();    //获取一个当前时区的实例
+                Date date = Date.from(instant);//实现最终的转换处理
+                System.out.println(sdf.format(date));
+            }).start();
+        }
+    }
+}
+
+
+	在以后进行WEB项目开发过程里面，所有字符串转为Date处理操作全部都要更换为LocalDateTime或LocalDate两个类
+防止多个SimpleDateFormat类对象出现。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

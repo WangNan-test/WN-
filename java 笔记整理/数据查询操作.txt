@@ -1,0 +1,143 @@
+	在使用SQL命令进行数据查询的时候，所有的SQL工具都会将查询结构直接返回给用户，那么再JDBC之中也一样
+要想进行数据查询，那么也需要有一种数据类型可以实现所有查询结果的接收，而这样的数据类型就被称为ResultSET
+
+public interface ResultSet extends Wrapper, AutoCloseable
+
+	此时可以得出Connection接口、Statement接口、和ResultSet接口如下对应的关系。
+	一个Connection对象可以创建多个Statement对象 而一个Statement对象还可以创建多个ResultSet对象
+
+
+	但是现在的需求是需要进行数据查询操作，一旦有查询，就可以接收到所有的查询结果，将这些数据交给JVM进程
+进行处理，而为了可以方便处理，所以的结构都通过ResultSet存储，这个结构本身是一个动态的结果。再ResultSet定义有如下的
+几个操作方法：
+
+
+	·向下移动指针并判断是否还有数据：public boolean next() throws SQLException
+	·根据列名称获取指定类型的数据：public 数据类型 getXxx(String 列名称)；
+	·根据列索引编号获取指定类型的数据：public 数据类型 getXxx(int index)；
+	·
+
+	由于所有的ResultSet结果全部都在内存里面，所有如果查询返回的结果过多，就会造成程序的性能下降。
+
+
+范例：实现ResultSet的查询
+package drill;
+import java.sql.*;
+public class JDBCDemo {
+    public static final String DBDRIVER="oracle.jdbc.driver.OracleDriver";
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        Class.forName(DBDRIVER);    //反射加载数据
+        Connection con= DriverManager.getConnection(DBURL,USER,PASSWORD);   //连接数据库
+        Statement statement = con.createStatement();    //获取Statement对象
+        String sql="SELECT nid,title,pubdate,price,content FROM news ORDER BY nid";    //查询代码
+        ResultSet set=statement.executeQuery(sql);  //执行查询语句
+        while(set.next()){  //判断当前是否有数据行
+            int nid=set.getInt("nid");
+            String title=set.getString("title");
+            Date pubdate=set.getDate("pubdate");
+            double price=set.getDouble("price");
+            String content=set.getString("content");
+            System.out.println(nid+"、"+title+"、"+pubdate+"、"+price+"、"+content);
+        }
+        con.close();
+
+    }
+}
+
+	以上的确是实现了查询，但是此时有个问题了，对于SQL语句和获取数据的操作感觉有些重复。因为查询的SQL语句
+上面已经明确的给出了使用的SQL的列名称，而此时又再获取数据的时候重复的出现了列名称，这样的操作不太合适，为此再实际的编写里面
+，很多的开发者更加愿意通过索引编号来获取指定的列信息。
+范例：通过编号获取内容
+
+package drill;
+
+
+import java.sql.*;
+
+public class JDBCDemo {
+    public static final String DBDRIVER="oracle.jdbc.driver.OracleDriver";
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        Class.forName(DBDRIVER);    //反射加载数据
+        Connection con= DriverManager.getConnection(DBURL,USER,PASSWORD);   //连接数据库
+        Statement statement = con.createStatement();    //获取Statement对象
+        String sql="SELECT nid,title,pubdate,price,content FROM news ORDER BY nid";    //查询代码
+        ResultSet set=statement.executeQuery(sql);  //执行查询语句
+        while(set.next()){  //判断当前是否有数据行
+            int nid=set.getInt(1);
+            String title=set.getString(2);
+            Date pubdate=set.getDate(3);
+            double price=set.getDouble(4);
+            String content=set.getString(5);
+            System.out.println(nid+"、"+title+"、"+pubdate+"、"+price+"、"+content);
+        }
+        con.close();
+
+    }
+}
+
+	再以后查询的时候，sql必须明确写出列（写“*”的代码全部数据非法程序），而后进行数据获取是，通过ResultSet依据序号
+完成。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

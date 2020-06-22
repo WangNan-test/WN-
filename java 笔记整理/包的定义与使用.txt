@@ -1,0 +1,251 @@
+	在实际的项目开发过程之中，肯定要一直存在有包的概念，利用包可以实现类的包装，在以后的实际开发之中，我们所有的类
+都必须放在包里面。
+
+包的定义与使用：
+	
+	对于项目而言，尤其是现代的项目是不可能一个人开发完成的，往往在一个项目的开发团队之中会有2——3为的开发者
+进行项目业务的实现，于是在这样的情况下就不得不去面对一个问题：有可能产生类的重名定义。
+	在才做系统之中已经明确严格的定义了一个要求：同一个目录之中不允许存放有相同的程序类文件，但是在开发之中
+很难保证类的不重复，所以为了可以进行类的方便管理，那么往往可以将程序文件放在不同目录下，不同的目录之中是可以提供
+相同文件的，着这个目录就称为包。包=目录；
+范例：定义包
+package cn.mldn.demo;	//定义包，其中.表示分割子目录（子包）
+public class Hello{
+public static void main(String[]args){
+	System.out.println("Hello World");
+	}
+}
+	一旦程序开发之中出现有包，此时程序编译后的结果就必须将*.class的文件保存在指定的目录之中，但是如果手
+工建立则非常的麻烦，那么此时最好的做法是可以进行打包编译处理:javac -d.Hello.java
+
+	·“-d”：表示要生成目录，而目录的结构就是package定义的结构；
+	·“.”：表示在当前所在的目录中生成程序类文件；
+           在程序执行的时候一定要带着包执行程序类：java cn.mldn.demo.Hello也就是说从此之后完整的类名称是“包.类名称”
+————————————————————————————————————————————————————————————————————
+包的导入：
+	利用包的定义实际上就可以将不同的工能的类保存在不同的包之中，但是这些类彼此之间也一定会存在有互相调用的
+关系，那么在这个时候就需要使用import语句来导入其他包中的程序类。
+范例：设置一个包用来返回一句话：
+package println;	
+public class println{
+	public String getContent(){
+		return "wang";
+	}
+}
+范例：设置一个包用来实现上一个包(Ecilpse中快捷键为 Ctrl+Shift+o)
+
+package util.tast;
+import println.println;		//(Ecilpse中快捷键为 Ctrl+Shift+o)
+public class Tast {
+	public static  void main(String[]args){
+		println pri=new println();
+		System.out.println(pri.getContent());		//wang
+	}
+}
+
+关于public class与class定义的区别？
+	·public class：类名称必须与文件名保持一致。一个*.java文件里面只允许有一个public class，同时如果一个
+类需要被其他的包所使用，那么这个类一定要定义为public class；
+	·class：类名称可以与文件名称不一致，并且在一个*.java文件里面可以提供有多个class定义，编译后将形成
+不同的*.class文件，但是这些类只能被本包所访问，外包无法访问。
+
+
+	·在实际的开发之中往往在一个*.java源代码文件里面只会提供有一个程序类，而这个程序类一般都是使用public class定义；
+	程序类中定义的报名称必须采用小写字母的形式定义。
+
+
+但是这个时候会有一个新的问题产生了，有些时候可能会使用某一个包中的很多类，于是这样分开进行类的导入会比较麻烦，
+为了解决这样的一个问题，也可以使用通配符“*”来处理。
+package util.tast;
+import println.*;
+public class Tast {
+	public static  void main(String[]args){
+		println pri=new println();
+		System.out.println(pri.getContent());
+	}
+}
+
+	即便此时使用了“包.*”的导入形式，那么也不表示要进行全部的加载，他会根据自己的需要加载所需要的程序类
+而不需要的程序类是不会被加载的。所以是使用“*”还是使用具体的类其最终的性能是完全相同的。
+	但是如果在开发之中采用的是“包.*”的形式进行包的导入时，那么有一点会比较麻烦：有可能 两个不同的
+
+包中存在有相同的包名称，例如temp类由于某种需要导入两个包：util、demo但是这两个包里面都有message类。
+
+这个时候就会发现类名称相同的时候就会出现不明确的引用处理，所以最简单的处理形式就是直接写上类的完整名称
+package util.tast;
+import println.*;
+public class Tast {
+	public static  void main(String[]args){
+		println.Factory pri=new println.Factory();	//完整类型
+		System.out.println(pri.getContent());
+	}
+}
+
+
+	在入后的开发过程之中经常会见到大量的重名的类（包不重名），此时为了更好的解决问题，往往会使用类的完整
+名称进行操作
+——————————————————————————————————————————————————————————————————————————————
+包的静态导入：
+	加入说现在有一类，这个类中的全部方法都是static方法，按照原始的做法肯定要导入程序所在的（包.类）。
+才可以通过类名称调用这些方法；
+
+package println;	
+public class Factory{
+	public static int add(int...num){
+		int sum=0;
+		for(int temp:num){
+			 sum+=temp;
+		}
+		return sum;
+	}
+	public static int sub(int x ,int y){
+		return x-y;
+	}
+}
+如果此时按照原始的方式进行导入处理，那么此时就需要导入包.类,而后通过类名称 调用方法；
+范例：原始方式
+
+package util.tast;
+import println.Factory;
+public class Tast {
+	public static  void main(String[]args){
+		System.out.println(Factory.add(10,20,30));
+		System.out.println(Factory.sub(20, 10));
+	}
+}
+从JDK1.5开始对于类中全部由静态方法提供的特殊类是可以采用静态导入处理：
+范例：静态导入处理
+
+package util.tast;
+
+import static println.Factory.*;		//静态导入处理
+
+public class Tast {
+	public static  void main(String[]args){
+		System.out.println(add(10,20,30));	//这里类名称没有了
+		System.out.println(sub(20, 10));	//没有类名称
+	}
+}
+
+	当使用了静态导入处理之后就好比该方法是直接定义在主类中的，可以由主方法直接调用。
+
+————————————————————————————————————————————————————————————————————————————————————————————
+Jar命令：
+
+	当一个项目开发完成之后一定会存在由大量的*.class文件，那么对于这些文件的管理往往可以利用一种压缩结构的形式来
+进行处理，而这样的结构在java之中就被称为jar文件，如果要想将程序打包为jar文件，那么可以直接利用Jdk中提供的jar命令完成。
+	在最原始的时候如果要想知道jar命令的时候直接如果jar即可，而在JDK1.9之后为了统一化，所以需要使用“-help”查看
+相关说明。
+	下面通过程序的具体演示来实现jar的使用与配置的操作。
+1、定义一个程序类，这个类的代码如下
+	
+package println;	
+public class Factory{
+	public String getCintent(){
+		return "www";
+	}
+	
+	
+}
+
+2、对程序进行编译与打包处理；
+	·对程序打包编译：java -d.Message.java;
+	·此时会形成包，包理由相应的子包与*.class文件：将其打包为peintln.jar
+	jar -cvf println.jar cn
+		|-"-c"：创建一个新的jar文件；
+		|- “-v”：得到一个详细输出；
+		|-“-f”：设置要生成的jar文件名称，本出定义的是”println.jar“
+
+3、每一个*.jar文件都是一个独立的程序路径，如果要想Java程序之中使用此路径，则必须通过
+“CLASSPATH”进行配置：SET CLASSPATH=.;D:\wn\println.jar
+4、建立测试类，直接导入Message类并且调用方法
+
+package cn.test;
+public class TastMassage{
+	public static  void main(String[]args){
+		cn.util.Message pri=new cn.util.Message();
+		System.out.println(pri.getContent());
+	}
+}
+随后就可以正常编译 TestMessage类并使用这个类
+	·编译程序类：javac -d . TastMassage.java
+	·解释程序：java cn.test.TastMassage；
+
+	如果此时程序编译通过之后，但是由于CLASSPATH发生了改变，类无法加载到了，则执行TastMassage类的
+时候将会出现如下的错误提示：”Exception in thread "main" java.lang.NoClassDefFoundError: cn/util/Message“
+出现这种错误只有一种情况：*.jar包没有配置正确。
+
+JDK1.9之后出现的模块化操作：
+	·在JDK1.9以前所有的历史版本之中实际上 提供的是一个所有类的*.jar文件（rt.jar,tools.jar);在传统的开发之中
+只要启动了Java虚拟机，那么就需要加载这几十兆的类文件；
+	·在JDK1.9之后提供了一个模块化的设计，将原本很大的一个要加载的一个*.jar文件变成了若干个模块文件这样
+在启动的时候可以根据程序加载制定模块（模块中有包），就可以实现启动速度变快的效果
+——————————————————————————————————————————————————————————————————————————
+系统常见包：
+	Java语言从发展至今一直有提供有大量的支持类库，这些类库一般由两个方面组成：
+		·Java自身提供的（除了JDK提供的类库之外还会有一些标准）
+		·是由第三方的厂商提供的Java支持类库，可以完成各种你所需要的工能，并且支持的厂商很多；
+	而在JDK之中也会提供由大量的类库，并且这些类库都是封装在我们不同的开发包之中的；
+		·java.lang：像String、Number、Object等类都在这个包里面，这个包在JDK1.1之后自动默认导入；
+		·java.lang reflect:反射机制处理包，所有的设计从此开始；
+		·java.util：工具类的定义，包括数据结构的定义；
+		·java.io：进行输入与输出流操作的程序包；
+		·java.net：网络程序开发的程序包；
+		·java.sql:进行数据库编程的开发包；
+		·java.applet:java的最原始的使用形式，直接嵌套在网页上的程序类；
+			|-现在的程序已经以Application为主了（有主方法的程序）；
+		·java.awt、javax.swing：java的图形界面开发包（GUI），其中awt属于重量级的组建，而swing是轻量级的组建；
+		
+————————————————————————————————————————————————————————————————————————
+访问控制权限：
+	面向对象的开发过程之中由三大主要特点：封装、继承、多态。那么对于封装性而言主要的实现依靠的就是访问的控制权限，
+而访问控制权限在程序之中一共定义由四种：private、default（什么都不写）、protected、public，这四种权限的做用如下
+
+NO		访问范围		private		Defauil		protected	public
+1、		同一保包的同一类	可以		可以		可以		可以
+2、		同一包中不同类	不可以		可以		可以		可以
+3、		不同包的子类	不可以		不可以		可以		可以
+4		不同包的所有类	不可以		不可以		不可以		可以
+	在整个访问控制权限的处理之中，只有protected(受保护)的权限是比较新的概念，那么下面对这一访问权限进行说明。
+本次要定义两个类：
+	·cn.feifan.a.Message类；提供由protected访问权限；
+
+	·cn.feifan.bNetMessage类；直接访问protected属性；
+范例：定义Message类
+package cn.feifan.a;
+public class Message{
+		protected String str ="王南";
+}
+范例:定义NetMessage子类
+package cn.feifan.b;
+import cn.feifan.a.Message;
+public class NetMessage extends Message{
+	public void getInfo(){
+		System.out.println(super.str);
+	}
+}
+范例：定义测试类TestNetMessage
+package cn.feifan.test;
+import cn.feifan.b.*;
+public class TestNetMessage{
+	public static void main(String args[]){
+		new NetMessage().getInfo();
+	}
+}
+	此时的程序通过子类访问了父类中的protected属性。但是如果说此时直接通过了Message访问了protectes属性
+就会出现错误提示
+范例：在测试类中直接访问Message
+package cn.feifan.test;
+import cn.feifan.a.*;
+public class TestNetMessage{
+	public static void main(String args[]){
+		System.out.println(new Message().str);
+	}
+}
+出现了”TestNetMessage.java:5: 错误: str 在 Message 中是 protected 访问控制
+                System.out.println(new Message().str);“
+
+	在程序之中的封装一共有三个对应的访问权限：private，default，protected，但是如果每次在使用的时候进行区分会比较麻烦
+所有可以给出一个参考的选择方案：（%90的设计问题）
+	·只要是进行属性的定义全部使用private。
+	·只要是进行方法的定义全部使用public。

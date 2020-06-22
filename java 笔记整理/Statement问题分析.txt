@@ -1,0 +1,74 @@
+ PreparedStaement接口：
+
+
+	PreparedStatement是Statement的子接口，它主要的功能是解决Statement的安全隐患问题，同时也是开发中最为常用的
+一种数据操作接口（开发中不会有人使用Statement，全部的数据库操作都是用preparedStatement完成）
+
+Statement问题分析：
+
+	Statement是进行数据库操作的一个标准的接口，但是其最大的特点是可以直接执行一个标准的SQL语句。
+但是这种执行的方式如果再面临一些数据处理的时候，就有可能会由于拼凑问题产生严重的错误。
+
+
+范例：实现数据增加（模拟输入）
+
+package drill;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+public class JDBCDemo {
+    public static final String OBDRIVER="oracle.jdbc.driver.OracleDriver";
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        String title="李欢是傻逼'ss'";
+        String content="李欢是猪";
+        String pubdate="1881-11-11";//【问题】：日期使用字符串描述
+        double price=0.2;
+        Class.forName(OBDRIVER);    //反射加载驱动程序
+        Connection con= DriverManager.getConnection(DBURL,USER,PASSWORD);//连接数据库
+        Statement stmt=con.createStatement();    //实例化Statement对象 通过Connection对象创建
+        String sql=" INSERT INTO news (nid,title,pubdate,price,content) VALUES" +
+                " (news_seq.nextval,'"+title+"',TO_DATE('"+pubdate+"','yyyy-mm-dd')," +
+                " "+price+",'"+content+"')";   //如果换行，建议所有的语句前后都追加一个空格
+        int conut=stmt.executeUpdate(sql);   //执行更新语句
+        System.out.println("【数据库更新】影响到的更新行数"+conut);
+        stmt.close();
+        con.close();
+    }
+}
+
+	Statement执行的操作虽然方便，但是其最大的缺点再于，所有执行的数据必须采用拼凑SQL语句的形式来完成处理
+
+于是这样所带来的问题就是，一旦执行的变量上在有一些SQL语法标记冲突的符号，那么开发者都必须手工进行转义处理，
+开发难度过于复杂了。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

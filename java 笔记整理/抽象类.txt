@@ -1,0 +1,557 @@
+类继承的主要作用在于可以扩充已有类的功能，但是对于之前的继承操作而言会发现子类可以由自己的选择任意来决定是否覆写某一个方法，
+这个时候父类无法对子类做出强制性约定（强制性你必须覆写某一个方法），这种情况想我们不会采用类的继承
+（在实际开发之中很少会出现继承一个已经完善的类，可以直接使用的类），而是要继承抽象类。在以后进行父类（super class）设计的时候，
+我门优先考虑的是抽象类。
+
+抽象类的基本定义：
+	抽象类的一个主要作用在于对子类中覆写方法进行约定，在抽象类里面可以去定义一些抽象方法以实现这样的约定，
+抽象方法指的是使用了abstract关键字定义的并且没有提供方法体的方法，而抽象方法所在的类必须为抽象类，抽象类必须使用
+abstract关键字来进行定义（在普通类的基础上追加抽象方法就是抽象类）。
+
+
+	当一个抽象类定义完成之后（切记：“抽象类不是完整的类”）如果要想去使用抽象类则必须按照如下原则进行：
+		·抽象类必须提供有子类，子类使用extends继承一个抽象类；
+		·抽象的子类（不是抽象类）一定要覆写抽象类中的全部抽象方法；
+		·抽象类的对象实例化可以利用对象多态性通过子类向上转型的方式完成。
+
+范例：抽象类的使用
+package println;
+abstract class Emp{							//定义抽象类
+	private String name;
+	public abstract String getInfo();		//抽象方法没有大括号
+	public void setName(String name){					//普通方法
+		this.name=name;
+	}
+	public String getName(){				//普通方法
+		return this.name;
+	}
+}
+class Temp extends Emp{
+	public String getInfo(){		//覆写抽象方法 不加abstract
+		return "王安娜";
+	}
+}
+public class println{
+	public static void main(String []args){
+		Emp emp=new Temp();			//向上转型
+		emp.setName("王安");
+		System.out.println(emp.getName());		//调用普通方法	普通方法不需要覆写
+		System.out.println(emp.getInfo());	//执行的是覆写否的抽象方法
+	}
+}
+
+
+从整体上来讲，抽象类只是比普通类增加了抽象方法以及对子类的强制性的覆写要求而已，其他的使用过程
+和子类和传统的类继承是完全相同的。
+
+对于抽象类使用的几点意见：
+	
+	·抽象类使用很大程度上有一个核心的问题：抽象类无法自己直接实例化；
+	·抽象类之中主要的目的是进行过度操作使用，当你要使用抽象类进行开发的时候，往往都是在设计中需要解决类继承问题时所带来的代码重复处理。
+	·
+————————————————————————————————————————————————————————————————————————
+
+抽象类的相关说明：
+	抽象类是一个重要的面向对象设计的结构，对于抽象类使用的时候需要注意以下几点问题：
+1、在定义抽象类的时候绝对不允许使用final关键字定义，因为抽象类必须有子类，而final定义的类是不能够有子类的；
+2、抽象类是作为一个普通类的加强版出现的（抽象类的组成就是在普通类基础上扩展而来，只是追加了抽象方法），
+既然在普通类的基础上扩展的，那么普通类之中就可以定义属性和方法，那么这些属性一定是要求进行内存空间开辟的。
+所以抽象类一定可以提供有构造方法，并且子类一定会按照子类对象的实例化原则进行构造调用。
+package println;
+abstract class Emp{							//定义抽象类
+	private String name;
+	public Emp(String name){
+		this.name=name;
+	}
+	public abstract String getInfo();		//抽象方法没有大括号
+	public void setName(String name){					//普通方法
+		this.name=name;
+	}
+	public String getName(){				//普通方法
+		return this.name;
+	}
+}
+class Temp extends Emp{
+	public Temp(String name){
+		super(name);
+	}
+	public String getInfo(){		//覆写抽象方法 不加abstract
+		return "王安娜";
+	}
+}
+public class println{
+	public static void main(String []args){
+		Emp emp=new Temp("王说");			//向上转型
+		System.out.println(emp.getName());
+		System.out.println(emp.getInfo());	//执行的是覆写否的抽象方法
+	}
+}
+3、抽象类中允许没有抽象方法，但是即便没有抽象方法，也无法直接使用关键字new实例化抽象类对象。必须依靠子类对象完成
+4、抽象类中看可以提供有static方法，并且该方法不受到抽象类对象的局限。
+package println;
+abstract class Emp{							//定义抽象类
+	public abstract String getInfo();
+	public static Emp demp(){				//static 定义的方法
+		return new Temp(); 					
+	}
+}
+class Temp extends Emp{
+	public String getInfo(){				//覆写抽象方法
+		return "王南";
+	}
+}
+public class println{
+	public static void main(String []args){
+		Emp emp=Emp.demp();			//向上转型
+		System.out.println(emp.getInfo());
+	}
+}
+static方法永远不受到实例化对象或结构的限制，永远可以直接通过类名称进行调用。
+
+
+
+模板设计模型：
+	抽象类的本质上就属于一个加强版的类，那么对于类已经清楚，可以描述有关的现实的事物，
+但是通过分析也可以发现，抽象类的设计应该是比类更高一层的定义：
+package println;
+abstract class Emp{	//定义抽象类
+	public static final int EAT=1;				//常量 吃代表的数字
+	public static final int SOLLP=5;			//常量睡代表的数字
+	public static final int WORK=10;			//常量工作代表的数字
+public void Info(int num){					//普通方法
+	switch(num){					//分支语句 switch
+	case EAT:						//如果是吃的话
+		this.eat();					//调用本类的方法
+		break;						
+	case SOLLP:						//睡
+		this.sollp();				//调用本类的方法
+		break;
+	case WORK:						//工作
+		this.work();				//调用方法
+		break;
+	case EAT+SOLLP+WORK:			//三个相加
+		this.eat();					
+	this.sollp();
+	this.work();
+	break;
+	}
+}
+public abstract void eat();			//抽象方法
+public abstract void sollp();		//抽象方法
+public abstract void work();		//抽象方法
+}
+class Person extends Emp{			//人继承父类
+	public void eat(){				//在子类中覆写抽象方法
+		System.out.println("正常吃饭");	
+	}
+	public void sollp(){			//在子类中覆写抽象方法
+		System.out.println("躺床上睡");
+	}
+	public void work(){				//在子类中覆写抽象方法
+		System.out.println("996");
+	}
+}
+class Pig extends Emp{
+	public void eat(){				//在子类中覆写抽象方法
+		System.out.println("不停的吃");
+	}
+	public void sollp(){			//在子类中覆写抽象方法
+		System.out.println("到底就睡");
+	}
+	public void work(){
+
+	}
+}
+class Mach extends Emp{
+	public void eat(){
+	
+	}
+	public void sollp(){			//在子类中覆写抽象方法
+		System.out.println("充电");
+	}
+	public void work(){				//在子类中覆写抽象方法
+		System.out.println("007");
+	}
+}
+public class println{
+	public static void main(String []args){
+		Emp per=new Person();		//向上转型
+		Emp pig=new Pig();
+		Emp ma=new Mach();
+		System.out.println("===============人的生活==============");
+		per.Info(Emp.EAT+Emp.SOLLP+Emp.WORK);	//输出
+		System.out.println("===============猪的生活==============");
+		pig.Info(Emp.EAT);
+		pig.Info(Emp.SOLLP);
+		System.out.println("===============机器的生活==============");
+		ma.Info(Emp.SOLLP);
+		ma.Info(Emp.WORK);
+	}
+}
+
+抽象类最大的好处一是对子类方法的统一管理，第二是可以自身提供一些普通方法并且这些普通方法可以调用
+抽象方法（这些抽象方法必须在有子类提供实现的时候才会生效）。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

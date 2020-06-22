@@ -1,0 +1,54 @@
+/**
+ * @author 
+ * @date
+ * desc
+ * */
+import java.util.Scanner;
+public class ifTest {
+	/**
+	 * param args
+	 * @desc :主程序入口
+	 */
+	public static void main(String[]args){
+		System.out.println("请输入要选择的运算1=加法，2=减法，3=乘，4=除，5=取于");
+		Scanner num=new Scanner(System.in);
+		int sf=num.nextInt();
+		if(sf>0&&sf<5){
+		System.out.println("请输入x");
+		int x=num.nextInt();
+		System.out.println("请输入y");
+		int y=num.nextInt();
+		if(sf==1){
+		System.out.println("运算结果="+(x+y));
+		}else if(sf==2){
+			System.out.println("运算结果="+(x-y));
+		}else if(sf==3){
+			System.out.println("运算结果="+(x*y));
+		}else if(sf==4){
+			System.out.println("运算结果="+(double)(x/y));
+		}else if(sf==5){
+			System.out.println("运算结果="+(x%y));
+		}
+	}
+		else{
+			System.out.println("本计算机不支持");
+
+		}
+		}
+}
+——————————————————————————————————————————————————
+switch(k)  
+case 1:
+要执行的语句；
+break;//结束这个语句
+case 2:
+要执行的语句；
+break；
+........
+default://以上所有方法都不执行时执行的语句；
+要执行的语句；
+break；
+
+
+
+

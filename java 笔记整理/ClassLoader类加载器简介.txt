@@ -1,0 +1,213 @@
+
+	再java语言里面提供有一个系统的环境变量：CLASSPATH,这个环境属性的作用主要是在JVM进程启动的时候
+进行类加载路径的定义，再JMV里面可以根据类加载器而后进行指定路径中类的加载，也就是说找到了类的加载器就意味着
+找到了类的来源。
+
+
+系统类加载器
+
+	如果说现在要想获得类的加载器，那么一定要通过ClassLoader来获取，而要想获得ClassLoader类对象，则必须
+利用Class类（反射的根源）实现。方法：public ClassLoader getClassLoader()，当获取了ClassLoader之后还可以继续获取
+其父类的ClassLoader类对象：public final ClassLoader getParent()；
+
+
+范例：观察类加载器
+package println;
+
+class Factory{
+	public static void main(String[] args) {
+		Class<?> clazz= Message.class;
+		System.out.println(clazz.getClassLoader());	//获取当前类加载器
+		System.out.println(clazz.getClassLoader().getParent());	//获取父类加载器
+		System.out.println(clazz.getClassLoader().getParent().getParent());	//null
+	}
+}
+class Message{}
+
+执行结果：
+sun.misc.Launcher$AppClassLoader@73d16e93
+sun.misc.Launcher$ExtClassLoader@15db9742
+null
+
+
+	从JDK1.8之后的版本（JDK1.9、JDK1.10）提供有一个“PlatformClassLoader”类加载器，而再JDK1.8及以前的版本里面提供的
+加载器为“sun.misc.Launcher$ExtClassLoader@15db9742” 因为再JDK的安装目录里面提供有一个ext的目录，开发者可以将*.jar文件
+拷贝到目录里面这样就可以直接执行了。但是这样的处理开发并不安全，最初的时候也是不提倡使用的，所以从JDK1.9彻底废除了，同时为了
+与系统类加载器和应用类加载器之间保持设计的平衡，提供有平台类加载器
+
+
+	当你获得了类加载器之后就可以利用类加载器来实现类的反射加载处理。
+——————————————————————————————————————————————————————————————————————
+
+自定义类加载器
+
+
+	清楚了类加载器的功能之后可以根据自身的需要来实现自定义的类加载器，但是千万要记住一点，自定义的类加载器，其加载
+的顺序是在所有系统类加载器的最后。系统类中的类加载器都是根据CLASSPATH路径进行类加载的，而如果有了自定义类的加载器，就可以
+由开发者任意指派类的加载位置。
+
+
+1、随意一个程序类，并且将这个类保存在磁盘上
+
+class Message{
+	public void send(){
+		System.out.println("wwwwnnnn");
+	}
+}
+2、将此类直接拷贝到D盘上进行编译处理，并且不打包javac Message.java，此时并没有进行打包处理，所以这个类无法通过
+CLASSPATH正常加载。
+
+3、自定义一个类加载器，并且继承自ClassLoader类。再ClassLoader类里面为用户提供有一个字节转换为类结构的方法
+	·定义类：protected final Class<?> defineClass?(String name, byte[] b, int off, int len) throws ClassFormatError
+
+
+
+4、编写测试类
+
+
+
+
+如果在以后结合到网络程序开发的话，就可以通过一个远程的服务区来确定类的功能。
+
+
+	如果你现在定义了一个类，这个类名字为：java.lang.String，并且利用了自定义的类加载，那么这个
+类将不会被加载，java之中针对类加载器提供有双亲加载机制，如果要加载的程序类是由系统提供的类则会由系统类
+进行加载，如果现在开发者定义的类与系统类名称相同，那么为了保证系统的安全性绝对不会加载。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

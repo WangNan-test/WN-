@@ -1,0 +1,325 @@
+
+	在JDK1.8之中提供有Lambda表达式也提供有方法引用，但是你会发现现在如果由开发者自己定义函数式接口，
+往往都需要使用“@FunctionalIntface”注解来进行大量声明，于是很多的情况下如果为了方便则可以直接引用系统中提供
+的函数式接口。
+
+	在系统之中专门提供由一个java.util.Function的一个开发包，里面可以直接使用函数式接口，在这个包小面一共由如下的几个
+核心接口供我们使用：
+1	功能型函数式接口：
+	·在String类中有一个方法叫判断时候以指定的字符串开头：public boolean startsWith(String);
+接口定义：
+public Interface Function<T,R>{ 
+	public R apply(T t);
+}
+接口使用：
+package println;
+import java.util.function.*;		//函数接口包
+public class Factory{
+	public static void main(String []args){
+		Function<String,Boolean> fun="**woli"::startsWith;	//功能形函数
+		System.out.println(fun.apply("**"));	//判断字符串**开头
+	}
+}
+
+2、消费性函数式接口：只能够进行数据的处理操作，而没有任何的返回；
+	·在进行系统数据输出的时候使用的式：System.out.println();
+接口定义：@FunctionalInterface
+public interface Consumer<T>{
+	public void accept(T t);
+}
+接口使用：
+package println;
+import java.util.function.*;		//函数接口包
+public class Factory{
+	public static void main(String []args){
+		Consumer<String> fun=System.out::println;	//消费型函数
+		fun.accept("**");				//输出将System.out.println引用给了accept
+	}
+}
+
+3、供给型函数式接口：
+	·在Strng类中提供由转小写方法，这个方法没有接受参数，但是有返回值；
+		|-public String toLowerCase();
+接口定义：@FunctionalInterface
+public interface Supplier<T>{
+	public T get();
+}
+
+接口实现：
+package println;
+import java.util.function.*;		//函数接口包
+public class Factory{
+	public static void main(String []args){
+		Supplier<String> sup="WANGNANAILIHUAN"::toLowerCase;	//供给型函数接口
+			System.out.println(sup.get());	//大写字母转小写
+	}
+}
+
+4、断言型函数接口：进行判断处理
+	·在String类有一个equalsIgnoreCase（）方法
+接口定义：@FunctionalInterface
+public interface Predicate<T>{
+	public boolean test(T t);
+}
+接口使用：
+package println;
+import java.util.function.*;		//函数接口包
+public class Factory{
+	public static void main(String []args){
+		Predicate<String> pre="wangnan"::equalsIgnoreCase;	//断言型函数接口
+			System.out.println(pre.test("lihuan"));	
+	}
+}
+
+	以后对于实际项目开发之中，如果JDK本身提供的函数式接口可以被我们所使用，那么就没有必要进行重新定义了。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

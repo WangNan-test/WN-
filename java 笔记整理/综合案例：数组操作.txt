@@ -1,0 +1,65 @@
+package println;
+class Array{					//父类
+	private int[] arr;				//定义一个数组
+	private int job=0;					
+	public Array(int num){			//有参构造
+		if(num>0){			//判断数组的长度是否大于0
+			this.arr=new int[num];	//大于的话引入长度
+		}else{
+			this.arr=new int[1];		//否则长度为1
+		}
+	}
+	public boolean add(int comm){		//判断数组索引是否大于数组长度
+		if(job>arr.length){
+			return false;		//大于的话返回false
+		}
+		this.arr[this.job++]=comm;		//否则给索引赋值  job++
+		return true;
+	}
+	public int[] getInfo(){			//返回int 型 数组
+		return this.arr;
+	}
+}
+class SortArray extends Array{			//子类继承父类
+	public SortArray(int num){			//必须明确声明子类调用父类有参构造
+		super(num);				
+	}
+	public int[] getInfo(){			//方法覆写
+		java.util.Arrays.sort(super.getInfo());	//排序数组
+		return super.getInfo();		//输出排序完成的数组
+	}
+}
+class ReverseArray extends Array{			//反转数组继承父类
+	  public  ReverseArray(int num){		//必须明确声明子类调用父类有参构造
+		  super(num);
+	  }
+	  public int[] getInfo(){			//反转数组
+		  int pp=super.getInfo().length/2;
+		  int max=super.getInfo().length-1;
+		  int min=0;
+		  for(int x=0;x<pp;x++){		//冒泡
+			  int a=super.getInfo()[max];
+			  super.getInfo()[max]=super.getInfo()[min];
+				super.getInfo()[min]=a;
+			  max--;
+			  min++;
+		  }
+		  return super.getInfo();
+	  }
+}
+public class println{
+	public static void main(String []args){
+		ReverseArray comm=new ReverseArray(7);		//实例化对象
+		System.out.println(comm.add(8));			//给数组定义
+		System.out.println(comm.add(1));
+		System.out.println(comm.add(11));
+		System.out.println(comm.add(223));
+		System.out.println(comm.add(367));
+		System.out.println(comm.add(53));
+		System.out.println(comm.add(45));
+		int job[]=comm.getInfo();				//定义一个数组接受类中的数组
+		for(int x=0;x<job.length;x++){			//循环输出
+			System.out.print(job[x]+"、");
+		}
+	}
+}

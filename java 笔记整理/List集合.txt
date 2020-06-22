@@ -1,0 +1,373 @@
+
+List集合接口简介：
+
+
+	List是Collection子接口，其最大的提点是允许保存有重复元素数据，该接口定义如下：public interface List<E>extends Collection<E>
+	但是需要清楚的是List子接口对于Collection接口进行了方法的扩充。
+
+		public E get(int index)		普通	获取指定索引上的数据
+		public E set(int index,E element)	普通	修改指定索引数据
+		public ListIterator<E>listIterator（）	普通	返回ListIterator接口对象
+
+	但是List本身依然属于一个接口，那么对于接口要想使用则一定要使用子类来完成定义，在List子接口中有三个常用子类：
+【90%】ArrayList、【8%】LinkedList、【2%】Vector。
+
+	从JDK1.9开始List子接口里面追加有一些扩充的static方法，以方便用户的处理。
+
+范例：观察List中的静态方法。
+
+这些操作方法并不是List传统用法，是在型版本之后添加的新功能。
+
+————————————————————————————————————————————————————————————————————————————————————————————————
+ArrayList子类：
+
+	ArrayList是List子接口使用最多的一个子类，但是这个子类在使用的时候也是有前提要求的，所以本次来对这个类
+的相关定义以及源代码组成进行分析，在Java里面ArrayList类的定义如下：【强调父接口】
+	
+	ArrayList子类的结构如下所示：
+
+		public class ArrayList<E>
+		extends AbstractList<E>
+		implements List<E>, RandomAccess, Cloneable, Serializable
+
+
+范例：使用ArrayList实例化List父接口。
+
+package println;
+import java.util.ArrayList;
+import java.util.List;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		List<String> all=new ArrayList<String>();	//为List父接口进行实例化
+		all.add("Hello");
+		all.add("Hello");
+		all.add("World!");
+		all.add("王南");
+		System.out.println(all);
+	}
+}	
+
+
+	通过本程序可以发现List存储的特征：
+		·保存的顺序就是其存储顺序
+		·List集合里面允许存在有重复数据。
+	
+	在以上的程序里面虽然实现了集合的输出，但是这种输出的操作是直接利用了每个类提供的toString()方法实现的
+为了方便的进行输出处理，在JDK1.8之后Iterable父接口之中定义有一个ForEach()方法，方法定义如下：
+		·输出支持：default void forEach(Consumer<? super T> action)；
+
+范例:利用ForEach()方法输出(不是标准输出)
+
+package println;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		List<String> all=new ArrayList<String>();	//为List父接口进行实例化
+		all.add("Hello");
+		all.add("Hello");	//重复输出
+		all.add("World!");
+		all.add("王南");
+		all.forEach((str)->{
+			System.out.print(str+"、");
+		});
+	}
+}	
+
+	需要注意的是，此种输出并不是在正常开发情况下要考虑的操作形式。
+
+
+范例：观察List集合的其他操作方法；
+
+package println;
+import java.util.ArrayList;
+import java.util.List;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		List<String> all=new ArrayList<String>();	//为List父接口进行实例化
+		System.out.println("集合是否为null："+all.isEmpty()+"集合元素个数："+all.size());
+		all.add("Hello");
+		all.add("Hello");	//重复输出
+		all.add("World!");
+		all.add("王南");
+		all.remove("Hello");	//删除元素
+		System.out.println("集合是否为null："+all.isEmpty()+"集合元素个数："+all.size());
+		all.forEach((str)->{
+			System.out.print(str+"、");
+		});
+	}
+}	
+
+	如果一方法的功能为例，那么ArrayList里面操作支持与之前编写的链表形式是非常相似的，但是它并不是使用链表来实现的
+通过类名称实际上就可以清楚的发现了，ArrayList应该封装的是一个数组。
+
+	ArrayList无参构造：public ArrayList() {
+        			this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+  		                }
+		
+
+	ArrayList有参构造：public ArrayList(int initialCapacity)
+
+ public ArrayList(int initialCapacity) {
+        if (initialCapacity > 0) {
+            this.elementData = new Object[initialCapacity];
+        } else if (initialCapacity == 0) {
+            this.elementData = EMPTY_ELEMENTDATA;
+        } else {
+            throw new IllegalArgumentException("Illegal Capacity: "+
+                                               initialCapacity);
+        }
+    }
+
+transient Object[] elementData;
+
+	通过有参构造方法可以发现，在ArrayList里面所包含的数据实际上就是一个对象数组。如果现在在进行数据追加的时候发现
+ArrayList集合里面保存的对象数组的长度不够的时候那么会进行新的数组开辟，同时将原始的旧数组内容拷贝到新数组之中。而后数组的
+开辟操作
+
+
+
+	如果在实例化ArrayList类对象的时候并没有传递初始的长度，则默认情况下会使用一个空数组，但是如果在进行数据增加
+的时候发现数组容量不够了。则会判断当前增长的容量与默认的容量的大小，使用较大的一个数字进行新的数组开辟所以可以得出
+一个结论：
+	JDK1.9之后：ArrayList默认的构造只会使用默认的空数组，使用的时候才会数组，默认的开辟长度为10
+	JDK1.9之前：ArrayList默认的构造实际上就会默认开辟大小为10的数组。
+
+
+	当ArrayList之中保存的容量不足的时候会采用成倍的方式进行增长，原始长度为10，那么下次的增长就是20，依次递增。。
+
+在使用ArrayList子类的时候一定要估算出你的数据量会有多少，如果超过10个，那么使用有参构造方法进行创建，以避免数组
+的垃圾数组空间产生。
+————————————————————————————————————————————————————————————————————
+ArrayList保存自定义类
+
+	通过之前的分析已经清楚了ArrayList子类的实现原理以及List核心操作，但是在测试的时候使用的是系统提供的
+String类这是一个设计完善的类，而对于类集也可以实现字定义类对象的保存。
+
+范例：实现类自定义对象的保存。
+	
+package println;
+
+import java.util.ArrayList;
+import java.util.List;
+class Person{
+	private String name;
+	private int age;
+	public Person(String name,int age){
+		this.name=name;
+		this.age=age;
+	}
+	public boolean equals(Object obj){	//覆写equals();
+		if(obj==null){
+			return false;
+		}
+		if(this==obj){
+			return true;
+		}
+		if(!(obj instanceof Person)){
+			return false;
+		}
+		Person per=(Person)obj;
+		return per.name.equals(this.name)&&per.age==this.age;
+	}
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "姓名："+this.name+"年龄:"+this.age;
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		List<Person> all=new ArrayList<Person>();
+		all.add(new Person("王南",20));
+		all.add(new Person("张三",10));
+		all.add(new Person("李四",90));
+		all.remove(new Person("张三",10));
+		all.forEach(System.out::println);	//方法引用代替了消费性的接口
+	}
+}	
+
+
+	在使用List保存自定义对象的时候如果需要使用到contains()、remove();方法进行查询删除的时候一定要保存类
+已经成功的覆写了equals()；方法。
+
+——————————————————————————————————————————————————————————————————————————————————————————————————
+LinkdeList子类：
+
+
+	在List接口里面还有另外一个比较常用的子类：LinkedList，这个类通过名称就已经可以发现其特点了：基于链表的实现
+那么首先观察以下LinkedList子类的定义：
+
+Class LinkedList<E>
+java.lang.Object 
+java.util.AbstractCollection<E> 
+java.util.AbstractList<E> 
+java.util.AbstractSequentialList<E> 
+java.util.LinkedList<E> 
+
+范例：使用LinkedList实现结合操作
+
+package println;
+
+import java.util.LinkedList;
+import java.util.List;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		List<String> all=new LinkedList<String>();
+		all.add("Hello");
+		all.add("Hello");
+		all.add("World");
+		all.add("王南");
+		all.forEach(System.out::println);	//方法引用代替了消费性的接口
+	}
+}	
+
+	如果说现在只是观察程序的功能你会发现和ArrayList使用时完全一样的，但是其内部的实现机制是完全不同的。
+首先观察LinkedList构造方法里面并没有提供有像ArrayList那样的初始化大小的方法，而只是提供有无参的构造处理：“public LinkedList()”
+
+随后观察add()方法的具体实现。
+ public boolean add(E e) {
+        linkLast(e);
+        return true;
+    }
+
+在之前编写自定义链表的时候，始判断了传入数据是否为null如果为空则不进行保存，但是在LinkedList里面并没有做这样的处理，而是所有
+的数据都可以保存，而后调用了LinkLast()方法（在最后一个节点之后追加）。
+
+   void linkLast(E e) {
+        final Node<E> l = last;
+        final Node<E> newNode = new Node<>(l, e, null);
+        last = newNode;
+        if (l == null)
+            first = newNode;
+        else
+            l.next = newNode;
+        size++;
+        modCount++;
+    }
+
+在LinkedList类里面保存的数据都是利用Node节点进行的封装处理，同时为了提高程序执行性能，每一次都会保存上一个追加的节点（最后一个节点）
+，就可以在增加数据的时候避免递归处理，在增加数据的时候要进行数据保存个数的追加。
+
+
+	通过一系类的分析之后就可以发现，LinkedList封装的就是一个链表实现。
+
+面试题：请问ArrayList与LinkedList有什么区别？
+
+	·ArrayList是数组实现的集合操作，而LinkedList是链表实现的集合操作；
+	·在使用List集合中的get()方法根据索引获取数据是，ArrayList的时间复杂度为“O（1）”、而LinkedList时间复杂度为“O（N）”；
+	·ArrayList在使用的时候默认的初始化对象数组的大小长度为10，如果空间不足则会采用2倍的形式扩充。如果处理不当保存
+大数据量的时候有可能会造成垃圾的产生以及性能的下降，但是这个时候可以使用LinkedList子类保存
+————————————————————————————————————————————————————————————————
+Vector子类
+	Vector是一个原始古老的程序类，这个类是在JDK1.0的时候就提供的。而后到了JDK1.2的时候由于许多的开发者
+已经习惯了Vector，并且许多的系统类也是基于Vertor实现的，考虑到其使用的广泛性，所以类集框架将其保存了下来，并且
+让其实现了List接口。观察Vertor定义结构：
+
+public class Vector<E>
+extends AbstractList<E>
+implements List<E>, RandomAccess, Cloneable, Serializable
+
+
+	继承结构与ArrayList是相同的，所以来讲这个类在使用上也是
+
+范例：Vector使用
+package println;
+
+import java.util.List;
+import java.util.Vector;
+
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		List<String> list=new Vector<String>();
+		list.add("hello");
+		list.add("world");
+		System.out.println(list.get(1));
+		list.forEach(System.out::println);
+	}
+}
+
+	下面可以进一步的观察Vector类实现：
+
+public Vector() {
+        this(10);
+    }
+
+public Vector(int initialCapacity) {
+        this(initialCapacity, 0);
+    }
+
+public Vector(int initialCapacity, int capacityIncrement) {
+        super();
+        if (initialCapacity < 0)
+            throw new IllegalArgumentException("Illegal Capacity: "+
+                                               initialCapacity);
+        this.elementData = new Object[initialCapacity];
+        this.capacityIncrement = capacityIncrement;
+    }
+
+
+	vertor类如果使用的是无参的构造方法，则一定会默认的开辟10个程度的数组，而后其余的实现操作与ArrayList相同的。
+通过源代码的分析可以发现Vector类之中的操作方法采用的都是synchronized 同步处理，而ArrayList并没有进行同步处理，
+Vector类之中的方法再多线程访问的时候属于线程安全的，但是性能不如ArrayList高。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

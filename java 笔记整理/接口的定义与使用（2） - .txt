@@ -1,0 +1,503 @@
+接口定义加强：
+	接口的最早主要特点是全部由抽象方法和全局常量组成，但是如果你的项目设计不当，就有可能出现一种非常严重的问题，
+
+接口设计不当：当一个接口设计好以后，有很多子类继承他，当发现接口追加方法时，所有的子类都需要覆写那个方法，重复覆写很多次。
+	一直在强调该操作是属于结构设计不当的结果，那么在最初的时候任何人都不敢保证自己的接口设计的足够完善
+所一在这样的情况下，为了方便子类的修改，往往不会让子类直接实现接口，而是中间追加一个过度的抽象类。
+	但是从JDK1.8之后开始，为了解决接口设计的缺陷，所以在接口之中允许开发者定义普通方法，和static方法
+
+范例：观察在接口种定义普通方法
+package println;
+//由于类名称与接口名称的定义要求 相同，所以为了区分出接口接口名称前往往会加入字母大写I（interface简写）
+interface IMassage{		//定义了一个接口
+	public  String getInfo();	//抽象方法
+	public default boolean connect(){	//方法是一个公共的方法。
+		System.out.println("这事一个公共的方法");	
+		return true;
+	}
+}
+class Dept implements IMassage{
+	
+	public String getInfo(){
+		return "欢欢是天";
+	}
+}
+public class println{
+	public static void main(String []args){
+	IMassage mas=new Dept();
+	if(mas.connect()){
+	System.out.println(mas.getInfo());
+		}
+	}
+}
+
+	接口种的普通方法必须追加default的声明，但是需要提醒的是，该操作属于挽救功能，所以如果不是必须的情况下
+不应该作为设计的首选。
+
+	除了可以追加普通方法之外，还可以定义static方法了，而static方法就可以通过接口直接调用。	
+
+范例：观察在接口种定义static方法
+package println;
+//由于类名称与接口名称的定义要求 相同，所以为了区分出接口接口名称前往往会加入字母大写I（interface简写）
+interface IMassage{		//定义了一个接口
+	public  String getInfo();	//抽象方法
+	public default boolean connect(){	//方法是一个公共的方法。
+		System.out.println("这事一个公共的方法");	
+		return true;
+	}
+	public static IMassage Temp(){
+		return new Dept();
+	}
+}
+class Dept implements IMassage{
+	public String getInfo(){
+		if(this.connect()){
+		return "欢欢是天";
+		}
+		return "l";
+	}
+}
+public class println{
+	public static void main(String []args){
+	IMassage mas=IMassage.Temp();
+	System.out.println(mas.getInfo());
+	}
+}
+	如果现在真的可以在接口里面定义普通方法活static方法，那么这个功能就已经可以取代抽象类了，但是不应该将这两个组成
+作为接口的主要设计原则。你们所写的代码里面还是应该奉行：接口的核心组成就是抽象方法。
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+使用接口定义标准：
+	对于接口而言在开发之中最为种要的应用就是进行标准的制定，在日常在成活当中也会听见很多关于接口的名词
+如：USB接口、PIC接口等等，那么这些实际上都是属于标准的应用。
+	
+范例：观察定义标准
+package println;
+//由于类名称与接口名称的定义要求 相同，所以为了区分出接口接口名称前往往会加入字母大写I（interface简写）
+interface Iusb{						//定义标准
+	public abstract boolean exam();	//检查是否符合标准
+	public abstract void work();
+}
+class Compoter{
+	public void getInfo(Iusb usb){			//取出对象
+		if(usb.exam()){
+			usb.work();						//开始工作
+		}else{
+			System.out.println("接口不匹配");
+		}
+	}
+}
+class Key implements Iusb{
+	public boolean exam(){
+		System.out.println("接口匹配");
+		return true;
+	}
+	public void work(){
+		System.out.println("开始码字");
+	}
+}
+class Headset implements Iusb{
+	public boolean exam(){
+		System.out.println("接口匹配");
+		return true;
+	}
+	public void work(){
+		System.out.println("开始听歌");
+	}
+}
+class Engine implements Iusb{
+	public boolean exam(){
+		System.out.println("接口不匹配");
+		return false;
+	}
+	public void work(){
+	
+	}
+}
+public class println{
+	public static void main(String []args){
+		Compoter com=new Compoter();
+		com.getInfo(new Key());			//插入键盘
+		com.getInfo(new Headset());		//插入耳机
+		com.getInfo(new Engine());		//插入主机
+	}
+}
+
+	而在现实的开发之中，对于标准的概念无处不在。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
