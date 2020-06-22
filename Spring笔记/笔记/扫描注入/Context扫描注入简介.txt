@@ -1,0 +1,150 @@
+
+	扫描注入时从Spring2.5.x之后开始提供的一种自动的注入管理，利用扫描注入的形式可以极大的简化配置文件的
+定义，现在几乎所有的项目都提供有扫描注入的处理支持
+
+Context扫描注入的简介：
+
+	所谓的扫描注入指的是利用注解的形式实现Bean的自动配置，那么这样所带来的好处是可以减少项目之中spring配置文件的
+定义个数，而如果要想进行扫描，那么就收现需要掌握四个核心的注解定义，这四个注解都定义在：org.springframework.stereotype包中
+具体的作用如下：
+
+·@Component：主要定义的就是一个Bean组件，等价于配置文件中写的“<bean>”
+	@Target({ElementType.TYPE})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Indexed
+	public @interface Component {
+	    String value() default "";
+	}
+·@Repository:进行数据层的定义注解配置；
+	@Target({ElementType.TYPE})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Component
+	public @interface Repository {
+	    @AliasFor(
+	        annotation = Component.class
+ 	   )
+	    String value() default "";
+	}
+·@Service:进行业务层注解配置；
+	@Target({ElementType.TYPE})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Component
+	public @interface Service {
+	    @AliasFor(
+	        annotation = Component.class
+	    )
+	    String value() default "";
+	}
+
+
+·@Controller:进行控制层的注解配置
+
+	@Target({ElementType.TYPE})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Component
+	public @interface Controller {
+	    @AliasFor(
+	        annotation = Component.class
+	    )
+	    String value() default "";
+	}
+
+	但是千万要记住,实际之中Repository、Service、Controller三者的定义是没有任何区别的，也就是说所有的操作的注解如果在不
+严格的情况下，都可以使用一个注解进行配置，但是为了配置清晰最好分开定义
+	而如果要想使用这些注解进行配置，对于整体的代码之中就必须结合context的扫描配置，而如果要想使用这样的扫描配置，
+则对于整个的代码就需要定义一个扫描的包。
+
+范例：修改spring-base.xml配置文件，进行扫描的定义。
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+<!--进行扫描包的设置，如果要设置多个包，则可以使用“，”号拆分-->
+    <context:component-scan base-package="com.ytinf.service,com.ytinf.vo"/>
+</beans>
+
+	如果觉得现在这样扫描不同的包有些麻烦，那么也可以直接扫描父包。
+		   <context:component-scan base-package="com.ytinf"/>
+
+	此时父包下的所有的程序只要提供有相应注解的配置类都会自动的进行Bean的定义，但是在进行扫描的定义的时候要注意
+，在日后如果有多个配置文件的情况下，千万不要进行重复扫描配置，否则会有许多未知的问题出现。
+
+2【spring-base项目】修改MessageServiceImpl程序类，为其追加扫描定义。
+
+package com.ytinf.service.impl;
+
+import com.ytinf.service.IMessageService;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+@Component  //标识此类将自动进行Bean配置
+//等价于，<bean id="messageServiceImpl" class="com.ytinf.service.impl.MessageServiceImpl" />
+public class MessageServiceImpl implements IMessageService {
+
+    public String echo(String msg) {
+        return "【ECHO】" + msg;
+    }
+}
+	如果此时要存在有多例的配置需求，则可以使用“@Scope”注解(@Scope("prototype"));
+
+3、【spring-base项目】采用注入的形式进行Bean对象的使用；
+
+package com.yuinf.test;
+
+import com.ytinf.service.IMessageService;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestMessageService {
+    @Autowired  //自动注入
+    private IMessageService messageService; //保留接口对象
+    @Test
+    public void testEcho(){
+        String echoMessage=this.messageService.echo("我是你爸爸");
+        System.out.println(echoMessage);
+    }
+}
+
+	在整个Spring之中正式因为提供了这样的扫描配置的模式，才可以使得配置文件得到极大的简化。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

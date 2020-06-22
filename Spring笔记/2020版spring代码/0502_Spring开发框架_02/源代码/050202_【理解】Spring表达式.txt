@@ -1,0 +1,1127 @@
+1、
+
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，该表达式是利用字符串来进行相应符号的编写
+        String expString = "(\"Hello \" + \"World !!!\").substring(6,12)" ;
+        System.out.println("【表达式】" + expString);
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString);// 表达式解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        String value = expression.getValue(context,String.class);// 进行表达式的解析操作
+        System.out.println(value);
+    }
+}
+
+
+2、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，该表达式是利用字符串来进行相应符号的编写
+        String expString = "(\"Hello \" + \"World !!!\").substring(#start,#end)" ;
+        System.out.println("【表达式】" + expString);
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString);// 表达式解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("start",6); // 设置表达式中的变量内容
+        context.setVariable("end",12); // 设置表达式中的变量内容
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        String value = expression.getValue(context,String.class);// 进行表达式的解析操作
+        System.out.println(value);
+    }
+}
+
+
+3、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "10 + 20" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString);// 表达式解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        int value = expression.getValue(context,Integer.class);// 进行表达式的解析操作
+        System.out.println(value);
+    }
+}
+
+
+4、
+
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{10 + 20 - 10 * 5}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 表达式解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        int value = expression.getValue(context,Integer.class);// 进行表达式的解析操作
+        System.out.println(value);
+    }
+}
+
+
+5、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "$[10 + 20 - 10 * 5]" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,new ParserContext() {
+            @Override
+            public boolean isTemplate() {   // 返回true，表示应用此模版
+                return true;
+            }
+            @Override
+            public String getExpressionPrefix() {   // 表达式开头符号
+                return "$[";
+            }
+            @Override
+            public String getExpressionSuffix() {   // 表达式结束符号
+                return "]";
+            }
+        });// 表达式解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        int value = expression.getValue(context,Integer.class);// 进行表达式的解析操作
+        System.out.println(value);
+    }
+}
+
+
+6、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{'Hello ' + 'World !'}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 表达式解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+    }
+}
+
+
+7、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{true}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 表达式解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+8、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{3.14E10}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+9、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{null}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+10、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{1 + 2 * 4 - 5}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+11、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{5.5 ^ 2}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+12、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{10 % 3}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+13、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{10 div 3}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+14、
+
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{10 == 10}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+15、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{'hello' eq 'hello'}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+16、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{3 BETWEEN {1,20}}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+17、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{'X' BETWEEN {'a','z'}}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+18、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{1 == 2 && 10 div 0 == 0}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+19、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{1 gt 2 ? 'Hello' : 'World'}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+20、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{null eq null ? 'Hello' : 'World'}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+21、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{'HelloWorld'[0]}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+22、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{'Hello World!!!'.toUpperCase()}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+23、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{'H1e22l333l44444o55555 66666W77777orld!!!'.replaceAll('\\d+','')}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+24、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{'hello' matches '\\w+'}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+25、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{T(java.util.Date)}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+26、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{T(java.lang.Integer).parseInt('250')}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+27、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{T(java.lang.Integer).MAX_VALUE}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+28、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{new java.util.Date()}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+29、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        // 定义一个表达式，表达式的定义一定要符合Java的正规语法要求
+        String expString = "#{'hello' instanceof T(java.lang.String)}" ;
+        // 如果此时需要将字符串之中表达式的含义正确的解析出来，那么就必须利用Spring提供的工具类
+        // 1、如果要进行表达式的执行，那么首先一定要进行表达式的解析处理
+        SpelExpressionParser parser = new SpelExpressionParser() ; // 定义表达式的解析
+        // 2、将给定的表达式进行解析处理
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);// 解析
+        // 3、如果要进行表达式的执行，则还需要设置一个解析的上下文
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 4、根据解析出来的表达式要进行表达式的计算处理
+        Object value = expression.getValue(context);// 进行表达式的解析操作
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+30、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        String expString = "#{#var1 + #var2}" ;
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("var1",90);
+        context.setVariable("var2",99);
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+31、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) {
+        String expString = "#{#root eq 10 ? '获取满分成绩' : '革命尚未成功，同志仍需努力！'}" ;
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        // 所有的根变量的默认名称就是root，通过实例化操作上下文对象时直接传递
+        StandardEvaluationContext context = new StandardEvaluationContext(1);
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+32、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.lang.reflect.Method;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        // 希望调用myInt()的时候将字符串转为int，即：myInt() == Integer.parseInt()
+        String expString = "#{#myInt('250')}" ;
+        // 既然要进行方法引用的处理，则就需要进行方法的对象获取
+        Method method = Integer.class.getDeclaredMethod("parseInt",String.class) ;
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        // 所有的根变量的默认名称就是root，通过实例化操作上下文对象时直接传递
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        // 将method所代表的方法注册为myInt()方法
+        context.registerFunction("myInt",method);
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+33、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.Date;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        String expString = "#{time}" ;  // getTime()
+        // 既然要进行方法引用的处理，则就需要进行方法的对象获取
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext(new Date());
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+34、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.Date;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        String expString = "#{time}" ;  // getTime()
+        // 既然要进行方法引用的处理，则就需要进行方法的对象获取
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext(null);
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+35、
+
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.Date;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        String expString = "#{#root?.time}" ;  // getTime()
+        // 既然要进行方法引用的处理，则就需要进行方法的对象获取
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext(null);
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+36、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        String expString = "#{{'黑娃娃','瓷娃娃','Gay娃娃','白娃娃','胖娃娃'}}" ;  // getTime()
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+37、
+
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.List;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        String expString = "#{{'黑娃娃','瓷娃娃','Gay娃娃','白娃娃','胖娃娃'}}" ;  // getTime()
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        List<String> value = expression.getValue(context, List.class);
+        value.add("Hello") ;
+    }
+}
+
+
+38、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        String expString = "#{{'黑娃娃','瓷娃娃','Gay娃娃','白娃娃','胖娃娃'}}" ;  // getTime()
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        Object value = expression.getValue(context,String[].class);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+39、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        List<String> data = new ArrayList<>() ;
+        Collections.addAll(data, "黑娃娃", "瓷娃娃", "Gay娃娃", "白娃娃", "胖娃娃");
+        String expString = "#{#allData[1]}" ;  // 获取索引为1的元素内容
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("allData",data); // 将集合设置为操作变量数据
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+40、
+
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        List<String> data = new ArrayList<>() ;
+        Collections.addAll(data, "黑娃娃", "瓷娃娃", "Gay娃娃", "白娃娃", "胖娃娃");
+        String expString = "#{#allData[1]}" ;  // 获取索引为1的元素内容
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("allData",data); // 将集合设置为操作变量数据
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(value.getClass());
+    }
+}
+
+
+41、
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        Map<String,String> data = new HashMap<>() ;
+        data.put("黑娃娃","一个不怎么白的小哥哥") ;
+        data.put("Hello","可爱的小李老师") ;
+        String expString = "#{#allData['黑娃娃']='一个确实很黑的胖纸，而且属于饿汉式代表'}" ;
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("allData",data); // 将集合设置为操作变量数据
+        Object value = expression.getValue(context);
+        System.out.println(value);
+        System.out.println(data);   // 输出原始的Map集合
+        System.out.println(value.getClass());
+    }
+}
+
+
+42、
+
+package com.ytinf.spel;
+
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class SpELDemo {
+    public static void main(String[] args) throws Exception {
+        List<String> data = new ArrayList<>() ;
+        Collections.addAll(data, "黑娃娃", "瓷娃娃", "Gay娃娃", "白娃娃", "胖娃娃");
+        // 在List集合的每一项数据之前追加一个前置信息；
+        String expString = "#{#allData.!['【XB黑胖纸】' + #this]}" ;
+        SpelExpressionParser parser = new SpelExpressionParser() ;
+        Expression expression = parser.parseExpression(expString,ParserContext.TEMPLATE_EXPRESSION);
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("allData",data); // 将集合设置为操作变量数据
+        Object value = expression.getValue(context);
+        System.out.println("【表达式执行结果】" + value);
+        System.out.println("【原始集合】" + data);   // 输出原始的集合
+        System.out.println(value.getClass());
+    }
+}
+
+
+43、
+
+
+

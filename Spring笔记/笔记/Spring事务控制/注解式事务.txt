@@ -1,0 +1,124 @@
+
+
+	在之前利用了程序编码的形式实现了所有的事务控制，但是这样的事务控制很明显是不可能在实际的项目开发
+之中使用的因为代码过于重复了，所以在Spring里面，可以直接基于Annotation的配置在业务层的方法上进行事务的定义
+控制
+
+1、【spring-base项目】建立一个INewsDAO的操作接口
+package com.ytinf.dao;
+
+public interface INewsDAO {
+    public boolean doRemove(Long id);
+}
+
+
+2、定义子类
+
+package com.ytinf.dao.impl;
+
+import com.ytinf.dao.INewsDAO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class NewsDAOImpl implements INewsDAO {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Override
+    public boolean doRemove(Long id) {
+        String sql="DELETE FROM news WHERE nid=?";
+        return this.jdbcTemplate.update(sql, id)>0;
+    }
+}
+3、开启注解式事务，在spring-transaction.xml配置文件里面引人tx的命名空间手工进行Annotation配置的启动：
+
+
+4、定义NewsService业务接口，在定义业务接口的时候可以直接设置响应的注解表示注解式事务；
+
+package com.ytinf.service;
+
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+public interface INewsService {
+    @Transactional(propagation = Propagation.REQUIRED,isolation = Isolation.DEFAULT,readOnly = true)
+    public boolean remove(Long id);
+}
+
+	正常的删除业务之中肯定不可能加上只读操作，但是现在追加只读只是为了验证当前的事务配置是否生效
+
+5、定义子类
+package com.ytinf.service;
+
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+public interface INewsService {
+    @Transactional(propagation = Propagation.REQUIRED,isolation = Isolation.DEFAULT)
+    public boolean remove(Long id);
+}
+
+
+6、测试类
+
+package com.yuinf.test;
+
+import com.ytinf.service.IMessageService;
+import com.ytinf.service.INewsService;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestINewService {
+    @Autowired
+   private INewsService newsService;
+    @Test
+    public void remove(){
+        System.out.println(this.newsService.remove(4l));
+    }
+
+}
+
+
+	此时就可以利用注解的形式简化编程式事务的操作流程，所有的传播属性和隔离界别都可以自动的进行配置，
+不再需要手工实例化Bean对象，进行手工的配置。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

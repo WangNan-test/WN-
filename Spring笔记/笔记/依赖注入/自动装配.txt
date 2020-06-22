@@ -1,0 +1,122 @@
+
+	在使用spring开发框架的过程之中，发现可以直接在配置文件里面进行不同类实例的引用关联，但是传统的引用关联都必须
+通过“ref”的设置才可以找到，为了简化这种配置，在spring中提供又根据类型的自动装配处理机制。
+1、【spring-base项目】为了进行自动装配的演示，下面修改Dept和Emp.java类
+
+
+public class Emp implements Serializable {
+    private Long empno;
+    private String ename;
+   private Dept dept;
+
+
+
+public class Dept implements Serializable {
+   private Long deptno;
+   private String dname;
+
+2、【spring-base项目】修改spring-base.xml配置文件，根据类型自动装配
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="emp" class="com.ytinf.vo.Emp" autowire="byType">	<!--根据配型自动引用-->
+        <property name="empno" value="7369"/>
+        <property name="dept" value="SMITH"/>
+    </bean>
+    <bean id="dept" class="com.ytinf.vo.Dept">
+        <property name="dname" value="财务部"/>
+        <property name="deptno" value="10"/>
+    </bean>
+</beans>
+
+
+	此时的程序代码之中并没有配置emp与dept两个bean之间的引用关系，但是由于存在有“autowire="byType"” 配置项
+则自动的在整个Spring容器之中找到与类型匹配的Dept定义。
+
+
+3、【spring-base项目】进行代码测试
+
+package com.yuinf.test;
+
+import com.ytinf.service.IMessageService;
+import com.ytinf.vo.Emp;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestEmp {
+    @Autowired  //自动注入
+    private Emp emp;    //注入对象类型
+    @Test
+    public void testEcho(){
+        System.out.println(this.emp);
+        System.out.println(this.emp.getDept());
+    }
+}
+
+
+执行结果：
+Emp{empno=7369, ename='SMITH', dept=Dept{deptno=10, dname='财务部'}}
+Dept{deptno=10, dname='财务部'}
+
+
+	此时就可以发现，将自动根据类型匹配向关联的其他的Bean,但是除了这种根据类型的配置之外，也可以根据名称匹配
+
+4、【soring-base项目】现在假设在当前的配置文件里面由于需要配置了两个部门信息。那么此时就有两种方式来解决当前的
+问题，第一种是根据名称注入，（属性名称和bean名称匹配则可以自动注入操作）。
+
+
+autowire="byName"
+
+
+
+	第二种方案就是将一个不需要的Dept的Bean从候选名单中取消掉
+
+ <bean id="dept" class="com.ytinf.vo.Dept" autowire-candidate="false"><!-- 取消候选资格 -->
+        <property name="dname" value="财务部"/>
+        <property name="deptno" value="10"/>
+    </bean>
+
+	在日后进行的Spring开发过程之中这种自动装配的形式经常使用到，而且自动装配的时候一定要记住，可以通过名称装配
+也可以进行类型装配。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

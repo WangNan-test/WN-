@@ -1,0 +1,117 @@
+
+
+	在之前都是通过setter方法进行了对象内容的注入管理，而在实际的使用过程之中，也经常也会通过构造方法进行一些属性的初始化
+所以说在spring配置文件里面也可以针对于构造方法进行内容的传递。
+1、【spring-base项目】定义一个Dept.java程序类并且在类中不提供有无参构造方法，只提供一个有参构造方法
+
+package com.ytinf.vo;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+public class Dept implements Serializable {
+   private Long deptno;
+   private String dname;
+    public Dept(Long deptno, String dname) {
+        this.deptno = deptno;
+        this.dname = dname;
+    }
+    //只提供相应的get方法
+    public  Long getDeptno() {
+        return deptno;
+    }
+
+    public String getDname() {
+        return dname;
+    }
+    @Override
+    public String toString() {
+        return "Dept{" +
+                "deptno=" + deptno +
+                ", dname='" + dname + '\'' +
+                '}';
+    }
+}
+2、【spring-base项目】由于此时的Dept.java类中没有提供任何的setter方法，所以自然无法在配置文件里面使用<property>进行属性内容的设置
+此时只能够利用构造方法的形式进行配置，此时此时的spring-base.xml配置文件定义如下:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="dept" class="com.ytinf.vo.Dept">
+        <constructor-arg value="10"/> <!--构造方法的第一个参数-->
+        <constructor-arg value="财务部"/>   <!--构造方法的第二个参数-->
+     </bean>
+</beans>
+
+	此时通过<constructor-arg>元素已经可以成功的进行了属性的配置，那么随后可以继续使用次操作，同时传递一些索引编号
+传递的目的在于可以打乱顺序，那么这个时候可以通过insex来设置参数顺序（索引号从0开始）。
+3、【spring-base项目】通过index设置构造方法的参数顺序。
+
+<bean id="dept" class="com.ytinf.vo.Dept">
+        <constructor-arg index="1" value="财务部"/>   <!--构造方法的第二个参数-->
+        <constructor-arg index="0" value="10"/> <!--构造方法的第一个参数-->
+     </bean>
+
+4、【spring-base项目】现在的构造方法是通过顺序或者参数的编号来进行内容设置的，如果代码一多看起来回比较乱
+最好的方法是直接设置名称。
+
+ <bean id="dept" class="com.ytinf.vo.Dept">
+        <constructor-arg name="dname" value="财务部"/>   <!--构造方法的第二个参数-->
+        <constructor-arg name="deptno" value="10"/> <!--构造方法的第一个参数-->
+     </bean>
+
+5、【spring-base项目】现在如果直接设置名称，虽然可以成功，但是描述的不清晰，最好的做法是在每一个名称前面追加
+一个参数“P”但是又不能去修改构造方法的定义（等价于为这个参数设置别名）。
+	·修改Dept.java类，使用注解进行参数别名设置
+public class Dept implements Serializable {
+   private Long deptno;
+   private String dname;
+    @ConstructorProperties(value={"param_deptno","param-dname"})
+    public Dept(Long deptno, String dname) {
+        this.deptno = deptno;
+        this.dname = dname;
+    }
+	·这个时候就可以在配置文件里面利用别名的形式进行参数内容的设置。
+<bean id="dept" class="com.ytinf.vo.Dept">
+        <constructor-arg name="param_dname" value="财务部"/>   <!--构造方法的第二个参数-->
+        <constructor-arg name="param_deptno" value="10"/> <!--构造方法的第一个参数-->
+     </bean>
+
+	此时的话可以发现，在Spring里面针对于构造方法的注入配置已经尽可能多的提出了各种解决方法，但是个人觉得，还是设置参数
+名称的形式比较好用。而实际的开发之中，如果有可能所有的属性还是尽量通过setter方法设置会比较方便。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

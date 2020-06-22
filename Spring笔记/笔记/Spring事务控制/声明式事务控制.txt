@@ -1,0 +1,79 @@
+
+
+	如果从实际的开发来讲，以上的所有的处理操作都不是Spring事务处理的两点，Spring在其出现之初最大的亮点
+在于所有的事物可以利用切面的形式采用声明式的方式进行定义，也就是说可以针对于一些特定的方法名称直接做切面事物控制
+这样就避免了每一个业务方法上进行事务控制
+
+
+
+1、在以后编写业务接口的时候，所有的业务接口的定义就应该只关注与核心的功能
+
+package com.ytinf.service;
+
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+public interface INewsService {
+    public boolean remove(Long id);
+}
+2、所有的业务上应该事物的处理操作，那么此时可以修改spring-transaction.xml配置文件，利用AOP概念
+实现Spring的事务控制
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/tx
+         http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--此时进行了AOP之中的切面关注点的操作配置，主要针对于事物管理生效-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes> <!--定义要匹配的操作业务方法-->
+            <tx:method name="add*" propagation="REQUIRED"/>
+            <tx:method name="create*" propagation="REQUIRED"/>
+            <tx:method name="remove*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="edit*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="login*" propagation="REQUIRED"/>
+            <tx:method name="list*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--设置好事物的关注点之后，下面就需要考虑一个事物的横切表达式，找到业务层匹配-->
+    <aop:config>
+        <aop:pointcut id="servicePointcut" expression="execution(public * com.ytinf..service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="servicePointcut"/>    <!--事物控制切入点-->
+    </aop:config>
+</beans>
+
+	在整个Spring里面利用如上的配置形式就可以方便的实现事物的控制配置，如果日后追加由新的方法
+可以加上响应的方法匹配，事物的操作依然针对于业务层的方法进行处理。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

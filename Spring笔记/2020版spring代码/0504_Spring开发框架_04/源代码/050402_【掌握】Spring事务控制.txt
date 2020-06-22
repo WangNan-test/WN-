@@ -1,0 +1,176 @@
+1、
+
+TransactionDefinition.PROPAGATION_REQUIRED
+
+【S】业务操作方法A() {	// 业务操作方法里面一定要进行数据层操作
+	｛Transaction｝在业务层里面已经开启了事务
+	【D】数据方法B() ;
+}
+
+【D】数据方法B() {
+	由于业务层已经开启了事务，所以此处直接进行JDBC的核心操作即可
+	此处不负责进行事务的开启、提交、回滚等操作。
+}
+
+
+
+
+【S】业务操作方法A() {	// 业务操作方法里面一定要进行数据层操作
+	｛Transaction｝没有进行事务的开启
+	【D】数据方法B() ;
+}
+【D】数据方法B() {
+	connection.setAutoCommit(false) ; // 取消自动提交
+	try {
+		pstmt.executeUpdate() ; // 进行数据库的更新操作
+		connection.commit() ; // 事务提交
+	} catch (Exception e) {
+		connection.roolback() ; // 事务回滚
+	}
+}
+
+
+2、
+
+TransactionDefinition.PROPAGATION_SUPPORTS
+【S】业务操作方法A() {	// 业务操作方法里面一定要进行数据层操作
+	｛Transaction｝没有进行事务的开启
+	【D】数据方法B() ;
+}
+【D】数据方法B() {
+	采用非事务的方式运行
+}
+
+
+3、
+TransactionDefinition.PROPAGATION_MANDATORY
+
+【S】业务操作方法A() {	// 业务操作方法里面一定要进行数据层操作
+	｛Transaction｝没有进行事务的开启
+	【D】数据方法B() ;
+}
+
+【D】数据方法B() {
+	throw new 异常类型("异常信息") ;
+}
+
+4、
+TransactionDefinition.PROPAGATION_REQUIRES_NEW
+
+【S】业务操作方法A() {	// 业务操作方法里面一定要进行数据层操作
+	｛Transaction｝事务开启
+	【D】数据方法B() ;
+}
+
+【D】数据方法B() {
+	将已有的事务暂时挂起；
+	在数据层里面开启新的事务
+	connection.setAutoCommit(false) ; // 取消自动提交
+	try {
+		pstmt.executeUpdate() ; // 进行数据库的更新操作
+		connection.commit() ; // 事务提交
+	} catch (Exception e) {
+		connection.roolback() ; // 事务回滚
+	}
+	恢复挂起的父事务
+}
+
+5、
+
+TransactionDefinition.PROPAGATION_NOT_SUPPORTED
+【S】业务操作方法A() {	// 业务操作方法里面一定要进行数据层操作
+	｛Transaction｝事务开启
+	【D】数据方法B() ;
+}
+【D】数据方法B() {
+	将已有的事务暂时挂起；
+	采用非事务的方式进行数据操作。
+}
+
+6、
+
+TransactionDefinition.PROPAGATION_NEVER
+【S】业务操作方法A() {	// 业务操作方法里面一定要进行数据层操作
+	｛Transaction｝事务开启
+	【D】数据方法B() ;
+}
+【D】数据方法B() {
+	throw new 异常类型("异常信息") ;
+}
+7、
+
+TransactionDefinition.PROPAGATION_NESTED
+【S】业务操作方法A() {	// 业务操作方法里面一定要进行数据层操作
+	｛Transaction｝事务开启
+	【D】数据方法B() ;
+}
+【D】数据方法B() {
+	将已有的事务暂时挂起
+	// （T1）开启里面的第一个嵌套子事务
+	connection.setAutoCommit(false) ; // 取消自动提交
+	try {
+		pstmt.executeUpdate() ; // 进行数据库的更新操作
+		// （T2）开启第二个嵌套子事务
+		connection.setAutoCommit(false) ; // 取消自动提交
+		try {
+			pstmt.executeUpdate() ; // 进行数据库的更新操作
+			connection.commit() ; // （T2）事务提交
+		} catch (Exception e) {
+			connection.roolback() ; // （T2）事务回滚
+		}
+		connection.commit() ; // （T1）事务提交
+	} catch (Exception e) {
+		connection.roolback() ; // （T2）事务回滚
+	}
+}
+
+
+8、
+
+package com.ytinf.test;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestTransactionBean {
+    @Autowired
+    private PlatformTransactionManager transactionManager ;
+    @Autowired
+    private JdbcTemplate jdbcTemplate ; // 注入一个数据库的操作对象
+    @Test
+    public void testTransaction() {
+        // 如果要想进行传播属性的定义，那么肯定需要设置有一个传播属性的操作子类；
+        // 如果要进行属性的设置只能够通过 DefaultTransactionDefinition子类完成
+        DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition() ;
+        // 设置事务的传播属性为“PROPAGATION_REQUIRED”
+        transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        // 设置事务的隔离级别由数据库自行进行处理
+        transactionDefinition.setIsolationLevel(TransactionDefinition.ISOLATION_DEFAULT);
+        // transactionDefinition.setReadOnly(true); // 如果有需要可以设置为只读事务
+        // 获取事务的当前的处理状态，以后的提交提交的是整个处理状态
+        TransactionStatus transactionStatus = this.transactionManager.getTransaction(transactionDefinition);
+        try {
+            String sql = "DELETE FROM news WHERE nid=?";
+            long nid = 1;
+            int len = this.jdbcTemplate.update(sql, nid);
+            System.out.println("更新行数：" + len);
+            this.transactionManager.commit(transactionStatus);  // 手工提交事务
+        } catch (Exception e) {
+            this.transactionManager.rollback(transactionStatus);    // 手工回滚事务
+        }
+    }
+}
+
+
+9、
+
