@@ -1,0 +1,799 @@
+	当可以灵活的使用抽象类和接口进行设计的时候，那么基本上就表示面向对象的概念理解了。
+这一步需要大量的程序代码累积的。
+
+	
+接口基本定义：
+	抽象类与普通类相比最大的优势在于：可以实现对于子类覆写方法的控制，但是在抽象类里面依然会保留有一些普通方法，
+而普通方法里面可能设计到一些安全或者隐私的操作问题，那么这样在进行开发的过程之中，如果要想对外部隐藏全部的实现细节，
+则就可以通过接口来进行描述。
+
+	接口可以理解为一个纯粹的抽象类（最原始的定义接口之中只是包含有抽象方法与全局常量的），但是从JDK1.8开始由于
+引入的Lamdba报答是的概念，所以接口的定义也得到了我们的加强，除了抽象方法与全局常量之外，还可以定义我们的普通方法活
+静态方法。如果从设计本身的角度来讲接口之中的组成还是应该以抽象方法和全局常量为主。
+	在Java中接口主要使用interface关键字来进行定义。
+范例：定义一个接口
+package println;
+//由于类名称与接口名称的定义要求 相同，所以为了区分出接口接口名称前往往会加入字母大写I（interface简写）
+interface IMassgage{		//定义了一个接口
+	public static final int NUM=10;		//全局常量
+	public abstract String getInfo();	//抽象方法
+}
+public class println{
+	public static void main(String []args){
+		
+	}
+}
+
+	但是现在的问题出现了，此时的接口肯定无法直接产生实例化对象。所以对于接口的使用原则如下：
+		·接口需要被子类实现（implements）,一个子类可以实现多个父接口；
+		·子类（如果不是抽象类）那么一定要覆写接口之中的全部抽象方法；
+		·接口对象可以利用子类对象的向上转型进行实例化。
+
+范例：定义接口子类
+package println;
+//由于类名称与接口名称的定义要求 相同，所以为了区分出接口接口名称前往往会加入字母大写I（interface简写）
+interface IMassage{		//定义了一个接口
+	public static final int NUM=10;		//全局常量
+	public abstract String getInfo();	//抽象方法
+}
+class Massage implements IMassage{		//实现接口
+	public String getInfo(){			//覆写抽象方法
+		return "欢欢是天";
+	}
+}
+public class println{
+	public static void main(String []args){
+		IMassage mas=new Massage();		//向上转型
+		System.out.println(mas.getInfo());	
+		System.out.println(IMassage.NUM);	//直接调用全局常量
+	}
+}
+
+	以上是接口的基本使用，但是在java里面之所以使用接口主要的目的是一个子类可以实现多个接口。
+利用接口可以实现多继承的概念。
+范例：观察子类实现多个父接口
+package println;
+//由于类名称与接口名称的定义要求 相同，所以为了区分出接口接口名称前往往会加入字母大写I（interface简写）
+interface IMassage{		//定义了一个接口
+	public static final int NUM=10;		//全局常量
+	public abstract String getInfo();	//抽象方法
+}
+interface ITemp{
+	public abstract boolean connect();
+}
+class Massage implements IMassage,ITemp{		//实现接口
+	public String getInfo(){			//覆写IMassage接口中的抽象方法
+		if(this.connect()){
+		return "欢欢是天";
+		}else{
+			return "失败";
+		}
+	}
+	public boolean connect(){			//覆写Temp接口中的抽象方法
+		System.out.println("成功");
+		return true;
+	}
+}
+public class println{
+	public static void main(String []args){
+		IMassage mas=new Massage();		//向上转型
+		System.out.println(mas.getInfo());
+	}
+}
+	但是这个时候就需要考虑一个实际情况了，关与对象的转型问题了；
+
+		·子类的对象可以任意的实现父接口的转换。
+
+观察：子类转换
+public class println{
+	public static void main(String []args){
+		IMassage mas =new Massage();		//向上转型
+		ITemp tem=(ITemp)mas;				//两个没有关系的接口向下传递
+		System.out.println(tem.connect());
+	}
+}
+	由与子类实现了两个接口的，所以这个实现接口子类可以是这两个接口任意一个接口的实例；
+表示此时这两个接口实例之间是可以转换的。
+	在Java程序里面接口是不允许继承父类的，所以接口绝对不会是Object的子类，但是根据之前的分析，
+实现接口的子类是Object子类，所以接口一定可以通过Object接收。
+
+范例：观察Object与接口转换
+
+public class println{
+	public static void main(String []args){
+		IMassage mas =new Massage();		//向上转型
+		Object obj=mas;			//向上转型
+		ITemp tem=(ITemp)obj;	//向下转型
+		System.out.println(tem.connect());
+	}
+}
+
+	Object类对象可以接受所有的数据类型，包括基本数据类型，类对象，接口对象，数组。
+
+	由于接口描述的是一个公共的定义标准，所以在接口之中所有的抽象方法的访问权限都为public，
+也就是说写与不写都是一样的。
+	方法不写访问权限也是public，不是default，所以覆写的时候值能够使用public。
+
+	接口虽然已经可以成功的进行了定义，但是千万不要忽略，在实际的开发过程之中，实现接口的
+有可能是抽象类。一个抽象类可以实现多个接口。而一个普通类只能够继承一个抽象类。并且可以实现多个
+父类接口。但是要求先继承后实现
+
+范例：子类继承抽象类并且实现接口
+package println;
+//由于类名称与接口名称的定义要求 相同，所以为了区分出接口接口名称前往往会加入字母大写I（interface简写）
+interface IMassage{		//定义了一个接口
+	public static final int NUM=10;		//全局常量
+	public abstract String getInfo();	//抽象方法
+}
+interface ITemp{
+	public abstract boolean connect();
+}
+abstract class Abstract {
+	public abstract boolean getAbstract();
+}
+class Massage extends Abstract implements IMassage,ITemp{		//实现接口
+	public String getInfo(){			//覆写IMassage接口中的抽象方法
+		if(this.connect()){
+			if(this.getAbstract()){
+		return "欢欢是王南的天";
+			}else{
+				return"欢欢是天";
+			}
+		}
+			return "失败";
+	}
+	public boolean connect(){			//覆写Temp接口中的抽象方法
+		System.out.println("成功");
+		return true;
+	}
+	public boolean getAbstract(){
+			System.out.println("继承实现成功");
+			return true;
+	}
+}
+public class println{
+	public static void main(String []args){
+		IMassage mas =new Massage();		//向上转型
+		System.out.println(mas.getInfo());
+	}
+}
+
+	虽然一个接口无法去继承一个父类，但是一个接口却可以通过extends继承若干个父接口。此时称为接口的多
+继承。
+
+范例：实现接口多继承：
+package println;
+//由于类名称与接口名称的定义要求 相同，所以为了区分出接口接口名称前往往会加入字母大写I（interface简写）
+interface IMassage{		//定义了一个接口
+	public abstract String getInfo();	//抽象方法
+}
+interface ITemp{
+	public abstract boolean temp();
+} 
+//extends在类继承上只能继承一个父类，但是接口上可以继承多个
+interface IDept extends IMassage,ITemp{		//接口多继承
+	public String dept();
+}
+class Implements implements IDept{			//实现多继承的接口
+	public String getInfo(){
+		return null;
+	}
+	public boolean temp(){
+		return true;
+	}
+	public String dept(){
+		return "欢欢是天";
+	}
+}
+
+	在实际的开发之中，接口的使用往往由三种形式：
+		·进行标准设置；
+		·表示一种操作的能力；
+		·暴露远程方法视图，这个一般都在RPC分布式开发中使用。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

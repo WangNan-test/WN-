@@ -1,0 +1,420 @@
+
+	从JDK1.5之后Java提供了Annotation技术支持，这种技术为项目编写带来了新的模型，而后经过了十多年的
+发展Annotation技术得到了非常广泛的应用，并且已经在所有的项目开发之中都会存在。
+
+
+获取Annotation信息：
+
+	再进行类或方法定义的时候都可以使用一系列的Annotation进行声明，于是如果要想获取这些Annotation的信息，那么就可以
+直接通过反射来完成。再java.lang.reflect里面有一个AccessibleObject类，在这个类中提供有获取Annotation的方法：
+
+		·获取全部Annotation：public Annotation[] getAnnotations()；
+		·获取指定Annotation：public <T extends Annotation> T getAnnotation?(Class<T> annotationClass)；
+
+范例：定义一个接口，并且再接口上使用Annotation
+
+package println;
+
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		{//获取接口上的ANNotation信息
+			Annotation[] annotations = IMessage.class.getAnnotations();	//获取接口上全部的Annotation
+			
+			for(Annotation temp:annotations){
+				System.out.println(temp);
+			}
+		}
+		System.out.println("---------------------------------------");
+		{//获取MessageImpl子类上的Annotation信息
+			Annotation[] annotations = MessageImpl.class.getAnnotations();	//获取接口上全部的Annotation
+			for(Annotation temp:annotations){
+				System.out.println(temp);
+			}
+		}
+		System.out.println("---------------------------------------");
+		{//获取Message.send()方法的Annotation信息
+			Method method=MessageImpl.class.getDeclaredMethod("send", String.class);
+			Annotation[] annotations = method.getAnnotations();	//获取方法上全部的Annotation
+			for(Annotation temp:annotations){
+				System.out.println(temp);
+			}
+		}
+	}
+}
+
+@FunctionalInterface
+@Deprecated
+interface IMessage{		//有两个Annotation
+	public void send(String msg);
+}
+@SuppressWarnings("serial")	//无法在程序执行的时候获取
+class MessageImpl implements IMessage,Serializable{
+
+	@Override	//无法在程序执行的时候获取
+	public void send(String msg) {
+		// TODO Auto-generated method stub
+		System.out.println("【消息发送：】"+msg);
+	}
+	
+}
+
+	不同的Annotation有它的存在范围，下面对比两个Annotation
+
+
+
+@FunctionalInterface:(运行时生效)
+
+@Documented
+@Retention(RetentionPolicy.RUNTIME)(运行时生效)
+@Target(ElementType.TYPE)
+public @interface FunctionalInterface {}
+
+
+@SuppressWarnings("serial"):（源代码时生效）
+
+@Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE})
+@Retention(RetentionPolicy.SOURCE)
+public @interface SuppressWarnings {
+
+
+	现在发现“@FunctionalInterface”是在运行时生效的Annotation,所以当程序执行的时候可以获取Annotation.
+而@SuppressWarnings("serial")只是源代码编写时生效。而再RetentionPolicy枚举类中还有一个class的定义，指的是类
+定义的时候生效。
+
+——————————————————————————————————————————————————————————————————
+自定义Annotation
+
+
+	现在已经清楚了Annotation的获取，以及Annotation运行策略，但是最为关键性的因素是如果设置自定义的
+Annotation呢，为此再java里面提供有新的语法，使用"@Interface"来定义Annotation.
+
+范例：自定义Annotation
+package println;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		//获取指定方法
+		Method method = IMessage.class.getDeclaredMethod("send", String.class);
+		DefultAnnotation anno = method.getAnnotation(DefultAnnotation.class);	//获取指定的Annotation
+		String msg=anno.title()+"("+anno.utl()+")";	//消息内容
+		method.invoke(IMessage.class.getDeclaredConstructor().newInstance(), msg);
+	}
+}
+@Retention(RetentionPolicy.RUNTIME)	//定义Annotation运行策略
+@interface DefultAnnotation{	//自定义Annotation
+	public String title();
+	public String utl() default"wwwnnnn";	//获取数据。默认值
+}
+class IMessage{
+	@DefultAnnotation(title="王南")
+	public void send(String msg){
+		System.out.println("消息发送："+msg);
+	}
+}
+
+
+	使用Annotation之后的最大特点是可以结合反射机制实现程序的处理。
+
+————————————————————————————————————————————————————————————————————
+
+
+工厂设计模式与Annotation整合
+
+	现在已经清楚了Annotation的整体的作用，但是Annotation到底再开发之中能做那些事情呢，为了帮助大家进一步理解Annotation的
+处理目的下面将结合工厂设计模式来应用Annotation操作。
+
+范例：工厂类设计+代理设计模式
+package println;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		MessageService messageService = new MessageService();
+		messageService.send("王南爱李欢");
+	}
+}
+class MessageService{
+	private IMessage message;
+	public MessageService(){
+		this.message=MFactory.getInstance(MessageImpl.class);
+	}
+	public void send(String str){
+		this.message.send(str);
+	}
+}
+@Retention(RetentionPolicy.RUNTIME)	//定义Annotation运行策略
+@interface DefultAnnotation{	//自定义Annotation
+	public String title();
+	public String utl() default"wwwnnnn";	//获取数据。默认值
+}
+interface IMessage{
+	public void send(String msg);
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public void send(String msg) {
+		// TODO Auto-generated method stub
+		System.out.println("【消息发送：】"+msg);
+	}
+}
+class MFactory{
+	@SuppressWarnings("unchecked")
+	public static <T>T getInstance(Class<?> clazz){
+		try {
+			return (T)new MessageProxy().sind(clazz.getDeclaredConstructor().newInstance());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+}
+class MessageProxy implements InvocationHandler{
+	private Object target;
+	public Object sind(Object target){
+		this.target=target;
+		return Proxy.newProxyInstance(this.target.getClass().getClassLoader(), this.target.getClass().getInterfaces(), this);
+	}
+	public boolean connect(){
+		System.out.println("【代理操作】进行消息发送通道的连接");
+		return true;
+	}
+	public void close(){
+		System.out.println("【关系消息发送通道】");
+	}
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		// TODO Auto-generated method stub
+		try{
+			if(this.connect()){
+				return method.invoke(this.target, args);
+			}else{
+				throw new RuntimeException("【ERROR】消息无法发送");
+			}
+		}finally{
+			this.close();
+		}
+	}
+}
+
+工厂类设计加代理设计加Annotation:
+package println;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+@Retention(RetentionPolicy.RUNTIME)
+@interface UseMessage{
+	public Class<?> clazz();
+}
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		MessageService messageService = new MessageService();
+		messageService.send("王南爱李欢");
+	}
+}
+@UseMessage(clazz=NETMessageImpl.class)	//利用Annotation实现了类的使用
+class MessageService{
+	private IMessage message;
+	public MessageService(){
+		UseMessage use = MessageService.class.getAnnotation(UseMessage.class);
+		this.message=MFactory.getInstance(use.clazz());		//直接通过Annotation获取
+	}
+	public void send(String str){
+		this.message.send(str);
+	}
+}
+interface IMessage{
+	public void send(String msg);
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public void send(String msg) {
+		// TODO Auto-generated method stub
+		System.out.println("【消息发送：】"+msg);
+	}
+}
+class NETMessageImpl implements IMessage{
+
+	@Override
+	public void send(String msg) {
+		// TODO Auto-generated method stub
+		System.out.println("【网络消息发送：】"+msg);
+	}
+}
+class MFactory{
+	@SuppressWarnings("unchecked")
+	public static <T>T getInstance(Class<?> clazz){
+		try {
+			return (T)new MessageProxy().sind(clazz.getDeclaredConstructor().newInstance());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+}
+class MessageProxy implements InvocationHandler{
+	private Object target;
+	public Object sind(Object target){
+		this.target=target;
+		return Proxy.newProxyInstance(this.target.getClass().getClassLoader(), this.target.getClass().getInterfaces(), this);
+	}
+	public boolean connect(){
+		System.out.println("【代理操作】进行消息发送通道的连接");
+		return true;
+	}
+	public void close(){
+		System.out.println("【关系消息发送通道】");
+	}
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		// TODO Auto-generated method stub
+		try{
+			if(this.connect()){
+				return method.invoke(this.target, args);
+			}else{
+				throw new RuntimeException("【ERROR】消息无法发送");
+			}
+		}finally{
+			this.close();
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

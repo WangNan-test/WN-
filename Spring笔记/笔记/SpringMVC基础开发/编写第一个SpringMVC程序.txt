@@ -1,0 +1,70 @@
+
+
+	SpringMVC的整体的程序实现和在最早定义的MVC开发框架区别不大，那么本次将直接基于SpingMVC的设计实现一个基础的Echo
+程序，即：由用户根据表单输入数据，而后SpringMVC接收到此数据之后利用跳转跳转到页面展示输出的内容
+
+1、【spring-web项目】创建一个EchoAction的程序类
+package com.ytinf.action;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller //创建一个控制类
+@RequestMapping(value = "/page/message/*")
+public class EchoAction {   //在Spring设计之中不要求有强制性的继承
+    //@RequestMapping(value = "input",method = RequestMethod.GET)
+    @GetMapping("input")
+    public String input(){
+        return "/page/message/input.jsp";
+    }
+    //@RequestMapping(value = "echo",method = RequestMethod.POST)
+    @PostMapping("echo")
+    public ModelAndView echo(String msg){   //参数名称与表单参数一致
+        ModelAndView mav=new ModelAndView("/page/message/show.jsp");
+        mav.addObject("echoMessage","【ECHO】"+msg);
+        return mav;
+    }
+}
+
+	此时在控制器类上使用了一个“@RequestMapping”，这个表示访问的是一个公共的路径，所以在最后提供有了一个通配符的“*”
+表示匹配方法的访问路径，
+
+编写input.jsp页面
+
+
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>SpringMVC开发框架</title>
+    <jsp:include page="/pages/plugins/include_basepath.jsp"/>
+</head>
+<body>
+<%!
+    public static final String INPUT_URL="pages/message/echo.action";
+%>
+    <form action="<%=INPUT_URL%>" method="post">
+
+        请输入消息：<input type="text" name="msg" id="msg">
+        <button type="submit">发送</button>
+    </form>
+</body>
+</html>
+
+
+	现在SpringMVC是在Spring容器里面执行的，如果此时不想启动WEB容器，也可以直接在测试类里面对控制层代码进行测试处理
+
+
+	
+
+
+
+
+
+
+
+
+

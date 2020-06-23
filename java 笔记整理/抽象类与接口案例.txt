@@ -1,0 +1,234 @@
+	考虑一个表示绘图的标准，并且可以根据不同的图形来进行绘制；
+范例实现绘图设计：
+package println;
+import java.util.Scanner;
+interface IHtbz{			//定义一个绘图的标准
+	public void paint();	//huitu
+}
+class Point{			//给三角形取得坐标	
+	private double x;
+	private double y;
+	
+	public Point(double x,double y){
+		this.x=x;
+		this.y=y;
+		
+	}
+	public double getX(){
+		return this.x;
+	}
+	public double getY(){
+		return this.y;
+	}
+	
+}
+class Triangle implements IHtbz{
+	private Point[] x;
+	private Point[] y;
+	private Point[] z;
+	public Triangle(Point []x,Point []y,Point []z){
+		this.x=x;
+		this.y=y;
+		this.z=z;
+	}
+	public void paint(){
+		System.out.println("绘制第一条边，开始坐标：["+this.x[0].getX()+","+this.x[0].getY()+"],结束坐标：["+this.x[1].getX()+","+this.x[1].getY()+"]");
+		System.out.println("绘制第二条边，开始坐标：["+this.y[0].getX()+","+this.y[0].getY()+"],结束坐标：["+this.y[1].getX()+","+this.y[1].getY()+"]");
+		System.out.println("绘制第三条边，开始坐标：["+this.z[0].getX()+","+this.z[0].getY()+"],结束坐标：["+this.z[1].getX()+","+this.z[1].getY()+"]");
+	}
+}
+class Roundness implements IHtbz{		//绘图圆形
+	private double radius;
+	public Roundness(double radius){
+		this.radius=radius;
+	}
+	public void paint(){
+		System.out.println("以半径为"+this.radius+"进行绘制圆形");
+	}
+}
+class Factory{				//工厂设计
+	public static IHtbz getInfo(String name,double...args){
+		if("Triangle".equalsIgnoreCase(name)){
+			return new Triangle(
+			new Point[]{
+					new Point(args[0],args[1]),new Point(args[2],args[3])},		
+			new Point[]{
+					new Point(args[4],args[5]),new Point(args[6],args[7])},
+			new Point[]{
+					new Point(args[8],args[9]),new Point(args[10],args[11])}
+					);
+		}else if("Roundness".equalsIgnoreCase(name)){
+			return new Roundness(args[0]);
+		}else{
+			return null;
+		}
+	}
+}
+public class println{						
+	public static void main(String []args){
+		Scanner sca=new Scanner(System.in);
+		String str;
+		System.out.println("请输入你要绘制的图形");
+		str=sca.next();
+		
+		if("Triangle".equals(str)){
+		IHtbz iht=Factory.getInfo(str,1.1,2.2,3.3,4.4,3.3,4.4,33.3,44.4,33.3,44.4,333.3,444.4);
+		iht.paint();
+		}else if("Roundness".equals(str)){
+			IHtbz ihb=Factory.getInfo(str, 1.0);
+			ihb.paint();
+		}else {
+			System.out.println("您输入的图形暂时没有");
+		}
+	}
+}
+————————————————————————————————————————————————————————————————————————————————
+定义类Shape，用来表示一般二维图形。 Shape具有抽象方法area（面积）和perimeter（）周长，
+定义一些图形类    在类中实现面积，周长，这些类均为Shape类的子类。
+范例：图形
+package println;	
+import java.util.Scanner;					
+abstract class AbstractShape{				//抽象类
+	public abstract double area();			//求图形的面积
+	public abstract double perimeter();		//求图形的周长
+}
+class Roundness extends AbstractShape{		//圆形
+	private double radius;					//圆形的半径
+	public Roundness(double radius){		//给半径赋值
+		this.radius=radius;
+	}
+	public double area(){					//求圆的面积
+		return 3.1415926*this.radius*this.radius;
+	}
+	public double perimeter(){				//求圆的周长
+		return 2*3.14159266*this.radius;
+	}
+}
+class Rectangle extends AbstractShape{		//矩形
+	private double length;					//矩形的长
+	private double wide;					//矩形的宽
+	public Rectangle(double length,double wide){	//赋值
+		this.length=length;
+		this.wide=wide;
+	}
+	public double area(){//求矩形的面积
+		return this.length*this.wide;
+	}
+	public double  perimeter(){//求矩形的周长
+		return 2*(this.length+this.wide);
+	}
+}
+class Factory{//工厂类
+	public static AbstractShape getInfo(String name,double... args){//赋值
+		if("Roundness".equals(name)){	//看输入的值是否是子类
+			return new Roundness(args[0]);	//向上转型
+		}else if("Rectangle".equals(name)){	
+			return new Rectangle(args[0],args[1]);
+		}else{
+			return null;
+		}
+	}
+}
+public class println{
+	public static void main(String []args){
+		System.out.println("输入要求的图形");
+		Scanner sca=new Scanner(System.in);
+		String str=sca.next();
+		if("Roundness".equals(str)){
+			AbstractShape sha=Factory.getInfo(str,2.3);	//AbstractShape sha=new Roundness(str,2.3);
+			System.out.println("圆形的面积为="+sha.area());
+			System.out.println("圆形的周长为="+sha.perimeter());
+		}else if("Rectangle".equals(str)){
+			AbstractShape ape=Factory.getInfo(str,3.4,3.1);//AbstractShape sha=new Roundness(str,3.4,3.1);
+			System.out.println("矩形的面积为："+ape.area());
+			System.out.println("矩形的边长为："+ape.perimeter());
+		}
+	}
+}
+
+使用工厂设计模式完全隐藏了实现的子类。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,298 @@
+                  StringBuffer类：
+
+	String类是在所有项目开发之中一定会使用到的一个功能类，并且这个类拥有如下的特点：
+		·每一个字符串的常量都属于一个String类的匿名对象，并且不可更改；
+		·String有两个常量池：静态常量池、运行时的常量池；
+		·String类对象实例化建议使用直接赋值的形式完成，这样可以直接将对象保存在对象池之中以方便下次重用；
+	虽然知道String类很好使用，但是如果认真思考也会发现其最大的弊端：内容不允许修改，虽然大部分的情况下都不会设计到
+字符串内容的频繁修改，但是依然可能会存在有这样的情况，所以为了解决此问题，专门提供了有一个StringBuffer类可以实现字符串
+内容的修改处理。
+
+	StringBuffer并不像String类那样拥有两种对象的实例化方式，StringBuffer必须像普通类对象那样首先进行对象实例化，而后
+才可以调用方法执行处理，而这个时候可以考虑使用StringBuffer类中的方法：
+	·构造方法：public StringBuffer()；
+	·构造方法：public StringBuffer(String str)；
+	·数据追加：public StringBuffer append(数据类型 变量)；相当于字符串中的“+”操作。
+
+
+
+范例：观察String与StringBuffer的对比：
+
+//String类对象引用传递
+package wn.buffer;
+public class TestStringBuffer {
+	public static void main(String[] args) {
+		String str="Hello";
+		print(str);
+		System.out.println(str);
+	}
+	public static void print(String temp){	
+		temp+="World!";	//内容并没有发生改变
+	}
+}
+
+StirngBuffer类对象引用传递:
+
+public class TestStringBuffer {
+	public static void main(String[] args) {
+		StringBuffer buff=new StringBuffer("Hello ");
+		
+		change(buff);
+		System.out.println(buff);
+	}
+	public static void change(StringBuffer temp){
+		temp.append("World!");
+	}
+}
+
+	实际上大部分的情况下，很少会出现有字符串内容的改变，这种改变指的并不是针对于静态常量池的改变。
+
+范例：分析以下已有问题：
+package wn.buffer;
+
+public class TestStringBuffer {
+	public static void main(String[] args) {
+		String strA="HelloWorld!";
+		String strB="Hello"+"World!";
+		System.out.println(strA==strB);
+	}
+}
+
+	这个时候strB对象的内容并不算是改变，或者更加严格的意义上来讲，对于现在的strB当程序编译之后会变为如下的形式：
+		StringBuffer buff=new StringBuffer();
+		buff.append("Hello").append("World!");
+
+
+	所有的“+”在编译之后都变为了StringBuffer中的append()方法，并且在程序之中StringBuffer与String类对象
+之间本来就可以直接互相转换：
+		·String类对象变为StringBuffer类对象可以依靠StringBuffer类的构造方法或者使用append()方法
+		·所有的类对象都可以通过toString方法将其变为String类型。
+
+	在StringBuffer类里面除了可以支持有字符串内容修改之外，实际上也提供有了一些Stirng类所不具备的方法：
+
+1、插入数据：public StringBuffer insert(int offset,数据类型 变量)
+
+package wn.buffer;
+
+public class TestStringBuffer {
+	public static void main(String[] args) {
+		StringBuffer buff=new StringBuffer();
+		buff.append("worid");	//设置数据
+		buff.insert(0," Hello！");	//插入数据
+		System.out.println(buff);
+	}
+}
+
+2、删除指定范围的数据：public StringBuffer delete(int start,int end)；
+package wn.buffer;
+public class TestStringBuffer {
+	public static void main(String[] args) {
+		StringBuffer buff=new StringBuffer();
+		buff.append("Hello World!");
+		buff.delete(5, 11);	//删除从5-11的数据
+		buff.insert(5, " WN");	//插入数据
+		System.out.println(buff);
+	}
+}
+
+3、字符串内容反转：public StringBuffer reverse()；
+package wn.buffer;
+public class TestStringBuffer {
+	public static void main(String[] args) {
+		StringBuffer buff=new StringBuffer();
+		buff.append("Hello World!");
+		buff.reverse();
+		System.out.println(buff);
+	}
+}
+
+	实际上与StringBuffer类还有一个类似的功能类：StringBuilder类，这个类实在JDK1.5的的时候提供的，该
+类中提供的方法与StringBuffer功能相同，最大的区别在于StringBuffer类中的方法属于线程安全的，全部使用类synchronized
+关键字进行标注而StringBuilder类属于非线程安全性的
+
+面试题：请解释String，Stringbuffer、StringBuilder的区别？
+
+	·String类是字符串的首选类型，其对大的特点是内容不允许修改；
+	·StringBuffer与StringBuilder内容允许修改；
+	·StringBuffer实在JDK1.0的时候提供的属于线程安全的操作而StringBuilder是在JDK1.5提供的属于线程不安全操作。
+注意：作为参数传递，方法内部String不会改变其值，StringBuffer和
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

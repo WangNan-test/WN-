@@ -1,0 +1,371 @@
+	在多线程的处理之中，可以利用Runnable描述多个线程操作的资源，而Thread描述每一个线程对象，于是多个线程
+访问统一资源的时候如果处理不当就会产生数据的错误操作。
+
+同步问题的引出:
+	
+	下面编写一个简单的买票的程序，将创建若干个线程对象实现买票的处理操作。
+范例：实现买票操作
+package println;
+class MyThread implements Runnable{
+	private int ticket=10;
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		while(true){
+			if(this.ticket>0){
+				try {
+					Thread.sleep(600);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.out.println(Thread.currentThread().getName()+"卖票，ticket"+this.ticket--);
+				
+			}else{
+				System.out.println("票买光了");
+				break;
+			}
+		}
+	}
+}
+public class Factory{ 
+	public static void main(String[] args) throws Exception {
+		MyThread mt=new MyThread();
+		new Thread(mt,"票贩子A").start();
+		new Thread(mt,"票贩子B").start();
+		new Thread(mt,"票贩子C").start();
+	}
+}
+
+	此时的程序将创建三个线程对象，并且这三个线程对象将进行5张票的出售。此时的程序在进行买票
+处理的时候并没有任何的问题（假象），下面可以模拟一下买票中的延迟操作。
+
+package println;
+class MyThread implements Runnable{
+	private int ticket=10;
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		while(true){
+			if(this.ticket>0){
+				try {
+					Thread.sleep(1000);	//模拟网络延迟
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.out.println(Thread.currentThread().getName()+"卖票，ticket="+this.ticket--);
+				
+			}else{
+				System.out.println("票买光了");
+				break;
+			}
+		}
+	}
+}
+public class Factory{ 
+	public static void main(String[] args) throws Exception {
+		MyThread mt=new MyThread();
+		new Thread(mt,"票贩子A").start();
+		new Thread(mt,"票贩子B").start();
+		new Thread(mt,"票贩子C").start();
+	}
+}
+
+	这个时候追加了延迟问题就暴露出来了，而实际上这个问题一直都在。
+
+————————————————————————————————————————————————————————————————————————————————————————
+
+线程同步（会造成性能下降）：
+
+	经过分析之后已经可以确认同步问题所产生的主要原因了，那么下面就需要进行同步问题的解决，但是解决同步问题的关键
+是锁，指的是当某一线程进行操作的时候，其他线程外面等待；
+	
+	如果要想在程序之中实现这把锁的功能，就可以使用synchronized关键字来实现，利用此关键字可以定义同步方法或同步
+代码块，在同步代码块的操作里面的代码只允许一个线程执行。
+1、利用同步代码块进行处理：
+synchronized（同步对象）{
+同步代码操作；
+}
+	一般要进行同步对象处理的时候可以采用当前对象this进行同步。
+
+范例：利用同步代码块解决数据同步访问问题
+
+package println;
+class MyThread implements Runnable{
+	private int ticket=1000;
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		synchronized(this){		//每一次只允许一个线程进行访问
+			while(true){
+				if(this.ticket>0){
+					try {
+						Thread.sleep(1);	//模拟网络延迟
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					System.out.println(Thread.currentThread().getName()+"卖票，ticket="+this.ticket--);
+					
+				}else{
+					System.out.println("票买光了");
+					break;
+				}
+			}
+		}
+	}
+}
+public class Factory{ 
+	public static void main(String[] args) throws Exception {
+		MyThread mt=new MyThread();
+		
+		new Thread(mt,"票贩子A").start();
+		new Thread(mt,"票贩子B").start();
+		new Thread(mt,"票贩子C").start();
+	}
+}
+
+	加入同步处理之后，程序的整体的性能下降了。同步实际上会造成性能的降低。
+
+2、利用同步方法解决：只需要在方法定义上使用synchronized关键字即可。
+package println;
+class MyThread implements Runnable{
+	private  int ticket=1000;
+	public synchronized boolean sale(){		//同步方法
+		if(this.ticket>0){
+			try {
+				Thread.sleep(100);	//模拟网络延迟
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(Thread.currentThread().getName()+"卖票，ticket="+this.ticket--);
+			return true;
+		}else{
+			System.out.println("票买光了");
+			return false;
+		}
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+			//每一次只允许一个线程进行访问
+		while(this.sale()){
+			this.sale();
+		}
+	}
+}
+public class Factory{ 
+	public static void main(String[] args) throws Exception {
+		MyThread mt=new MyThread();
+		
+		new Thread(mt,"票贩子A").start();
+		new Thread(mt,"票贩子B").start();
+		new Thread(mt,"票贩子C").start();
+	}
+}
+
+	在日后学习java类库的时候会发现，系统中许多的类上使用的同步处理采用的都是同步方法。
+
+——————————————————————————————————————————————————————————————————————————
+死锁：
+
+	同步的本质实际上就在于：一个线程要等待其他线程执行完毕，但是在项目的开发过程里面不正当的同步处理
+就有可能造成死锁，两个线程可能互相等待，下面编写一个程序代码，来进行一个死锁的说明，但是明确一点此代码没有任何的意义
+只是观察以死锁的形成
+
+package drill;
+
+
+public class DeadLock implements Runnable {
+    private PersonOne one=new PersonOne();
+    private PersonTwo two=new PersonTwo();
+    @Override
+    public void run() {
+
+        two.say(one);
+    }
+    public DeadLock(){
+        new Thread(this).start();
+        one.say(two);
+    }
+    public static void main(String[] args) {
+        DeadLock lock=new DeadLock();
+
+    }
+}
+
+
+class PersonOne{
+    public synchronized void say(PersonTwo two){  //第一个人给第二个人说
+        System.out.println("给我一支烟");
+        two.get();
+    }
+    public synchronized void get(){
+        System.out.println("给你火，拿到了烟");
+    }
+}
+class  PersonTwo{
+    public synchronized void say(PersonOne one){ //第二个人对第一个人说
+        System.out.println("给我一个火");
+        one.get();
+    }
+    public synchronized void get(){
+        System.out.println("给你烟，拿到了火");
+
+    }
+}
+
+	在实际项目开发过程中hi中，死锁这一操作是需要经过大量的程序测试得来的，以上的死锁只是一种死锁状态的表现
+而不具备有死锁的开发意义。
+
+
+
+
+
+	现在死锁造成的主要原因是因为彼此都在互相等待，等待着对方先让出资源。死锁实际上是一种开发中出现的不确定
+的状态，有的时候代码如果处理不当不定期出现死锁，这是属于正常开发中的调试问题
+	若干个线程访问同一资源时一定要进行同步处理，而过多的同步会造成死锁。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

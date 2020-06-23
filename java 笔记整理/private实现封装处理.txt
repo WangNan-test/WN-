@@ -1,0 +1,16 @@
+类中的属性和方法上都可以使用private定义，但是大部分的情况下很少会在方法上使用private
+private定义之后，那么如果其他类直接进行该属性访问的时候就将出现如下的错误提示
+此时使用了private 声明之后属性安全了，外部无法直接操作了，但是新的问题出来了。那么现在
+如果要想 进行private的属性访问，按照java的设计原则就可以使用setter和getter 方法：
+	·srtter方法：主要用于进行属性内容的设置。
+	|-private String name: public void setName(String n(参数)); 
+	·grtter方法：主要用于属性内容取得；
+	|=private String name：public void getName（String n）；
+
+
+
+面向对象三大特征：
+		封装（private）	：保证数据的安全性，避免数据混乱。
+				
+		继承（extends），
+		多态（）

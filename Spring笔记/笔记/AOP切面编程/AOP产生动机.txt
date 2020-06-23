@@ -1,0 +1,152 @@
+
+
+
+	在Spring设计之中有两大核心的技术：Ioc&DI、AOP（面向切面编程），所谓的切面编程就是一种更为高级的代理设计模式，
+在实际的项目之中利用代理可以实现良好的事务控制
+
+AOP产生动机
+
+	早在Spring出现之前，虽然Java提供有动态代理的处理机制，但是从本质上来讲最初的项目开发严格来讲
+是不标准的 因为许多的事务控制都是直接通过程序完成的。后再随着容器技术的提升，事务又可以在容器之中去完成了
+，但是慢慢人们发现对于一些程序代码的控制还是交到自己手里去完成会更好一些。
+
+	AOP的出现是为了解决传统动态代理设计之中所存在的切面控制问题，因为如果按照代理的设计来讲
+肯定需要设置有一个标准的业务接口，而后利用代理类获取接口的实例，在调用接口业务方法的时候本质上执行的
+就是代理类的操作。
+
+1、【spring-base项目 】定义一个IDeptService接口；
+
+2、【spring-base项目】在没有使用到代理设计的时候就需要在业务层的实现子类里面手工的进行各种数据库的操作。
+
+package com.ytinf.service.impl;
+
+import com.ytinf.dao.IDeptDAO;
+import com.ytinf.service.IDeptService;
+import com.ytinf.vo.Dept;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class DeptServiceImpl implements IDeptService {
+    @Autowired
+    private IDeptDAO deptDAO;   //根据名称注入如果名称不匹配根据类型注入
+    @Override
+    public Dept get(Long deptno) {
+        return deptDAO.findById(deptno);
+    }
+
+    @Override
+    public boolean add() {
+        try {
+            //1、打开数据库的连接
+            //2、关闭数据库的自动提交操作
+            //3、调用业务层的处理
+            //4、如果没有任何的问题进行事务的提交(commit);
+        } catch (Exception e) {
+            //5、如果有异常，讲异常向上抛出
+            //6、进行事务的回滚处理(rollback);
+        }finally{
+            //7、数据库关闭操作
+        }
+        return false;
+    }
+}
+
+	此时的程序是利用了业务层的实现子类直接进行了具体的事务控制，但是在一个项目里面业务方法可能会有
+成千上万个，如果所有的操纵方法都手工的进行如上的控制则代码的重复率太高了，所以为了解决这样的问题，就可以采用代理设计模式
+来完成，而考虑到正常的项目开发，代理设计最好不要使用静态代理，而使用动态代理设计模式
+
+3、【spring-base项目】创建动态代理的设计类；
+
+package com.ytinf.service.proxy;
+
+import com.sun.deploy.net.proxy.ProxyUnavailableException;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+public class ServiceProxy implements InvocationHandler {
+    private  Object targetObject;
+    private Object bind(Object targetObject){
+        this.targetObject=targetObject;
+       return Proxy.newProxyInstance(this.targetObject.getClass().getClassLoader(),this.targetObject.getClass().getInterfaces(),this);
+    }
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        try {
+            //1、打开数据库的连接
+            //2、关闭数据库的自动提交操作
+            //3、调用真实业务层的处理
+            //4、如果没有任何的问题进行事务的提交(commit);
+        } catch (Exception e) {
+            //5、如果有异常，讲异常向上抛出
+            //6、进行事务的回滚处理(rollback);
+        }finally{
+            //7、数据库关闭操作
+        }
+        return false;
+    }
+}
+
+
+4、【spring-base项目】此时利用动态代理的操作机制，将所有的业务处理的功能进行了抽象，随后在动态代理里面创建
+代理业务对象，而后由代理业务对象调用方法，利用反射机制在实现最终业务对象的调用，而在业务调用里面只完成核心的处理部分
+
+
+package com.ytinf.service.impl;
+
+import com.ytinf.dao.IDeptDAO;
+import com.ytinf.service.IDeptService;
+import com.ytinf.vo.Dept;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class DeptServiceImpl implements IDeptService {
+    @Autowired
+    private IDeptDAO deptDAO;   //根据名称注入如果名称不匹配根据类型注入
+    @Override
+    public Dept get(Long deptno) {
+        return deptDAO.findById(deptno);
+    }
+
+    @Override
+    public boolean add() {
+        //调用数据层
+        return false;
+    }
+}
+
+	此时实现了一个代理的操作控制，但是如果按照传统的代理设计来讲，此时的代理存在由如下问题
+
+		·业务层的代理需要进行代理的生成，而数据层的操作不需要代理生成，也就是说对象的实例化处理要区分
+		·在进行业务层代理控制的时候，有可能要发生有一些方法的动态变化那么如果可以进行操作的匹配；
+		·在进行代理配置的时候，有可能回随着不同的环境，有不同的代理处理的位置；不可能每一次都手工进行源代码的
+修改处理应该可以提供方便的配置操作
+
+		·对于之前的静态代理而言实际上可以还想有不同的组成部分，执行业务操作之前、执行业务操作之后、产生异常之后、数据返回之后。
+对于这些内容并没有进行更加细分的操作。
+	传同的代理设计，由于只是操作了静态的代理方式进行编写，所以本身不具有良好的可重用性以及可维护性，甚至面对一些更加繁琐控制
+的时候这种静态的实现就有可能造成非常棘手的问题。于是在这样的设计背景下，Spring中的AOP就可以嗯号的解决当前的设计问题。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

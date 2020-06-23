@@ -1,0 +1,288 @@
+面向对象的第二大特点就是继承：而继承的主要作用在于，
+在已有的基础上继续进行功能的扩充。
+
+程序中会出现有重复的代码。
+从代码上虽然重复了，但是现在又可以发现概念上讲，一个学生一定是人，
+但是学生和人相比学生更加具体。学生肯定描述的范围更小，具备的属性更多，
+方法也会更多。所以学生应该是人的扩充。
+这个时候要想消除结构定义上的重复，必须用到继承完成。
+继承的实现：
+在java之中继承使用extends关键字来进行实现，其定义的语法如下：
+	·继承关系    class 子类  extends 父类；
+		|-子类在一些书上也被称为派生类
+		|-父类也被称为超类（Super Class）。
+ 继承的基本实现：
+	package println;
+	class People{
+		private String name;
+		private int age;
+		public void setName(String name){
+			this.name=name;
+		}
+		public void setAge(int age){
+			this.age=age;
+		}
+		public String getName(){
+			return this.name;
+		}
+		public int getAge(){
+			return this.age;
+		}
+	}
+	class Student extends People{
+		private String school;
+		public void setSchool(String school){
+			this.school=school;
+		}
+		public String getSchool(){
+			return this.school;
+		}
+	}
+public class println{
+	public static void main(String []args){
+		Student mag=new Student();
+		mag.setName("王安娜");
+		mag.setAge(10);
+		mag.setSchool("北京大学");
+		System.out.println("姓名="+mag.getName()+",年龄:"+mag.getAge()+",学校："+mag.getSchool());
+	}
+}
+
+通过此时的代码可以发现，当我们发生了类继承关系后，子类可以直接继承父类的操作，
+也就是说可以实现代码的重用，子类最低也可以维持和父类相同的功能。当然子类也可以进行
+功能的扩充，例如：扩充属性和方法。实现之后可以非常清楚的发现，继承的确是可以进行父类
+功能的扩充，最重要的是可以重用父类中定义的方法。
+
+
+子对象实例化流程：
+现在已经成功的实现了继承的关系，并且也已经发现了继承主要特点，但是一旦程序之中提供有继承逻辑，
+那么对于子类的对象的实例化定一有要求。从正常的社会逻辑来讲：没有父类，就一定没有子类。
+对于继承程序的逻辑也是一样的，在你进行子类对象实例化的时候一定首先实例化好父类对象。
+
+package println;
+class Emp{
+	public Emp(){
+		System.out.println("父类");
+	}
+}
+class Num extends Emp{
+	public Num(){
+		System.out.println("子类");
+	}
+}
+public class println{
+	public static void main(String[]args){
+		new Num();
+	}
+}
+
+现在即时没有进行父类对象的实例化操作,也会有系统自动调用父类的构造方法（实例化父类对象），默认情况下的子类对象实例化流程
+会自动实例化父类对象。实际上这个时候就相当于子类的构造方法里隐含了 “super()”的形式；
+	·super()表示的就是子类构造调用父类构造的语句，该语句指允许放在子类构造方法的首行。
+在默认情况下的实例化处理，子类只会掉要父类中的无参构造方法，所以写于不写“super()”区别不大。
+如果父类中没有提供无参构造，这个时候就必须利用“super()”明确调用有参构造。
+package println;
+class Emp{
+	private String name;
+	private int age;
+	public Emp(String name,int age){
+		this.name=name;
+		this.age=age;
+	}
+}
+class Num extends Emp{
+	private String school;
+	public Num(String name,int age,String school){
+		super (name,age);		//调用父类的有参构造
+		this.school=school;
+	}
+	
+}
+public class println{
+	public static void main(String[]args){
+		Num a=new Num("王",10,"清华大学");
+	}
+}
+
+结论：在实例化子类对象的同时一定会实例化父类对象，目的是为了所有的属性可以进行空间分配。
+
+java只允许单继承不允许多继承，
+一个子类只能继承一个父类。
+而且最多继承三次；
+java不允许多重继承，但是允许多层继承；
+
+在继承的时候子类会继承父类的所有结构，但是这个时候需要注意的是，
+所有非私有操作属于显式继承（可以直接调用），私有的属于隐性继承（通过其他形式继承 setter，getter）。
+package println;
+class Emp{
+	private String name;
+	public void setName(String name){
+		this.name=name;
+	}
+	public String getName(){
+		return this.name;
+	}
+}
+class Num extends Emp{
+	public Num(String name){
+		setName(name);
+	}
+	public void Info(){
+		System.out.println(getName());
+	}
+}
+public class println{
+	public static void main(String []args){
+		Num a=new Num("王");
+		a.setName("南");
+		a.Info();
+	}
+}
+
+此时父类中的内容确实 被子类给继承了，但是子类能够使用的只是
+所有的非private 操作，而private操作肯定无法直接使用所以称为隐士继承。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

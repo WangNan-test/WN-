@@ -1,0 +1,349 @@
+
+	Set集合最大的特点就是不允许保存重复元素，其也是Collertion子接口。
+
+Set几口简介
+
+	再JDK1.9以前Set集合与Collertion集合的定义并无差别，Set继续使用了Collertion接口中提供的方法进行操作
+但是呢从JDK1.9之后，Set集合也向List集合一样扩充了一些static方法。Set集合定义如下：
+
+public interface Set<E>extends Collection<E>
+
+	需要注意的是Set集合并不像List集合那样扩充了许多的新方法，所有无法使用List集合中提供的get方法，也就是说他无法使用
+指定索引数据的获取。Set接口的继承关系如下：
+
+
+	从JDK1.9之后，Set集合也提供像List集合之中类似的of()的静态方法。，下面就使用此方法进行Set集合提点的验证
+		
+	当使用of()这个新方法的时候如果发现集合之中存在有重复元素则会直接抛出异常，这与传统的Set集合不保存重复
+元素的特点相一致，只不过自己抛出了异常而已。
+
+	Set集合的常规使用形式一定是依靠子类进行实例化的，所以Set接口之中有两个常用的子类：HashSet,TreeSet
+————————————————————————————————————————————————————————————
+
+
+HashSet子类
+
+	HashSet是Set接口里面使用最多的一个子类，其最大的特点就是保存的数据是无序的，HashSet子类的继承关系如下：
+
+public class HashSet<E>
+extends AbstractSet<E>
+implements Set<E>, Cloneable, Serializable
+
+
+	这种继承的形式和之前的ArrayList是非常相似的，那么现在来观察以下类的继承结构。
+
+范例：观察HashSet子类
+
+package println;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Set<String> set=new HashSet<String>();
+		set.add("Hello");
+		set.add("set");
+		set.add("lh");
+		set.add("World");
+		set.add("Hello");	//重复元素
+		set.add("wn");
+		set.forEach(System.out::println);
+	}
+}
+
+	通过执行结果就可以发现HashSet子类的操作特点：不允许保存重复元素（Set接口定义的）,另外一点HashSet之中保存的数据是无序的；
+——————————————————————————————————————————————————————————————————————————————
+
+TreeSet子类
+
+	Set接口的另外一个子类就是TreeSet，与HashSet最大的区别在于TreeSet集合里面保存的数据是有序的，首先观察以下TreeSet
+类的定义：
+
+public class TreeSet<E>
+extends AbstractSet<E>
+implements NavigableSet<E>, Cloneable, Serializable
+
+	再这个子类里面依然继承了 AbstractSet父抽象类，同时又实现了一个 NavigableSet（导航）父接口。
+
+范例：使用TreeSet子类
+
+package println;
+
+import java.util.Set;
+import java.util.TreeSet;
+
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Set<String> set=new TreeSet<String>();
+		set.add("Hello");
+		set.add("set");
+		set.add("lh");
+		set.add("World");
+		set.add("Hello");	//重复元素
+		set.add("wn");
+		set.forEach(System.out::println);
+	}
+}
+
+	当利用TreeSet保存的数据的时候所有的数据都将按照数据的升序进行自动的排序处理。
+————————————————————————————————————————————————————————————
+分析TreeSet子类排序操作：
+
+
+	经过分析之后TreeSet子类之中保存的数据是允许排序的，但是这个类必须要实现Comparable接口，因为只有实现了
+此接口才能够确认出对象的大小关系。
+
+提示：TreeSet本质上是利用TreeMep子类实现的集合数据的存储。而TreeMap（树）就需要根据Comparable来确定大小关系。
+
+
+范例：实现自定义类排序
+package println;
+
+import java.util.Set;
+import java.util.TreeSet;
+class Person implements Comparable<Person>{	//比较器
+	private String name;
+	private int age;
+	public Person(String name, int age) {
+		super();
+		this.name = name;
+		this.age = age;
+	}
+	@Override
+	public String toString() {
+		return "Person [姓名=" + name + ", 年龄=" + age + "]";
+	}
+	@Override
+	public int compareTo(Person o) {
+		// TODO Auto-generated method stub
+		if(this.age<o.age){
+			return -1;
+		}else if(this.age>o.age){
+			return 1;
+		}else{
+			return this.name.compareTo(o.name);
+		}
+	}
+	
+}
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Set<Person> set=new TreeSet<Person>();
+		set.add(new Person("张三",19));
+		set.add(new Person("李四",19));
+		set.add(new Person("王五",29));
+		set.add(new Person("王五",29));
+		set.add(new Person("赵六",39));
+		set.forEach(System.out::println);
+	}
+}
+
+
+	在使用自定义类对象进行比较处理的时候一定要将该类之中的所有的属性都以此进行大小关系的匹配，否则如果
+某一个或某集合属性相同的时候它也会认为是重复数据，所以TreeSet是利用了Comparable接口来确认重复数据的。
+
+
+	有序TreeSet再操作过程之中需要将类中的所有属性进行比对，这样的实现难度太高了，那么再实际的开发之中应该首选
+HashSet子类进行存储。
+——————————————————————————————————————————————————————————————————
+
+关于重复元素的说明
+
+
+	TreeSet子类利用了Comparable接口来实现了重复元素的判断，但是Set集合的整体特征就是不允许保存重复元素。但是
+HashSet判断重复元素的方式并不是利用Comparable接口完成的，他利用的而是Object类中提供的方法实现的：
+		·对象编码：public int hashCode()；
+		·对象比较：public boolean equals?(Object obj)；
+
+	在进行重复元素判断的时候首先利用hashCode()进行编码的匹配，如果该编码不存在，证明不重复，如果该编码
+存在了，则进一步进行对象比较处理。如果发现重复了则此数据是不允许保存的。如果使用的是Ecliose开发工具，则可以
+帮助开发者自动创建hashCold与equale方法
+范例：实现重复元素处理
+
+package println;
+import java.util.HashSet;
+import java.util.Set;
+class Person {	//比较器
+	private String name;
+	private int age;
+	public Person(String name, int age) {
+		super();
+		this.name = name;
+		this.age = age;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + age;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Person other = (Person) obj;
+		if (age != other.age)
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
+	}
+	@Override
+	public String toString() {
+		return "Person [姓名=" + name + ", 年龄=" + age + "]";
+	}
+}
+public class Factory {
+	public static void main(String[] args)throws Exception {
+		Set<Person> set=new HashSet<Person>();
+		set.add(new Person("张三",19));
+		set.add(new Person("李四",19));
+		set.add(new Person("王五",29));
+		set.add(new Person("王五",29));
+		set.add(new Person("赵六",39));
+		set.forEach(System.out::println);
+	}
+}
+
+
+	再Java程序之中真正的重复元素的判断处理利用的就是hashCold()与equals()两个方法共同作用完成的。而只有再排序的
+情况下（TreeSet）才会利用Comparable接口来实现。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

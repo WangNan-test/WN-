@@ -1,0 +1,11 @@
+
+
+
+	现在为止所有的AOP配置都是直接通过配置文件的形式进行定义的，但是在Spring 里面为了简化Aop的处理难度
+往往可以利用Annotation在一个具体的配置类上进行AOP的处理实现。
+
+1、【spring-base项目】如果要想使用 Annitation来配置AOP，那么首先需要启用注解支持。
+
+	   · <aop:aspectj-autoproxy /> <!--启用Annotation注解支持-->
+
+2、【spring-base项目】修改ServiceAdvice程序类，使用注解的方式进行定义

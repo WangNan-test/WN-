@@ -1,0 +1,72 @@
+
+	所谓对象克隆指的是对象的复制，属于全新的复制。即：使用已有对象内容创建一个新的对象，
+如果要想使用对象克隆需要使用到Object类中提供的clone()方法：protected Object clone()throws CloneNotSupportedException
+
+	所有的类都会继承Object父类，所以所有的类都一定会clone（）方法，但是并不是所有的类都希望被克隆。
+所以如果要想实现对象克隆。那么对象所在的类需要实现一个接口Cloneable接口，此接口并没有任何的方法提供，是因为它
+描述的是一种能力。
+范例：实现对象克隆
+
+package println;
+class Member implements Cloneable{
+	private String name;
+	private int age;
+	public Member(String name,int age){
+		this.name=name;
+		this.age=age;
+	}
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "【"+super.toString()+"】name="+this.name+"、age="+this.age;
+	}
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		// TODO Auto-generated method stub
+		return super.clone();//调用父类中提供的克隆方法
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Member memberA=new Member("王南",20);
+		Member memberB=(Member)memberA.clone();
+		System.out.println(memberA);
+		System.out.println(memberB);
+	}
+}
+
+	如果在开发之中不是非常特别的需求下，很少会出现对象克隆的需求。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

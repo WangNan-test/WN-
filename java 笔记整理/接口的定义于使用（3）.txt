@@ -1,0 +1,593 @@
+工厂设计模型：
+	对于接口而言，已经可以明确的清楚，必须有子类，并且子类可以通过对象的向上转型来获取接口的实例化对象。
+但是在进行对象实例化的过程之中也可能存在有设计问题。
+范例：
+package println;
+interface IFood{
+	public abstract void eat();
+}
+class Bread implements IFood{
+	public void eat(){
+		System.out.println("吃面包");
+	}
+}
+public class println{
+	public static void main(String []args){		//客户端
+		IFood food=new Bread();		
+		food.eat();			//吃面包
+	}
+}
+	在本程序之中根据接口进行子类的定义，并且利用对象的向上转型进行接口对象的实例化处理。
+	客户短需要明确的知道具体的哪一个子类，如果现在增加子类，那么客户端就要做出修改。
+
+范例增加子类：
+package println;
+interface IFood{
+	public abstract void eat();
+}
+class Bread implements IFood{
+	public void eat(){
+		System.out.println("吃面包");
+	}
+}
+class Milk implements IFood{
+	public void eat(){
+		System.out.println("喝牛奶");	//增加子类	
+	}
+}
+public class println{
+	public static void main(String []args){
+		IFood food=new Milk();			//改变客户端
+		food.eat();			//喝牛奶
+	}
+}
+	所以此时的程序就出现有耦合的问题，而造成耦合最直接的元凶：“关键字new”，一JVM（java虚拟机）的设计为例，Java实现
+可移植性的关键在于：JVM，而JVM的合兴原理：利用一个虚拟机来运行java程序，所有的程序并不与具体的操作系统有任何的关联，
+而是由 JVM来进行匹配。所以的出的结论：良好的设计应该避免耦合。
+范例：工厂设计实现
+package println;
+import java.util.Scanner;
+interface IFood{					//接口类
+	public abstract void eat();		
+}
+class Perspon{						
+	public static IFood getInfo(String name){	//定义一个static方法
+		if("bread".equals(name)){		//判断输入的食物是否正确
+			return new Bread();		//正确返回实例化
+		}else if("milk".equals(name)){
+			return new Milk();
+		}
+		return null;			//不正确返回null
+	}
+}
+class Bread implements IFood{	//定义一种食物
+	public void eat(){
+		System.out.println("吃面包");
+	}
+}
+class Milk implements IFood{		//定义一种食物
+	public void eat(){
+		System.out.println("喝牛奶");		
+	}
+}
+public class println{						//客户端
+	public static void main(String []args){
+		System.out.println("请输入想要吃的食物");
+		Scanner sca=new Scanner(System.in);
+		String str;
+		IFood food=Perspon.getInfo(str=sca.next());		//实现实例化对象
+		food.eat();					//调用抽象类
+	}
+}
+
+	在本程序之中，客户端程序与IFood接口的子类没有任何的关联，所有的关联都是通过 Perspon类完成的，
+而在程序运行的时候可以通过键盘调用进行要使用的子类定义；
+	如果在日后进行子类扩充的时候只需要修改Perspon 程序类即可实现。
+——————————————————————————————————————————————————————————————————————————————————————
+代理设计模式（proxy）：
+	代理设计模式的主要功能是可以帮助用户将所有的开发注意力只集中在核心业务功能的处理上；例如；肚子饿了，思考的是
+如何可以吃到东西。
+范例：代理设计模型
+package println;
+interface IEat{
+	public abstract void eat();
+} 
+class Person implements IEat{
+	public void eat(){
+		System.out.println("【核心业务】开始吃东西");	//核心业务
+	}
+} 
+class Proxy implements IEat{		//服务代理
+	private IEat eat;				//为吃开始服务
+	public Proxy(IEat eat){			//一定要有一个代理项
+		this.eat=eat;
+	}
+	public void eat(){
+		this.perpare();
+		this.eat.eat();
+		this.ending();
+	}
+	public void perpare(){			//准备过程
+		System.out.println("【服务代理1】准备食材");
+		System.out.println("【服务代理2】烹饪食材");
+	}
+	public void ending(){			//结尾过程
+		System.out.println("【服务代理3】收拾");
+	}
+}
+public class println{						
+	public static void main(String []args){
+		IEat eat=new Proxy(new Person());	//在代理种找到核心；
+		eat.eat();
+	}
+}
+
+	代理设计模式的主要特点是：一个接口提供有两个子类，其中一个子类是真实业务操作，另外一个主体是代理业务操作类；
+没有代理业务操作，真是业务无法进行。
+————————————————————————————————————————————————————————————————————————————————————————————————————
+抽象类与接口的区别：
+	在实际的开发之中可以发现抽象类和接口的定义形式是非常相似的，这一点从JDK1.8开始实际上就特别的明显了，
+因为在JDK1.8里面接口也可以定义default方法和static方法了。但是这两者依然时有着明显的定义区别与使用区别的
+
+NO	区别	|	抽象类				接口
+————————————————————————————————————————
+1、	定义	|abstract calss 抽象类的名称{}	   	    |interface 接口名称{}	
+————————————————————————————————————————
+2、	组成	|构造、普通方法、静态方法、static方法	    |抽象方法、全局常量
+	   	| 全局常量、属性			    |普通方法、static方法
+————————————————————————————————————————
+3、	权限	|可以使用各种权限		  	    |只能使用public
+————————————————————————————————————————
+4、	子类使用	|子类通过extends继承一个抽象类  	    |子类使用implements关键字可以实现多个接口
+————————————————————————————————————————
+5、	两者关系	|抽象类可以实现若干个接口		    |接口不允许继承抽象类但是允许继承多个父接口
+————————————————————————————————————————
+6、	使用	|1.抽象类或接口必须有自已子类；2、子类一定要覆写抽象类或接口种的全部抽象方法；
+		 3、通过子类的向上转型实现抽象类或接口对象实例化			    	   
+——————————————————————————————————————————
+
+	当抽象类和就扣都可以使用的情况下优先要考虑接口，因为接口可以避免子类的单继承局限
+	另外从一正常的设计角度而言，也需要先从接口来进行项目的整体设计；
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

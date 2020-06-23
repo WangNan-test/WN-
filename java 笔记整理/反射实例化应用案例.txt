@@ -1,0 +1,374 @@
+
+
+	经过一系列的分析之后可以发现虽然获得了Class类的实例化对象，但是依然觉得这个对象获取的意义不是很大，
+所以为了进一步帮助大家理解反射的核心意义所在，下面将集合案例进行程序的说明（都是再实际开发之中使用到的）。
+
+
+反射实例化对象：
+
+	获取Class对象之后最大的意义实际上并不是在于只是一个对象的实例化操作形式，更重要的是Class类里面提供有一个对象
+的反射实例化方法（代替了关键字NEW）：
+
+	·再JDK1.9以前的实例化：public T newInstance() throws InstantiationException, IllegalAccessException
+	·再JDK1.9之后： clazz.getDeclaredConstructor().newInstance()
+范例：通过newInstance()方法实例化Person类对象
+package println;
+
+public class Person  {
+	//任何情况下如果要实例化类对象一定要调用类中的构造方法
+	public Person(){	//无参构造方法
+		System.out.println("------------Person构造");
+	}
+	@Override
+	public String toString() {
+		return "我爱李欢";
+	}
+	
+}
+
+
+
+package println;
+
+import java.lang.reflect.Field;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Class<?> cls=Class.forName("println.Person");
+		Object obj = cls.newInstance();	//实例化对象
+		System.out.println(obj.toString());	//输出对象调用toString
+	}
+}
+
+【cls.newInstance();】------------Person构造
+【obj.toString()】我爱李欢
+
+	现在通过反射实现的对象实例化处理，依然要调用类中的无参构造方法，其本质等价于“类  对象 = new 类()”，
+也就是说相当隐含了关键字New,而直接使用字符串进行了替代。
+
+
+范例：从JDK1.9之后 newInstance被替代了
+
+
+
+
+	
+	因为默认的Class类中的newInstance（）方法只能够调用无参构造，所以很多开发者会认为其描述的不准确，于是
+将其变换了形式。
+package println;
+
+import java.lang.reflect.Field;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Class<?> cls=Class.forName("println.Person");
+		Object obj = cls.getDeclaredConstructor().newInstance();	//实例化对象
+		System.out.println(obj.toString());	//输出对象调用toString
+	}
+}
+——————————————————————————————————————————————————————————————————————
+
+反射与工厂设计模式：
+
+	如果要想进行对象的实例化处理除了可以使用关键字new之外。还可以使用反射机制来完成，于是此时一定
+会思考一个问题：为什么要提供有一个反射的实例化？那么到底是使用关键字new还是使用反射呢？
+
+
+	如果要想更好的理解此类问题，那么最好的解释方案就是通过工厂类设计模式来解决。工厂设计模式的
+的最大特点：客户端的程序类不直接牵扯到对象的实例化管理，只与接口发生关联，通过工厂类获取指定接口的实例化对象。
+
+范例：传统的模式
+package println;
+interface IMessage{
+	public void send();	//消息发送
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		System.out.println("发送消息：王南爱李欢");
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		IMessage msg=new MessageImpl();	//如果直接实例化一定有耦合问题
+	}
+}
+
+	再实际的开发之中，接口的主要作用是为了不同的层提供有一个操作的标准。但是如果此时直接将一个子类设置为
+接口实例化操作，那么一定会有耦合问题，所以使用了工厂设计模式解决耦合问题。
+
+范例：利用工厂设计解决耦合问题
+
+package println;
+interface IMessage{
+	public void send();	//消息发送
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		System.out.println("发送消息：王南爱李欢");
+	}
+}
+class Pactory{
+	private Pactory(){}
+	public static IMessage getIteranor(String className){
+		if("MessageImpl".equals(className)){
+			return new MessageImpl();
+		}
+		return null;
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		IMessage msg=Pactory.getIteranor("MessageImpl");
+		msg.send();
+	}
+}
+
+	此种工厂设计模式属于静态工厂设计模式，也就是说如果现在要追加一个子类，则一位着工厂类一定要做出修改，因为
+不追加这种判断是无法获取指定接口对象的。
+
+范例：为IMessage追加一个子类
+package println;
+interface IMessage{
+	public void send();	//消息发送
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		System.out.println("发送消息：王南爱李欢");
+	}
+}
+class CloudMessage implements IMessage{
+
+	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		System.out.println("云消息：wwwlll");
+	}
+	
+}
+class Pactory{
+	private Pactory(){}
+	public static IMessage getIteranor(String className){
+		if("MessageImpl".equals(className)){
+			return new MessageImpl();
+		}else if("CloudMessage".equals(className)){
+			return new CloudMessage();
+		}
+		return null;
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		IMessage msg=Pactory.getIteranor("CloudMessage");
+		msg.send();
+	}
+}
+
+
+	工厂设计模式最有效解决的是子类与客户端的耦合问题，但是解决的核心思想是在于提供有一个工厂类
+作为过渡段，但是随着项目的进行，你的IMessage类可能会有更多的子类，而且随着时间的推移子类回越来越多
+你的工厂类永远都要进行修改，并且永无停止之日。
+
+
+	那么这个时候最好的解决方法就是不适用关键字new来完成，因为关键字new在使用的时候需要有一个明确
+的类存在，而NewInstance()方法只需要一个明确表示类名称的字符串。工厂设计模式不应该只为一个Imessage接口服务
+，应该变为为所有的接口服务。
+
+package println;
+
+import java.lang.reflect.InvocationTargetException;
+
+interface IMessage{
+	public void send();	//消息发送
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		System.out.println("发送消息：王南爱李欢");
+	}
+}
+class CloudMessage implements IMessage{
+
+	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		System.out.println("云消息：wwwlll");
+	}
+	
+}
+class Pactory{
+	private Pactory(){}
+	/**
+	 * 获取接口实例化对象
+	 * @param className	接口子类
+	 * @param clazz	描述一个接口的类型
+	 * @return 如果子类存在返回指定接口实例化对象
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T>T getIteranor(String className,Class<T> clazz){
+		T instance =null;
+		try {
+		instance = (T) Class.forName(className).getDeclaredConstructor().newInstance();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return instance;
+	}
+}
+interface IService{
+	public void service();
+}
+class HoseService implements IService{
+
+	@Override
+	public void service() {
+		// TODO Auto-generated method stub
+		System.out.println("服务");
+	}
+	
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		IMessage msg=Pactory.getIteranor("println.MessageImpl",IMessage.class);
+		msg.send();
+		IService ser=Pactory.getIteranor("println.HoseService", IService.class);
+		ser.service();
+	}
+}
+
+	此时的工厂设计模式将不再受限于指定的接口，可以为所有的接口提供实例化服务。
+
+——————————————————————————————————————————————————————————————————————
+
+反射于单例设计模式：
+
+	但离设计模式的核心本质在于：类内部的构造方法私有化，再类的内部产生实例化对象之后通过static方法获取实例化对象
+进行类中的结构调用，单例设计模式一共有两类：懒汉式，饿汉式，饿汉式的单例不再本次讨论范围之内的，主要讨论懒汉式的
+案例
+
+范例：讨论单例设计模式的缺点
+package println;
+
+class Singleton{
+	private static Singleton SL=null;
+	private Singleton(){
+		System.out.println("【+"+Thread.currentThread().getName()+"+】--------实例化Instance----------");
+	}
+	public static Singleton getInstance(){
+		if(SL==null){
+			SL= new Singleton();
+		}
+		return SL;
+	}
+	public void print(){
+		System.out.println("wwnn");
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		for(int x=0;x<3;x++){
+			new Thread(()->{
+				Singleton.getInstance().print();
+			},"单例消费段-"+x).start();;
+		}
+	}
+}
+
+程序运行结果：
+【+单例消费段-2+】--------实例化Instance----------
+【+单例消费段-1+】--------实例化Instance----------
+wwnn
+【+单例消费段-0+】--------实例化Instance----------
+wwnn
+wwnn
+
+
+
+	单例设计模式的最大特点是在整体的运行过程之中只允许产生一个实例化对象，这个时候会发现当有了若干线程
+当前的程序就可以产生多个实例化对象了，此时就不是单例模式了。此时问题造成的关键在于代码本身出现了不同步的情况
+而要想解决的关键核心就在于需要进行同步处理，同步自然可以想到synchronized处理
+
+
+范例：修改getInstance()方法进行同步处理
+
+public synchronized static Singleton getInstance(){
+		if(SL==null){
+			SL= new Singleton();
+		}
+		return SL;
+	}
+
+
+	这个时候的确是进行了同步处理，但是这个同步的代价有些大，因为效率会低。因为整体代码里面实际上只有一块部分需要同步
+处理，instance对象的实例化部分，那么在这样的情况下回发现同步加的有些草率了。
+
+范例：更加合理的进行同步处理
+package println;
+
+class Singleton{
+	private static volatile Singleton SL=null;
+	private Singleton(){
+		System.out.println("【+"+Thread.currentThread().getName()+"+】--------实例化Instance----------");
+	}
+	public static Singleton getInstance(){
+		if(SL==null){
+			synchronized(Singleton.class){
+				if(SL==null){
+					SL= new Singleton();
+				}
+			}
+		}
+		return SL;
+	}
+	public void print(){
+		System.out.println("wwnn");
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		for(int x=0;x<3;x++){
+			new Thread(()->{
+				Singleton.getInstance().print();
+			},"单例消费段-"+x).start();;
+		}
+	}
+}
+
+
+
+面试题：请编写单例设计模式
+
+	·【100%】直接编写一个饿汉式的单例设计模式，并且实现构造方法私有化；
+	·【120%】再java中哪里使用到但离设计模式了？Runtime类、Spring框架
+	·【200%】懒汉式单例设计模式的问题？
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

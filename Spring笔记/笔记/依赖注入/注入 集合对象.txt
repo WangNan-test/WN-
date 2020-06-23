@@ -1,0 +1,351 @@
+
+
+
+	集合对象一个注入是在整体Spring配置之中最为重要的操作部分，集合的数据类型主要分为List、Set、Map、Properties
+同时在进行集合数据操作的时候一定要记住，数组和List在Spring之中是对等的关系。
+
+注入数组（Array）：
+
+	按照正常的设计关系来讲，一个部门有多个员工，一个员工属于一个部门，所以此时就可以利用注入的依赖关系来实现
+此类数据的存储定义。
+
+范例：【Pring-Base】修改Spring配置文件
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="dept" class="com.ytinf.vo.Dept">
+        <property name="deptno" value="10"/>
+        <property name="dname" value="财务部"/>
+        <property name="exits" value="yes"/>
+        <property name="emps">
+            <array> <!-- 明确的标识现在要追加的数组类型的定义 -->
+                <ref bean="empA"/>  <!--定义数组的应用内容 -->
+                <ref bean="empB"/><!--定义数组的应用内容 -->
+                <ref bean="empC"/><!--定义数组的应用内容 -->
+            </array>
+        </property>
+        <property name="business">
+            <array>
+                <value>市场活动</value>
+                <value>成人嘻哈</value>
+                <value>胡编乱造</value>
+            </array>
+        </property>
+     </bean>
+    <bean id="empA" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7369"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="SMITH"/>
+        <property name="salary" value="899.23"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="30"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+        <property name="dept" ref="dept"/><!-- 引用其他的Bean配置 -->
+    </bean>
+    <bean id="empB" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7500"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="FORD"/>
+        <property name="salary" value="3500.23"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="30"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+        <property name="dept" ref="dept"/><!-- 引用其他的Bean配置 -->
+    </bean>
+    <bean id="empC" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7839"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="KING"/>
+        <property name="salary" value="5000"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="55"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+        <property name="dept" ref="dept"/><!-- 引用其他的Bean配置 -->
+    </bean>
+</beans>
+
+
+
+3、【Spring-Base项目】在测试类之中进行代码的输出操作
+
+package com.yuinf.test;
+
+import com.ytinf.vo.Dept;
+import com.ytinf.vo.Emp;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Arrays;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestDept {
+    @Autowired  //自动注入
+    private Dept dept;    //注入对象类型
+    @Test
+    public void testEcho(){
+        System.out.println(this.dept);
+        System.out.println(Arrays.toString(this.dept.getEmps()));
+        System.out.println(Arrays.toString(this.dept.getBusiness()));
+    }
+}
+	通过此时的代码执行可以发现，对应的数组的内容已经能够自动的注入到了相应对象的属性里面。
+
+
+注入List集合：
+
+
+	在Spring里面将数组和List基本上时进行了对等的操作控制，而且在获取List接口的时候也会自动的进行List接口的实例化
+既然数组和List配置对等所以默认使用的时ArrayList子类。
+
+1、【spring-base项目】修改Dept。java类，使用List集合的方式进行注入操作。
+public class Dept implements Serializable {
+    private Long deptno;
+    private String dname;
+    private boolean exits;  //是否存在
+    private List<Emp> emps; //保存部门对应的多个员工信息
+    private List<String> business;    //部门的业务
+
+
+2、【spring-base项目】保持当前的spring配置文件不发生任何的改变，此时配置文件里面还使用的时<array>元素
+
+进行代码的注入测试
+package com.yuinf.test;
+
+import com.ytinf.vo.Dept;
+import com.ytinf.vo.Emp;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Arrays;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestDept {
+    @Autowired  //自动注入
+    private Dept dept;    //注入对象类型
+    @Test
+    public void testEcho(){
+        System.out.println(this.dept);
+        for(Emp emp:this.dept.getEmps()){
+            System.out.println(emp);
+        }
+        System.out.println("部门业务"+this.dept.getBusiness());
+        System.out.println(this.dept.getEmps().getClass());		/class java.util.ArrayList
+
+    }	
+}
+
+	之所以此时直接使用ArrqyList还有一个最为重要的原因在于，利用配置文件定义的数组内容本质上是不会发生长度修改
+的。
+3、【spring-base项目】如果按照正规标准来讲，此时的代码应该使用的是List配置，而不应该使用<array>现在修改Spring-base.xml
+配置文件，进行元素的更换
+
+
+
+	此时将“<Array>”元素更换为<list>元素，通过最终的执行可以发现，此时的执行效果与之前的代码完全相同
+
+注入Set集合
+
+	从Java基础角度来讲，List和Set集合最大的差别在于，List集合可以保存重复元素，而Set集合是不会保存有重复元素的。
+而在Set接口里面HashSet依靠的是equals()和hashCode()两个方法区分重复，而TreeSet依靠的是Comparable接口区分重复
+
+1、【spring-base项目】为了方便在Emp类中追加equals（）和hashCode（）两个方法
+
+
+2、【spring-base项目】修改spring-base.xml配置文件，定义若干个emp对象实例
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="dept" class="com.ytinf.vo.Dept">
+        <property name="deptno" value="10"/>
+        <property name="dname" value="财务部"/>
+        <property name="exits" value="yes"/>
+        <property name="emps">
+            <set> <!-- 明确的标识现在要追加的数组类型的定义 -->
+                <ref bean="empA"/>  <!--定义数组的应用内容 -->
+                <ref bean="empB"/><!--定义数组的应用内容 -->
+                <ref bean="empC"/><!--定义数组的应用内容 -->
+                <ref bean="empD"/>  <!--定义重复-->
+            </lset>
+        </property>
+        <property name="business">
+            <set>
+                <value>市场活动</value>
+                <value>市场活动</value>
+                <value>市场活动</value>
+                <value>市场活动</value>
+                <value>成人嘻哈</value>
+                <value>胡编乱造</value>
+            </set>
+        </property>
+     </bean>
+    <bean id="empA" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7369"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="SMITH"/>
+        <property name="salary" value="899.23"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="30"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+        <property name="dept" ref="dept"/><!-- 引用其他的Bean配置 -->
+    </bean>
+    <bean id="empB" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7500"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="FORD"/>
+        <property name="salary" value="3500.23"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="30"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+        <property name="dept" ref="dept"/><!-- 引用其他的Bean配置 -->
+    </bean>
+    <bean id="empC" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7839"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="KING"/>
+        <property name="salary" value="5000"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="55"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+        <property name="dept" ref="dept"/><!-- 引用其他的Bean配置 -->
+    </bean>
+    <bean id="empD" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7369"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="SMITH"/>
+        <property name="salary" value="899.23"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="30"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+        <property name="dept" ref="dept"/><!-- 引用其他的Bean配置 -->
+    </bean>
+</beans>
+
+
+	通过程序的执行当前的处理的结果为“LinkedHashSet”类型，这种类型是基于链表的形式实现的HashSet存储
+主要的目的是为了保留用户的定义顺序。
+
+
+注入入Map集合：
+
+	Map集合使用的最大意义在于进行数据的查询处理，所以在进行Map注入的时候需要考虑到key与value的存储
+1、【spring-base项目】在Dept.java类之中设置有Map的存储
+
+public class Dept implements Serializable {
+    private Long deptno;
+    private String dname;
+    private boolean exits;  //是否存在
+    private Map<String,Emp> emps; //保存部门对应的多个员工信息
+
+}
+2、【spring-base项目】在进行Map集合数据配置的时候需要设置的实体。
+<property name="emps" >
+            <map>
+                <entry key="雇员-A" value-ref="empA"/>
+                <entry key="雇员-B" value-ref="empB"/>
+                <entry key="雇员-C" value-ref="empC"/>
+            </map>
+        </property>
+3、【spring-base项目】在测试类之中输出Map集合的内容；
+Dept{deptno=10, dname='财务部', exits=true}
+雇员-A=Emp{empno=7369, ename='SMITH', salary=899.23, hiredate=Mon Dec 23 19:44:18 CST 2019, age=30}
+雇员-B=Emp{empno=7500, ename='FORD', salary=3500.23, hiredate=Mon Dec 23 19:44:18 CST 2019, age=30}
+雇员-C=Emp{empno=7839, ename='KING', salary=5000.0, hiredate=Mon Dec 23 19:44:18 CST 2019, age=55}
+class java.util.LinkedHashMap
+
+	通过执行可以发现，对于当前使用的Map子类为LinkedHashMap,实际上这种设计和LinkedHashSet思想相同因为要保留住用户
+配置的顺序，所以全部使用链表的形式进行内容的存储。
+
+注入Propertisejihe 
+
+	在java.util包里面Properties描述的属性的操作，而Properties本身是Hashtable的子类，但是与Map最大的区别在于Properties主要保存
+字符串型的数据。
+1、【spring-base项目】修改Dept.java类，设置一个Properties属性。
+public class Dept implements Serializable {
+    private Long deptno;
+    private String dname;
+    private boolean exits;  //是否存在
+    private Properties properties;
+}
+2、【spring-base项目】修改spring-base.xml配置文件，设置Properties属性内容
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="dept" class="com.ytinf.vo.Dept">
+        <property name="deptno" value="10"/>
+        <property name="dname" value="财务部"/>
+        <property name="exits" value="yes"/>
+        <property name="properties">
+            <props> <!--设置Properties属性的内容-->
+                <prop key="crm">客户关系管理系统</prop>
+                <prop key="erp">企业资源管理系统</prop>
+                <prop key="drp">企业销售管理系统</prop>
+            </props>
+        </property>
+     </bean>
+</beans>
+
+3、【spring-base项目】编写测试代码，输出
+package com.yuinf.test;
+
+import com.ytinf.vo.Dept;
+import com.ytinf.vo.Emp;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Arrays;
+import java.util.Map;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestDept {
+    @Autowired  //自动注入
+    private Dept dept;    //注入对象类型
+    @Test
+    public void testEcho(){
+        System.out.println(this.dept);
+        System.out.println(this.dept.getProperties());
+        System.out.println(this.dept.getProperties().getProperty("hello"));
+        System.out.println(this.dept.getProperties().getProperty("hello","No Found Project"));
+    }
+}
+
+输出结果：
+Dept{deptno=10, dname='财务部', exits=true}	//全部properties内容
+{drp=企业销售管理系统, crm=客户关系管理系统, erp=企业资源管理系统}//全部properties内容
+null	//查询的key不存在
+No Found Project		设置了key不存在的默认值
+
+	现在所有的集合的常用类型都可以直接进行注入操作，在以后进行各种配置的时候，这些集合的配置项
+都可能在出现在配置文件之中。
+
+
+	
+
+
+
+
+
+
+

@@ -1,0 +1,145 @@
+
+
+	到此为止可以发现通过Spring配置文件配置的所有的Bean对象，最终都可以直接获取实例化对象进行操作，在整体的配置过程
+里面可以发现，所有配置的内容本质上都属于反射实例化。
+
+<bean id="dept" class="com.ytinf.vo.Dept" >
+        <property name="dname" value="财务部"/>
+        <property name="deptno" value="10"/>
+    </bean>
+package com.ytinf.vo;
+
+import java.beans.ConstructorProperties;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+public class Dept implements Serializable {
+   private Long deptno;
+   private String dname;
+
+    public Dept() {
+        System.err.println("***********实例化Dept类对象******");
+    }
+
+    public Long getDeptno() {
+        return deptno;
+    }
+
+    public void setDeptno(Long deptno) {
+        this.deptno = deptno;
+    }
+
+    public String getDname() {
+        return dname;
+    }
+
+    public void setDname(String dname) {
+        this.dname = dname;
+    }
+
+    @Override
+    public String toString() {
+        return "【对象的地址编码："+super.toString()+"】deptno="+this.deptno+"、dname="+this.dname;
+    }
+}
+
+
+	但是需要做进一步的思考，如果现在调用了多次的对象获取操作，那么到底会实例化多少个对象，以及该对象是在什么时候
+被实例化的呢？
+
+
+1、【spring-base项目】为例方便观察对象实例化的操作情况，可以在Dept类中追加一个构造方法，所有类的对象实例化都需要
+通过构造方法操作。
+public Dept() {
+        System.err.println("***********实例化Dept类对象******");
+    }
+
+2、【spring-base项目】通过ApplicationContext手工实现容器的启动操作；
+ public static void main(String[] args) {
+        ApplicationContext context=new ClassPathXmlApplicationContext("spring/spring-base.xml");
+
+    }
+执行结果：***********实例化Dept类对象******	
+	通过程序的执行可以发现，在当前的程序类里面只是进行了简单的容器启动，而在容器启动的时候可以直接发现获取了Dept
+所以可以得出一个结论，在容器启动的时候才会进行对象的初始化。
+
+3、【spring-base项目】通过getBean(方法)获取实例化对象，为了观察方便，本次将创建20个线程对象
+
+package com.yuinf.test;
+
+import com.ytinf.vo.Dept;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.util.Map;
+
+public class TestObjectSpring {
+    public static void main(String[] args) {
+        ApplicationContext context=new ClassPathXmlApplicationContext("spring/spring-base.xml");
+        for (int x=0;x<20;x++){
+            new Thread(new Message(context)).start();
+        }
+    }
+}
+class  Message implements Runnable{
+  private  ApplicationContext context;
+  public Message(  ApplicationContext context){
+      this.context=context;
+  }
+    @Override
+    public void run() {
+        System.out.println( "{"+Thread.currentThread().getName()+"}"+context.getBean("dept", Dept.class));
+    }
+}
+
+执行结果：
+{Thread-1}【对象的地址编码：com.ytinf.vo.Dept@527f5757】deptno=10、dname=财务部
+{Thread-2}【对象的地址编码：com.ytinf.vo.Dept@527f5757】deptno=10、dname=财务部
+{Thread-3}【对象的地址编码：com.ytinf.vo.Dept@527f5757】deptno=10、dname=财务部
+
+现在可以发现，虽然启动了20个线程，但是在整体操作的过程之中，最终可以获取的只有一个Dept类的对象实例。
+在整个的Spring容器之中，任何进行“bean”配置实际上都采用了单例设置模式，即只提供有一个实例化对象。
+而使用单例设计模式的优势在于可以避免过多的对象所产生的GC性能问题。
+
+4、【spring-base项目】实际上默认情况下所有的配置的bean都会隐藏一个单例的配置属性。
+		默认的单例配置的定义
+
+<bean id="dept" class="com.ytinf.vo.Dept" scope="singleton">
+        <property name="dname" value="财务部"/>
+        <property name="deptno" value="10"/>
+    </bean>
+
+	·如果此时要想取消单例的配置，也可以直接基于scope属性配置
+
+<bean id="dept" class="com.ytinf.vo.Dept" scope="prototype"><!-- 取消候选资格 -->
+        <property name="dname" value="财务部"/>
+        <property name="deptno" value="10"/>
+    </bean>
+
+	此时如果在bean配置的时候使用了“prototype”配置项，那么就表示Spring不再进行单例的操作维护。
+5、【spring-base项目】既然Spring针对于Bean管理采用的是单例设计模式，那么对于单例设计模式来讲就需要考虑
+两种形式一种是饿汉式单例（默认就属于饿汉式）、另外一种就属于懒汉式的单例，如果要想配置懒汉式的单例就需要进行类对象的
+延迟实例化，此时要追加一个lazy属性
+
+   <bean id="dept" class="com.ytinf.vo.Dept" scope="singleton" lazy-init="true"><!-- 取消候选资格 -->
+        <property name="dname" value="财务部"/>
+        <property name="deptno" value="10"/>
+    </bean>
+
+	在使用Java原生代码进行单例设计模式实现的时候，对于懒汉式的单例需要考虑到各种同步的问题，但是当有了Spring之后
+所有的同步处理操作全部由Spring完成处理了。
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,93 @@
+1、
+package com.ytinf.service;
+
+public interface IDeptService {
+    public boolean add();
+}
+
+
+2、
+
+package com.ytinf.service.impl;
+
+import com.ytinf.service.IDeptService;
+
+public class DeptServiceImpl implements IDeptService {
+
+    @Override
+    public boolean add() {
+        try {
+            // 1、打开数据库的连接；
+            // 2、关闭数据库的自动提交操作；
+            // 3、调用业务层的处理
+            // 4、如果没有任何的问题则进行事务的提交（commit）；
+        } catch (Exception e) {
+            // 5、如果有异常，则将异常向上抛出
+            // 6、进行事务的回滚处理（rollback）；
+        } finally {
+            // 7、数据库关闭操作。
+        }
+        return false ;
+    }
+}
+
+3、
+
+package com.ytinf.service.proxy;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+public class ServiceProxy implements InvocationHandler {
+    private Object targetObject ;
+    public Object bind(Object targetObject) {
+        this.targetObject = targetObject ;
+        return Proxy.newProxyInstance(this.targetObject.getClass().getClassLoader(),this.targetObject.getClass().getInterfaces(),this) ;
+    }
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        try {
+            // 1、打开数据库的连接；
+            // 2、关闭数据库的自动提交操作；
+            // 3、调用真实业务层的处理
+            // 4、如果没有任何的问题则进行事务的提交（commit）；
+        } catch (Exception e) {
+            // 5、如果有异常，则将异常向上抛出
+            // 6、进行事务的回滚处理（rollback）；
+        } finally {
+            // 7、数据库关闭操作。
+        }
+        return false ;
+    }
+}
+
+
+4、
+package com.ytinf.service.impl;
+
+import com.ytinf.service.IDeptService;
+
+public class DeptServiceImpl implements IDeptService {
+
+    @Override
+    public boolean add() {
+        // 3、调用数据层的处理
+        return false;
+    }
+}
+
+
+5、
+<bean id="serviceAdvice" class="com.ytinf.aop.ServiceAdvice"/>  <!-- 辅助处理类 -->
+<aop:config>    <!-- 进行AOP的具体配置 -->
+<aop:pointcut id="commonPointcut" expression="execution(public * com.ytinf.service..*.*(..))"/>
+<aop:aspect ref="serviceAdvice">    <!-- 进行代码的织入处理 -->
+    <aop:around method="aroundHandle" pointcut-ref="commonPointcut"/>
+    <aop:before method="beforeHandle" arg-names="vo" pointcut="execution(public * com.ytinf.service..*.*(..)) and args(vo)"/>
+    <aop:after method="afterHandle" pointcut-ref="commonPointcut"/>
+    <aop:after-returning method="returnHandle" pointcut-ref="commonPointcut" returning="resval" arg-names="resval"/>
+    <aop:after-throwing method="throwHandle" pointcut-ref="commonPointcut" throwing="e" arg-names="e"/>
+</aop:aspect>
+</aop:config>
+

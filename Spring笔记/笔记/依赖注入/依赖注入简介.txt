@@ -1,0 +1,154 @@
+
+	Spring之中得第一大组成就是IOC&DI，其中IOC描述得时控制反转，即：将所有得对象实例化的，操作控制全部交由
+Spring负责，而在IOC基础之上可以基于之上可以继续进行各种依赖关系的配置，就可以利用DI技术来完成
+
+Bean的基本管理
+
+	在Spring配置文件里面可以定义各种Bean对象，同时每一个配置的Bean对象都需要设置有相应的id、class的内容
+那么本次将基于次操作实现Bean中属性的定义配置。
+
+1、【spring-base项目】建立一个基础的程序类，这个程序类里面包含有一些常用的数据类型。
+
+private Long empno;
+    private String ename;
+    private Double salary;
+    private Date hiredate;
+    private Integer age;
+
+
+2、【spring-base项目】在spring-base.xml配置文件之中使用Bean标签进行类的定义。
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="emp" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7369"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="SMITH"/>
+        <property name="salary" value="899.23"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="30"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+    </bean>
+
+</beans>
+
+3、【spring-base项目】定义一个测试类，观察输出的注入情况。
+package com.yuinf.test;
+
+import com.ytinf.service.IMessageService;
+import com.ytinf.vo.Emp;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestEmp {
+    @Autowired  //自动注入
+    private Emp emp;    //注入对象类型
+    @Test
+    public void testEcho(){
+        System.out.println(this.emp);
+    }
+}
+
+	通过此时的代码可以清楚的发现，使用Spring的Bean管理的时候，除了可以利用反射调用无参构造之外，实际上也可以
+利用属性的方式调用类中的setter方法设置相应的内容。
+4、【spring-base项目】以上都只是进行了基本类型的注入操作，那么下面将进行自定义类型的配置，例如，现在定义一个Dept的类
+一个雇员属于一个部门，同时在Emp.java类中追加一个部门的引用。
+package com.ytinf.vo;
+
+import java.io.Serializable;
+
+public class Dept implements Serializable {
+    private Long deptno;
+    private String dname;
+    private boolean exits;  //是否存在
+}
+
+5、【spring-base项目】修改spring-base。xml配置文件，进行相应的配置
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="dept" class="com.ytinf.vo.Dept">
+        <property name="deptno" value="10"/>
+        <property name="dname" value="财务部"/>
+        <property name="exits" value="yes"/>
+     </bean>
+    <bean id="emp" class="com.ytinf.vo.Emp">
+        <property name="empno" value="7369"/><!-- 内容为字符串，属性类型为Long -->
+        <property name="ename" value="SMITH"/>
+        <property name="salary" value="899.23"/> <!-- 内容为字符串，属性类型为Double -->
+        <property name="age" value="30"/>
+        <property name="hiredate">
+            <bean class="java.util.Date"/><!-- 调用无参构造 -->
+        </property>
+        <property name="dept" ref="dept"/><!-- 引用其他的Bean配置 -->
+    </bean>
+
+</beans>
+
+	在Spring里面充分的考虑到了布尔数据类型使用问题，所以对于布尔的取值一般有如下几种：0或1、off或on 、true或false、
+yes或no
+
+6、【spring-base项目】编写测试代码进行数据的注入测试
+
+package com.yuinf.test;
+
+import com.ytinf.service.IMessageService;
+import com.ytinf.vo.Emp;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestEmp {
+    @Autowired  //自动注入
+    private Emp emp;    //注入对象类型
+    @Test
+    public void testEcho(){
+        System.out.println(this.emp);
+        System.out.println(this.emp.getDept());
+    }
+}
+
+Emp{empno=7369, ename='SMITH', salary=899.23, hiredate=Tue Dec 17 22:49:44 CST 2019, age=30}
+Dept{deptno=10, dname='财务部', exits=true}
+
+	此时的代码可以发现，通过雇员的信息是可以找到对应部门信息的，因为在进行雇员配置的时候，直接引用了dept-bean的配置向
+，所以会自动进行关联定义。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

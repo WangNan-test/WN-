@@ -1,0 +1,152 @@
+1、
+
+package com.ytinf.service;
+
+public interface IMessageService {
+    public String echo(String msg) ;
+}
+
+
+2、
+
+package com.ytinf.service.impl;
+
+import com.ytinf.service.IMessageService;
+
+public class MessageServiceImpl implements IMessageService {
+
+    public String echo(String msg) {
+        return "【ECHO】" + msg;
+    }
+}
+
+
+
+3、
+
+
+package com.ytinf.test;
+
+import com.ytinf.service.IMessageService;
+import com.ytinf.service.impl.MessageServiceImpl;
+
+public class TestMessage {
+    public static void main(String[] args) {
+        IMessageService service = new MessageServiceImpl() ;
+        System.out.println(service.echo("可爱的小李老师"));
+    }
+}
+
+
+4、
+package com.ytinf.service.factory;
+
+import com.ytinf.service.IMessageService;
+import com.ytinf.service.impl.MessageServiceImpl;
+
+public class Factory {
+    private Factory() {} // 构造方法私有化，避免外部产生无意义的对象
+    public static IMessageService getMessageInstance() {
+        return new MessageServiceImpl() ;
+    }
+}
+
+
+5、
+package com.ytinf.test;
+
+import com.ytinf.service.IMessageService;
+import com.ytinf.service.factory.Factory;
+
+public class TestMessage {
+    public static void main(String[] args) {
+        IMessageService service = Factory.getMessageInstance() ;
+        System.out.println(service.echo("可爱的小李老师"));
+    }
+}
+
+
+6、
+package com.ytinf.service.factory;
+
+public class Factory {
+    private Factory() {} // 构造方法私有化，避免外部产生无意义的对象
+    public static <T> T getMessageInstance(String className) {
+        try {
+            return (T) Class.forName(className).getDeclaredConstructor().newInstance()
+        } catch (Exception e) {
+            return null ;
+        }
+    }
+}
+
+
+7、
+package com.ytinf.test;
+
+import com.ytinf.service.IMessageService;
+import com.ytinf.service.factory.Factory;
+
+public class TestMessage {
+    public static void main(String[] args) {
+        IMessageService service = Factory.getMessageInstance("com.ytinf.service.impl.MessageServiceImpl") ;
+        System.out.println(service.echo("可爱的小李老师"));
+    }
+}
+
+
+8、
+package com.ytinf.test;
+
+import com.ytinf.service.IMessageService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class TestMessage {
+    public static void main(String[] args) {
+        // 进行配置文件的加载，利用此配置文件启动Spring容器，容器启动的时候自动进行Bean对象实例化
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring/spring-base.xml");
+        IMessageService service = context.getBean("messageService",IMessageService.class) ;
+        System.out.println(service.echo("可爱的小李老师"));
+    }
+}
+
+
+9、
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- 如果有需要也可以直接进行接口的定义，但是接口无法直接实例化，必须追加abstract标记 -->
+    <bean id="message" class="com.ytinf.service.IMessageService" abstract="true"/>
+    <!-- 将MessageServiceImpl的类交由Spring负责管理控制 -->
+    <bean id="messageService" class="com.ytinf.service.impl.MessageServiceImpl" parent="message"/>
+</beans>
+
+10、
+package com.ytinf.test;
+
+import com.ytinf.service.IMessageService;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+// 如果要进行Spring测试，必须进行Spring容器的启动，那么此时可以直接利用此直接定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+// 设置本次要执行的测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestMessageService {
+    @Autowired                                  // 自动注入
+    private IMessageService messageService ;    // 保留接口对象
+    @Test
+    public void testEcho() {
+        String echoMessage = this.messageService.echo("小李老师") ;
+        TestCase.assertEquals(echoMessage,"【ECHO】小李老师");
+    }
+}
+
+

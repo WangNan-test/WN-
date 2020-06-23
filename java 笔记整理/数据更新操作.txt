@@ -1,0 +1,178 @@
+
+	如果想进行数据更新的处理，那么一定需要提供有相应的数据表的信息，那么下面将使用数据库之中常见的一些基本字段
+实现数据表的创建。
+
+范例：创建一张新闻数据表
+DROP TABLE news PURGE;
+DROP SEQUENCE news_seq;
+CREATE SEQUENCE news_seq;
+CREATE TABLE news(
+  nid		 NUMBER,
+  title		 VARCHAR2(50),
+  pubdate	 DATE,
+  price		 NUMBER(10,2),
+  content	 CLOB,
+  CONSTRAINT pk_nid PRIMARY KEY(nid)
+);
+
+	此时对于当前的news表中的主键是通过序列来生成的，序列的使用语法形式是固定的，
+
+SQL语法：INSERT INTO 表名称（字段,字段,字段,字段）VALUES(数值,数值,数值,数值,数值);
+
+范例：实现数据增加
+
+package drill;
+
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+
+public class JDBCDemo {
+    public static final String DBDRIVER="oracle.jdbc.driver.OracleDriver";  //驱动程序
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        Class.forName(DBDRIVER);    //反射加载驱动程序
+        Connection con= DriverManager.getConnection(DBURL,USER,PASSWORD);//连接数据库
+        System.out.println(con);
+        Statement stmt=con.createStatement();    //实例化Statement对象 通过Connection对象创建
+        String sql=" INSERT INTO news (nid,title,pubdate,price,content) VALUES" +
+                " (news_seq.nextval,'喜庆的节日来了',TO_DATE('2059-05-02','yyyy-mm-dd')," +
+                " 1.1,'全国洋溢着欢天喜地，迎接假日')";   //如果换行，建议所有的语句前后都追加一个空格
+        int conut=stmt.executeUpdate(sql);   //执行更新语句
+        System.out.println("【数据库更新】影响到的更新行数"+conut);
+        stmt.close();
+        con.close();
+
+    }
+}
+	
+
+范例：实现数据修改
+
+SQL语法：UPDATE 表名称 SET 字段=数值，字段=数值，字段=数值，...WHERE 更新条件；
+
+package drill;
+
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+
+public class JDBCDemo {
+    public static final String DBDRIVER="oracle.jdbc.driver.OracleDriver";  //驱动程序
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        Class.forName(DBDRIVER);    //反射加载驱动程序
+        Connection con= DriverManager.getConnection(DBURL,USER,PASSWORD);//连接数据库
+        System.out.println(con);
+        Statement stmt=con.createStatement();    //实例化Statement对象 通过Connection对象创建
+        String sql="UPDATE news SET title='我爱李欢',pubdate=SYSDATE WHERE nid IN (3,5)";   //如果换行，建议所有的语句前后都追加一个空格
+        int conut=stmt.executeUpdate(sql);   //执行更新语句
+        System.out.println("【数据库更新】影响到的更新行数"+conut);
+        stmt.close();
+        con.close();
+
+    }
+}
+
+	由于此时需要进行两条数据的修改，所以最终影响的数据行数为2.
+
+范例：数据删除
+
+SQL语法：DELETE FROM 表名称 WHERE 删除条件；
+
+package drill;
+
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+
+public class JDBCDemo {
+    public static final String DBDRIVER="oracle.jdbc.driver.OracleDriver";  //驱动程序
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        Class.forName(DBDRIVER);    //反射加载驱动程序
+        Connection con= DriverManager.getConnection(DBURL,USER,PASSWORD);//连接数据库
+        System.out.println(con);
+        Statement stmt=con.createStatement();    //实例化Statement对象 通过Connection对象创建
+        String sql="DELETE FROM news WHERE nid=2";   //如果换行，建议所有的语句前后都追加一个空格
+        int conut=stmt.executeUpdate(sql);   //执行更新语句
+        System.out.println("【数据库更新】影响到的更新行数"+conut);
+        stmt.close();
+        con.close();
+
+    }
+}
+
+	以上的三个更新的处理操作，可以实现数据内容的修改操作，但是千万要记住一点，所有的更新只要成功了
+就一定会返回影响的数据行数，在以后判断的时候可以依据数据行数的多少来决定当前的更新是否成功。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,207 @@
+代码块分4类：普通代码块，构造代码块，静态代码块，同步代码块。
+
+
+普通代码块：
+ 	普通代码块指的是定义在方法中的代码块。
+package println;
+
+public class println{
+	public static void main(String []args){
+		{
+			int a=10;
+			System.out.println(a);
+		}
+		int a=100;
+		System.out.println(a);
+	}
+}
+如果代码写得过长，避免变量名重复往往会使用到代码块。
+——————————————————————————————————————————————
+构造块：
+构造块指得是定义在类中的代码块。
+package println;
+class Emp{
+	public Emp(){
+		System.out.println("构造函数");
+	}
+	{
+		System.out.println("构造代码块");
+	}
+}
+public class println{
+	public static void main(String []args){
+	Emp p1=new Emp();
+	Emp p2=new Emp();
+	Emp p3=new Emp();
+	}
+}
+每一次使用关键字  new实例化对象的时候一定会调用构造方法，但有了构造代码块会先调用代码块在调用构造方法。
+这个构造块唯一的好处是能进行一些简单的逻辑操作 
+________________________________________________________________________________________________________________________
+
+
+静态快指的是是由static关键字定义的代码块。但是如果要想去考虑静态块必须分为两种情况：
+	·在非主类中定义的静态块
+	·在主类中的定义的静态块
+package println;
+class Emp{
+	public Emp(){
+		System.out.println("构造方法");
+	}
+	{
+		System.out.println("构造代码块");
+	}
+	static{
+		System.out.println("静态块");
+	}
+}
+public class println{
+	public static void main(String []args){
+	Emp p1=new Emp();
+	Emp p2=new Emp();
+	Emp p3=new Emp();
+	}
+}
+静态块优先于构造快，不管禅师多少个实例化对象，静态块也只使用一次。
+静态块最重要的作用就是为static属性初始化。
+package println;
+class Emp{
+	private static String a="hello";
+	public Emp(){
+		System.out.println("构造方法");
+	}
+	{
+		System.out.println("构造代码块");
+	}
+	static{
+		a+="world";
+		System.out.println("静态块"+a);
+	}
+}
+public class println{
+	public static void main(String []args){
+	Emp p1=new Emp();
+	Emp p2=new Emp();
+	Emp p3=new Emp();
+	}
+}
+静态块也可以定义在主类里面，那么此时的静态块将优先于主方法执行
+
+package println;
+
+public class println{
+	static{
+		System.out.println("**************");
+	}
+	public static void main(String []args){
+	System.out.println("hello");
+	}
+}
+
+
+
+总结：
+如果需要在一些属性使用前做处理就使用构造块，或静态块。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

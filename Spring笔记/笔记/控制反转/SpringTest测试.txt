@@ -1,0 +1,66 @@
+
+
+	现在已经实现了一个基本得Spring程序开发，但是对于此时得程序开发从严格意义上来讲并不标准，因为从实际得项目得
+开发角度来说，使用Spring得目的就是为了避免关键字new造成得代码耦合问题，但是对于之前得容器启动，你会发现存在有如下已
+端代码： ApplicationContext context=new ClassPathXmlApplicationContext("spring/spring-base.xml");
+
+	此时有了关键字new那么这种操作属于手工得测试实现，于实际得Spring使用差别是非常大得，所以在这样得
+情况下更多得是可以实现容器得启动配置，那么此时就可以直接利用SpringTest集合Junit完成代码测试。
+
+1、【spring项目】修改pom.xml文件
+<dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>5.1.5.RELEASE</version>
+      <scope>test</scope>
+    </dependency>
+
+-
+
+package com.yuinf.test;
+
+import com.ytinf.service.IMessageService;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestMessageService {
+    @Autowired  //自动注入
+    private IMessageService messageService; //保留接口对象
+    @Test
+    public void testEcho(){
+        String echoMessage=this.messageService.echo("我是你爸爸");
+        TestCase.assertEquals(echoMessage,"【ECHO】我是你爸爸");	//
+    }
+}
+
+
+	SpringTest依赖库可以自动得帮助用户进行容器得启动，但是需要开发者明确得设置要使用得Spring得配置文件
+基于“@AutoWired”进行自动得注入操作，在注入得时候是根据类型或名称配置，而后注入成功之中进行方法调用
+
+
+
+
+
+
+
+
+
+
+
+
+
+

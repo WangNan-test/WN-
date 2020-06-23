@@ -1,0 +1,383 @@
+简单Java类主要是由属性所组成，并且提供有相应的 stter、getter处理方法，同时简单java类最大的特征就是通过对象保存
+相应的类属性内容。但是如果使用传统的简单java类开发那么也会面临非常麻烦的困难
+
+范例：传统的简单java类
+
+class Emp{
+	private String ename;
+	private String job;
+	public Emp() {}
+	public String getEname() {
+		return ename;
+	}
+	public String getJob() {
+		return job;
+	}
+	public void setEname(String ename) {
+		this.ename = ename;
+	}
+	public void setJob(String job) {
+		this.job = job;
+	}
+}
+
+	特别强调，为了方便理解，本次Emp类之中定义的ename、job两个属性的类型使用的都是String类型按照
+传统的做法应该首先实例化Emp类的对象，而后通过实例化对象进行setter方法的调用以设置属性内容
+
+
+范例：传统的调用下
+
+Emp emp=new Emp();
+emp.setEname("SMITH");
+emp.setJob("CLERK");
+System.out.println("姓名："+emp.getEname()+"、职位："+emp.getJob());
+
+
+
+	再整个进行Emp对象实例化并设置数据的操作过程之中，设置数据的部分是最麻烦的，你可以想象以下，如果说
+现在Emp类里面提供有大量的属性，那么对于整个程序将会出现一堆setter方法调用，或者在进一步说明，再实际的开发之中，简单
+Java类的个数是非常高的，那么如果所有的简单java类都牵扯到属性赋值的时候，这种情况下代码编写的重复性将会非常的高
+
+	按照传统的直观的编程方式，所带来的问题就是代码会存在有大量的重复操作，如果要想解决对象的重复处理操作那么唯一的
+解决方案就是反射机制，反射机制最大的特征是可以根据其自身的特点（Object类直接操作、可以直接操作属性或方法）实现
+相同功能类的重复操作的抽象处理。
+——————————————————————————————————————————————————————————————————
+
+属性自动赋值实现思路：
+
+
+	经过分析之后已经确认了当前简单java类操作问题所在，而对于开发者而言就需要想办法通过一种解决方法
+来实现属性内容的自动设置，那么这个时候的设置强烈建议采用字符串的形式来描述对应的类型。
+
+1、再进行程序开发的时候String字符串可以描述的内容有很多，并且也可以由开发者自行定义字符串的结构，下面就采用
+“属性：内容|属性：内容|”的形式来为简单Java类中的属性初始化。
+2、类设计的基本结构：应该由一个撰文的ClassInstanceFactory类负责所有的反射处理，即：接收反射对象，与我们要设置的属性内容
+同是可以获取指定类的实例化对象。
+
+3、设计的基本结构
+
+class ClassInstanceFactory{
+	private ClassInstanceFactory(){}
+	/**
+	 * 实例化对象创建方法，该对象可以根据传入字符串的结构“属性：内容|属性：内容”
+	 * @param clazz	要进行反射实例化的Class对象，有class就可以反射实例化对象
+	 * @param value 要设置给对象的属性内容
+	 * @return	一个已经配置好内容的java类对象
+	 */
+	public static <T>T create(Class<?> clazz,String value){
+		return null;
+	}
+}
+
+	那么再当前的开发之中，所需要留给用户完善的就是ClassInstanceFactory()处理方法。
+————————————————————————————————————————————————————————————————————————————————————
+单级属性配置：
+
+
+	对于此时的Emp类里面会发现所给出的数据类型都没有其他的引用关联了，只是描述了Emp本类对象
+这样的设置称为单极设置处理，所以此时应该处理两件事情：
+		·需要通过反射进行指定类对象的实例化处理；
+		·进行内容的设置（Fiele属性类性、方法名称、要设置的内容）；
+
+
+1、定义StringUtils实现首字母大写
+class StringUtils{
+	private StringUtils(){}
+	public static String initcap(String value){
+		if(value==null||"".equals(value)){
+			return null;
+		}
+		if(value.length()>1){
+			return value.substring(0, 1).toUpperCase()+value.substring(1);
+		}
+		return value.toUpperCase();
+	}
+}
+1、定义BeanUtiles工具类，该工具类主要实现属性的设置。
+public static <T>T crerteTwo(Class<?> clazz,String value){
+		try {	//如果要想采用反射进行简单java类对象属性设置的时候，类中必须要有无参构造
+			Object obj=clazz.getDeclaredConstructor().newInstance();
+			BeanUtils.setOalue(obj, value);	//通过反射设置属性
+			return (T)obj;		//返回对象
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+
+3、ClassInstanceFactory负责实例化对象并且调用BeanUtilr类实现属性内容的设置
+class ClassInstanceFactory{
+	private ClassInstanceFactory(){}
+	/**
+	 * 实例化对象创建方法，该对象可以根据传入字符串的结构“属性：内容|属性：内容”
+	 * @param clazz	要进行反射实例化的Class对象，有class就可以反射实例化对象
+	 * @param value 要设置给对象的属性内容
+	 * @return	一个已经配置好内容的java类对象
+	 */
+
+	@SuppressWarnings("unchecked")
+	public static <T>T crerteTwo(Class<?> clazz,String value){
+		try {	//如果要想采用反射进行简单java类对象属性设置的时候，类中必须要有无参构造
+			Object obj=clazz.getDeclaredConstructor().newInstance();
+			BeanUtils.setOalue(obj, value);	//通过反射设置属性
+			return (T)obj;		//返回对象
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+}
+
+	即时类中的属性再多，那么也可以轻松的实现setter的调用（类对象实例化处理）。；
+
+自己写的：
+	@SuppressWarnings("unchecked")
+	public static <T>T create(Class<?> clazz,String value){
+		T instance=null;
+		try {
+			instance=(T) clazz.getDeclaredConstructor().newInstance();
+			String[] temp=value.split("\\|");
+			for(int x=0;x<temp.length;x++){
+				String[] data=temp[x].split(":");
+				Field field = clazz.getDeclaredField(data[0]);
+				Class<?> type = field.getType();
+				String mythodName="set"+ClassInstanceFactory.initcap(data[0]);
+				Method method = clazz.getDeclaredMethod(mythodName, type);
+				method.invoke(instance,temp[x]);
+				
+			}
+			return instance;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+	public static String initcap(String num){
+		if(num==null||"".equals(num)){
+			return num;
+		}
+		if(num.length()>1){
+			return num.substring(0,1).toUpperCase()+num.substring(1);
+		}
+		return num.toUpperCase();
+	}
+
+——————————————————————————————————————————————————————————————————
+设置多种数据类型
+
+	现在已经成功的实现了单级的属性配置，但是这里面依然需要烤炉一个实际的情况，当前所给定的数据类型只是String，
+但是再实际的开发之中面对简单JAVA类中的属性类型一般的可选方案为：long(Long)、int(integer)、double(Double)、String、
+data(日期、日期时间)，所以这个时候对于当前的程序代码就必须做出修改，要求可以实现各种数据类型的配置。
+	既然要求可以实现不同类型的内容设置，并且BeanUtil类主要是完成属性赋值处理的，那么就可以再这个类之中追加有
+一系列的处理方法。
+class BeanUtils{	//进行Bean处理的类
+	private BeanUtils(){}
+	/**
+	 * 实现指定对象的属性设置
+	 * @param obj 要进行反射操作的实例化对象
+	 * @param value	包含有指定内容的字符串
+	 */
+	public static void setValue(Object obj,String value){
+		String results[]= value.split("\\|");	//按照“|”拆分
+		for(int x=0;x<results.length;x++){	//循环设置内容
+			String temp[]=results[x].split(":");	//获取"属性名称"与内容
+			try{
+				Field field= obj.getClass().getDeclaredField(temp[0]);	//获取成员
+				Method method=obj.getClass().getDeclaredMethod("set"+StringUtils.initcap(temp[0]), field.getType());
+				Object val=BeanUtils.getAttridutValue(field.getType().getName(), temp[1]);
+				method.invoke(obj, val);	//调用setter方法设置内容
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
+	/**
+	 * 实现属性类型转换处理
+	 * @param type	属性类型	通过Field获取
+	 * @param value	属性内容 传入的都是字符串，需要变为指定类型
+	 * @return 转换后的数据
+	 */
+	private static Object getAttridutValue(String type,String value){
+		if("long".equals(type)||"java.lang.Long".equals(type)){	//长整性
+			return Long.parseLong(value);
+		}else if("int".equals(type)||"java.lang.int".equals(type)){
+			return Integer.parseInt(value);
+		}else if("double".equals(type)||"java.lang.double".equals(type)){
+			return Double.parseDouble(value);
+		}else if("java.util.Date".equals(type)){
+			SimpleDateFormat sdf=null;
+			if(value.matches("\\d{4}-\\d{2}-\\d{2}")){
+				sdf=new SimpleDateFormat("yyyy-MM-dd");
+			}else if(value.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")){
+				sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			}else{
+				return new Date();
+			}
+			try {
+				return sdf.parse(value);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				return new Date();	//当前日期
+			}
+		}else{
+			return value;
+		}
+	}
+}
+
+	此时只是列举出了常用的几种类型，如果要想将其作为一个产品推广，你必须要考虑所有可能出现的类型，同时
+所有能出现的日期格式也需要考虑。
+
+
+——————————————————————————————————————————————————————————————————————
+级联对象实例化
+
+	如果说现在给定的类对象之中存在有其他的引用的级联关系的情况下，称为多级设置。例如一个雇员属于一个部门，一个部门属于一个公司，
+所以这个时候对于简单java类的基本关系定义如下：
+
+Company.java   
+class Company{
+	private String name;
+	private Date createdate;
+}
+  Dept.java
+class Company{
+	private String name;
+	private Date createdate;
+}	
+Emp.java
+class Emp{
+	private long empno;
+	private String ename;
+	private String job;
+	private double salary;
+	private Date hiredate;
+	private Dept dept; 
+
+
+	如果要通过Emp进行操作，则应该使用“.”作为级联关系的处理：
+
+
+dept.dname:财务部 		Emp类对象实例化对象.getDept().setDname("财务部")；
+
+dept.Company.name:FEIFAN	Emp类实例化对象.getDept().GetCompany().setName("FEIFAN");
+
+
+	但是考虑到代码的简洁性，所以应该考虑可以通过级联的配置自动实现类中属性的实例化。
+
+String value="empno:3131|ename:王南|job:老公|salary:750.1|hiredate:1998-04-03|"+
+	"dept.dname:财务部|dept.compary.name:FEIFAM";
+
+
+	现在属性存在有多级关系，那么对于多级的关系，就必须与单继的配置区分开。
+
+public static void setValue(Object obj,String value){
+		String results[]= value.split("\\|");	//按照“|”拆分
+		for(int x=0;x<results.length;x++){	//循环设置内容
+			String temp[]=results[x].split(":");	//获取"属性名称"与内容
+			try{
+				if(temp[0].contains(".")){	//多级配置
+					String date[] =temp[0].split("\\.");
+					Object currentObject=obj;
+					//最后一位肯定是指定类中的属性名称，所以不再本次实例化处理的范畴之内
+					for(int y=0;y<date.length-1;y++){		//实例化
+						//调用相应的get方法如果get方法返回了null表示该对象未实例化
+						
+						Method getMethod=currentObject.getClass().getDeclaredMethod("get"+StringUtils.initcap(date[y]));
+						Object tempObjevt=getMethod.invoke(currentObject);
+						//System.out.println(date[y]+"--"+currentObject);
+						if(tempObjevt==null){	//该对象现在没有实例化对象
+							Field field = currentObject.getClass().getDeclaredField(date[y]) ;	// 获取属性类型
+							Method method=currentObject.getClass().getDeclaredMethod("set"+StringUtils.initcap(date[y]), field.getType());
+							Object newObject=field.getType().getDeclaredConstructor().newInstance();
+							method.invoke(currentObject,newObject);
+							currentObject=newObject;
+						}else{
+							currentObject=tempObjevt;
+						}
+						
+					}
+				}else{	//单极配置
+					Field field= obj.getClass().getDeclaredField(temp[0]);	//获取成员
+					Method method=obj.getClass().getDeclaredMethod("set"+StringUtils.initcap(temp[0]), field.getType());
+					Object val=BeanUtils.getAttridutValue(field.getType().getName(), temp[1]);
+					method.invoke(obj, val);	//调用setter方法设置内容
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
+
+——————————————————————————————————————————————
+级连属性设置
+
+	现在已经成功的实现级联的对象实例化处理，那么随后就需要去考虑级联的属性设置了，在之前考虑级联
+实例化处理的时候会发现，循环的时候都是少了一位的
+
+
+
+	当此时代码循环处理完成之后，currentObject表示的就是可以进行set方法调用的对象了，并且理论上
+该对象一定不能为null。随后就可以按照之前的方法利用对象进行setter方法调用
+
+范例：实现对象的级联属性设置
+
+Field field = currentObject.getClass().getDeclaredField(date[date.length - 1]) ; // 获取成员
+Method setMethod = currentObject.getClass().getDeclaredMethod("set" + StringUtils.initcap(date[date.length - 1]), field.getType()) ;
+Object convertValue = BeanUtils.convertAttributeValue(field.getType().getName(), temp[1]) ;
+setMethod.invoke(currentObject, convertValue) ; // 调用setter方法设置内容
+
+
+	再以后的开发之中简单java类的赋值处理将不再重复调用setter操作完成，而这种处理形式是在终归开发中普遍采用的方法
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

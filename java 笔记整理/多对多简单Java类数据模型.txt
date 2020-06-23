@@ -1,0 +1,434 @@
+定义一个学生选课的操作表：三张数据表
+	·学生表：学生编号、姓名、年龄
+	·课程表：课程编号、课程名称、学分
+	·学生课程关系表：学生编号，课程编号，成绩
+
+要求可以实现如下的信息输出：
+	·可以找到一门课程，以及参加此课程的所有学生信息，和成绩
+	·可以根据一个学生，可以找到他所参加所有课程和每门课程的成绩。
+
+1、定义出基本类，暂时不考虑关系
+
+package println;
+
+class Student{		//学生类
+	private int stuid;
+	private String name;
+	private int age;
+	private Xsxk[] xsxk;		//学生与课程的联系
+	public Student(){}
+	public Student(int stuid,String name,int age){
+		this.stuid=stuid;
+		this.name=name;
+		this.age=age;
+	}
+	public void setXsxk(Xsxk[] xsxk){
+		this.xsxk=xsxk;
+	}
+	public Xsxk[] getXsxk(){
+		return this.xsxk;
+	}
+	public String getInfo(){
+		return "【学生】学号="+this.stuid+
+				",姓名="+this.name+
+				",年龄="+this.age;
+	}
+}
+class Course{			//课程类
+	private int cid;
+	private String name;
+	private int credit;
+	private Xsxk[] xsxk;		//课程与学生之间的联系
+	public Course(){}
+	public Course(int cid,String name,int credit){
+		this.cid=cid;
+		this.name=name;
+		this.credit=credit;
+	}
+	public void setXsxk(Xsxk[] xsxk){
+		this.xsxk=xsxk;
+	}
+	public Xsxk[] getXsxk(){
+		return this.xsxk;
+	}
+	public String getInfo(){
+		return "【学科】课程编号="+this.cid+
+				",课程名称="+this.name+
+				",学分="+this.credit;
+	}
+}
+class Xsxk{						//学生与课程和成绩的联系
+	private Student student;
+	private Course course;
+	private double cj;
+	public Xsxk(){}
+	public Xsxk(Student student,Course course,double cj){
+		this.student=student;
+		this.course=course;
+		this.cj=cj;
+	}
+		public Student getStudent(){
+			return this.student;
+		}
+		public Course getCourse(){
+			return this.course;
+		}
+		public double getCj(){
+			return this.cj;
+			
+		}
+
+}
+public class println{
+	public static void main(String[]args){
+		Student a=new Student(1,"王",20);
+		Student b=new Student(2,"李",21);
+		Student c=new Student(3,"南",22);
+		Course aa=new Course(101,"马克思",3);
+		Course bb=new Course(102,"JAVA",5);
+		a.setXsxk(new Xsxk[]{			//a学生所选的课程与成绩
+			new Xsxk(a,aa,90.1),
+			new Xsxk(a,bb,90.0)
+		});
+		b.setXsxk(new Xsxk[]{			//b学生所选的课程与成绩
+				new Xsxk(b,aa,98.9)
+		});
+		c.setXsxk(new Xsxk[]{			//c学生所愿的课程与成绩
+				new Xsxk(c,bb,99.9)
+		});
+		aa.setXsxk(new Xsxk[]{			//选aa课程的学生
+				new Xsxk(a,aa,90.1),
+				new Xsxk(b,aa,98.9)
+		});
+		bb.setXsxk(new Xsxk[]{			//选bb课程的学生
+				new Xsxk(a,bb,90.0),
+				new Xsxk(c,bb,99.9)
+		});
+		System.out.println(aa.getInfo());
+		for(int x=0;x<aa.getXsxk().length;x++){
+			System.out.print("\t|-"+aa.getXsxk()[x].getStudent().getInfo());
+			System.out.println("成绩="+aa.getXsxk()[x].getCj());
+			System.out.println();
+		}
+		System.out.println("=================================================================================================================================================================");
+		System.out.println(a.getInfo());
+		for(int x=0;x<a.getXsxk().length;x++){
+			System.out.print("\t|-"+a.getXsxk()[x].getCourse().getInfo());
+			System.out.println("成绩="+a.getXsxk()[x].getCj());
+		}
+	}
+}
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	·//要求可以根据一个员工找到他所对印的部门，以及该部门对应的角色，以及没角色对应的所有权限；
+	·//可以根据一个角色找到具备此角色的所有部门，以及该部门下的所有员工；
+	·//根据一个权限列出具备有该权限的所有的角色以及每一个角色下对应的所有部门，以及没个部门中的所有员工；
+
+
+
+class Emp{				//部门
+	private int num;
+	private String name;
+	private Temp[] temp;
+	private Dept dept;
+	public Emp(int num,String name){
+		this.num=num;
+		this.name=name;
+	}
+	public void setDept(Dept dept){
+		this.dept=dept;
+	}
+	public Dept getDept(){
+		return this.dept;
+	}
+	public void setTemp(Temp[] temp){
+		this.temp=temp;
+	}
+	public Temp[] getTemp(){
+		return this.temp;
+	}
+	public String getInfo(){
+		return "【部门】编号="+this.num+
+				",名称="+this.name;
+	}
+}
+class Temp{				//雇员
+	private int tnum;
+	private String tname;
+	private Emp emp;
+	public Temp(int tnum,String tname){
+		this.tnum=tnum;
+		this.tname=tname;
+	}
+	public void setEmp(Emp emp){
+		this.emp=emp;
+	}
+	public Emp getEmp(){
+		return this.emp;
+	}
+	public String getInfo(){
+		return "【雇员】编号="+this.tnum+
+				",姓名="+this.tname;
+	}
+}
+class Dept{				//角色
+	private int dnum;
+	private String dname;
+	private Emp[] emp;
+	private Comm[] comm;
+	public Dept(int dnum,String dname){
+		this.dnum=dnum;
+		this.dname=dname;
+	}
+	public void setComm(Comm[] comm){
+		this.comm=comm;
+	}
+	public Comm[] getComm(){
+		return this.comm;
+	}
+	public void setEmp(Emp[] emp){
+		this.emp=emp;
+	}
+	public Emp[] getEmp(){
+		return this.emp;
+	}
+	public String getInfo(){
+		return "【角色】编号="+this.dnum+
+				"名称="+this.dname;
+	}
+}
+class Comm{			//权限
+	private int cnum;
+	private String cname;
+	private String cjob;
+	private Dept[] dept;
+	public Comm(int cnum,String cname,String cjob){
+		this.cnum=cnum;
+		this.cname=cname;
+		this.cjob=cjob;
+	}
+	public void setDept(Dept[] dept){
+		this.dept=dept;
+	}
+	public Dept[] getDept(){
+		return this.dept;
+	}
+	public String getInfo(){
+		return "【权限】编号"+this.cnum+
+				",名称="+this.cname+
+				",标记="+this.cjob;
+	}
+}
+public class println{
+	public static void main(String []args){
+		//部门
+		Emp ea=new Emp(101,"后勤");
+		Emp eb=new Emp(102,"人士");
+		//员工
+		Temp ta=new Temp(1,"王");
+		Temp tb=new Temp(2,"李");
+		Temp tc=new Temp(3,"南");
+		Temp td=new Temp(4,"欢");
+		//角色
+		Dept da=new Dept(1,"男人");
+		Dept db=new Dept(2,"女人");
+		//权限
+		Comm ca=new Comm(01,"赚钱","爸爸");
+		Comm cb=new Comm(02,"生孩子","妈妈");
+		Comm cc=new Comm(03,"ww","w");
+		Comm cd=new Comm(04,"nn","n");
+		//角色和权限
+		da.setComm(new Comm[]{ca,cb,cd});
+		db.setComm(new Comm[]{cb,cc});
+		//权限和角色的关系
+		ca.setDept(new Dept[]{da});
+		cb.setDept(new Dept[]{da,db});
+		cc.setDept(new Dept[]{db});
+		cd.setDept(new Dept[]{da});
+		//部门和员工的关系
+		ea.setTemp(new Temp[]{ta,tc});
+		eb.setTemp(new Temp[]{tb,td});
+		//员工和部门的关系
+		ta.setEmp(ea);
+		tb.setEmp(eb);
+		tc.setEmp(ea);
+		td.setEmp(eb);
+		//部门和角色的关系
+		ea.setDept(da);
+		eb.setDept(db);
+		//角色和部门的关系
+		da.setEmp(new Emp[]{ea,eb});
+		db.setEmp(new Emp[]{ea,eb});
+		//要求可以根据一个员工找到他所对印的部门，以及该部门对应的角色，以及没角色对应的所有权限；
+		System.out.println(ta.getInfo());
+		System.out.println("\t"+ta.getEmp().getInfo());
+			System.out.println("\t\t|-"+ta.getEmp().getDept().getInfo());
+			for(int x=0;x<ta.getEmp().getDept().getComm().length;x++){
+				System.out.println("\t\t\t|-"+ta.getEmp().getDept().getComm()[x].getInfo());
+			}
+			System.out.println("====================================="
+					+ "================================================================");
+			//可以根据一个角色找到具备此角色的所有部门，以及该部门下的所有员工；
+			System.out.println(db.getInfo());
+			for(int x=0;x<db.getEmp().length;x++){
+				System.out.println("\t"+db.getEmp()[x].getInfo());
+				for(int y=0;y<db.getEmp()[x].getTemp().length;y++){
+					System.out.println("\t\t"+db.getEmp()[x].getTemp()[y].getInfo());
+				}
+			}
+			System.out.println("=========================================================================================================================");
+			//根据一个权限列出具备有该权限的所有的角色以及每一个角色下对应的所有部门，以及没个部门中的所有员工；
+			System.out.println(ca.getInfo());
+			for(int x=0;x<ca.getDept().length;x++){
+				System.out.println("\t"+ca.getDept()[x].getInfo());
+			for(int y=0;y<ca.getDept()[x].getEmp().length;y++){
+				System.out.println("\t\t|-"+ca.getDept()[x].getEmp()[y].getInfo());
+				for(int a=0;a<ca.getDept()[x].getEmp()[y].getTemp().length;a++){
+					System.out.println("\t\t\t|-"+ca.getDept()[x].getEmp()[y].getTemp()[a].getInfo());
+				}
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

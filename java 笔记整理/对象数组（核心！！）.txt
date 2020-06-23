@@ -1,0 +1,85 @@
+在之前所定义的数组都是基本类型数组，那么对象也可以将其定义为数组，这样的操作
+形式称为对象数组。对象数组往往是引用数据类型为主的定义，类如：类，接口，对象数组也分为两种数据格式：
+	·对象数组动态初始化：类名称 对象数组名称[]=new 类名称[长度]；
+class Emp{
+	private String name;
+	private int age;
+	public Emp(){}
+	public Emp(String n,int a){
+		setName(n);
+		setAge(a);
+	}
+	public void setName(String n){
+		name=n;
+	}
+	public void setAge(int a){
+		age=a;
+	}
+	public String getName(){
+		return name;
+	} 
+	public int getAge(){
+		return age;
+	}
+	
+	public String getInfo(){
+		return "name="+name+"age="+age;
+	}
+}
+public class println{
+	public static void main(String[] args){
+		Emp num[]=new Emp[3];
+		num[0]=new Emp("王",1);
+		num[1]=new Emp("李",2);
+		num[2]=new Emp("南",4);
+		
+		for(int x=0;x<num.length;x++){
+			System.out.println(num[x].getInfo());
+		}
+	}
+}
+
+
+
+	· 对象数组的静态初始化：类名称 对象数组名称[]=new 类名称[]{实例化对象，.....}
+
+class Emp{
+	private String name;
+	private int age;
+	public Emp(){}
+	public Emp(String n,int a){
+		setName(n);
+		setAge(a);
+	}
+	public void setName(String n){
+		name=n;
+	}
+	public void setAge(int a){
+		age=a;
+	}
+	public String getName(){
+		return name;
+	} 
+	public int getAge(){
+		return age;
+	}
+	
+	public String getInfo(){
+		return "name="+name+"age="+age;
+	}
+}
+public class println{
+	public static void main(String[] args){
+		Emp num[]=new Emp[]{new Emp("王",1),new Emp("li",5),new Emp("na",4)};
+
+		for(int x=0;x<num.length;x++){
+			System.out.println(num[x].getInfo());
+		}
+	}
+}
+
+
+每一个对象可以保存更多的属性，所以对象数组可以保存的内容要比基本数据更多。
+那么应用的也就更多，所有的开发都必定存在对象数组！！
+
+

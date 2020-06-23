@@ -1,0 +1,485 @@
+
+Arrays类：
+
+	在之前讲解数组的时候将结果数组排序：java.util.Arrays.sort（）。实际上Arrays类就是属于java.util包中的一个类，并且
+sort()方法是一个static方法，Arrays类之中的全部方法都是static方法，所以构造方法私有化了，在Arrays类之中支持有如下常用的
+操作方法:
+	·数组排序：public static void sort(数据类型 a)
+	·【依赖排序】二分查找：public static int binarySearch(数据类型[] a,数据类型 key)；
+	·【依赖排序】数组比较：public static int compare(数据类型[],数据类型 b);
+		|-返回三大结果：大于(1)、小于(-1)、等于(0)
+	·【依赖排序】数组相等判断:public static boolean equals(数据类型 a,数据类型 a2)
+	·数组填充：public static void fill(数据类型 a,数据类型 val)；
+	·转为String：public static String toString(数据类型 a)；
+
+范例：观察数组基本操作
+
+package println;
+
+import java.util.Arrays;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		int[] dataA=new int[]{1,2,3};
+		int[] dataB=new int[]{1,2,3};
+		System.out.println(Arrays.equals(dataA, dataB));
+	}
+}	
+
+范例：数组填充
+package println;
+
+import java.util.Arrays;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		int[] data=new int[10];
+		Arrays.fill(data, 3);//对数组内容进行填充处理
+		System.out.println(Arrays.toString(data));
+		
+	}
+}	
+
+	在Arrays类里面提供有一个最为重要 的操作方法：二分查找法，主要的功能是确定要查找的数据是否存在。
+二分查找法的核心本质在于数组必须是排序后的结果。
+
+
+范例：执行二分查找
+package println;
+import java.util.Arrays;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		int[] data=new int[]{1,23,2,32,312,3,53,24,2};
+		Arrays.sort(data);	//数组必须采用升序排序(默认)
+		System.out.println(Arrays.binarySearch(data, 2));	//二分查找
+		
+	}
+}	
+
+
+	既然说到了数组中的数据查找，那么首先肯定想到的就是数据的依次比对。
+
+		依次比对时间复杂度为n；
+	
+	如果你现在的数据量本身并不大，也就只有20个数据，那么即便时间复杂度为n，那么也没有多慢，但是如果
+现在的数据量非常大，大概有200个数组内容，那么这个时候就会发现循环要执行200次。所以为例提升数据的查询性能，
+可以借助于二分查找法进行处理。
+
+面试题：请编写一个二分查找法实现数组内容的查询
+
+	在Arrays类中是有所提供的，使用的binarySearch(),而这个查找的方式默认采用的是比较器的处理模式来完成的
+下面可以按照同样的思路，通过循环的方式来处理，但是一旦通过循环的方法就只能够使用基本数据类型以确定大小关系了。
+
+
+
+
+	13的二进制数据：		00000000 00000000 00000000 00001101
+	无条件向右移动1为：	00000000 00000000 00000000 00001100
+
+	使用而进行处理的最直接的优势在于：速度更快，但是在大内存的情况下这样的速度提升是很有限的。
+范例：实现程序
+
+package println;
+
+import java.util.Arrays;
+
+class ArrayUtil {
+	private ArrayUtil() {
+	}
+
+	/**
+	 * 进行数组数据的二分查找操作
+	 * 
+	 * @param date
+	 *            要进行查找的数组
+	 * @param key
+	 *            要查找的数据
+	 * @return 如果找到数据返回数组索引如果没找到返回负数
+	 */
+
+	public static int binarySearch(int[] date, int key) {
+		if (date == null) {
+			return -1;
+		}
+		return binarySearchDefult(date, 0, date.length, key);
+	}
+
+	/**
+	 * 实现二分查找的具体实现方法
+	 * 
+	 * @param data
+	 *            要进行查找的数组
+	 * @param fromIndex
+	 *            开始索引
+	 * @param toIndex
+	 *            结束索引
+	 * @param key
+	 *            要查询的数据
+	 * @return 查找到数据返回索引，找不到返回负数
+	 */
+	private static int binarySearchDefult(int[] data, int fromIndex, int toIndex, int key) {
+		int low = fromIndex; // 左边的索引
+		int high = toIndex - 1; // 右边的索引
+		while (low <= high) { // 结束条件
+			int middle = (low + high) >>> 1; // 计算中间的索引数据
+			if (data[middle] == key) { // 查找到了
+				return middle; // 返回索引
+			} else if (data[middle] > key) { // 向左边开始查
+				high = middle - 1; // 改变右边的索引
+			} else {
+				low = middle + 1; // 改变左边的索引
+			}
+		}
+		return -1;
+	}
+}
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		int[] data = new int[] { 1, 6, 8, 9, 23, 32, 312, 3, 53, 24, 2, 7, 56 };
+		Arrays.sort(data);
+		for (int x = 0; x < data.length; x++) {
+			System.out.println(data[x] + "查找、结果" + ArrayUtil.binarySearch(data, data[x]));
+		}
+		System.out.println(ArrayUtil.binarySearch(data, 100));
+	}
+}
+
+	在实际的开发之中，这种代码你可能永远不会写到，因为如果真有此需求，直接通过现有的功能实现到，但是面试中容易问道。
+
+————————————————————————————————————————————————————————————————————————————————————————————————
+
+UUID（）类：
+
+	UUID是一种生成无重复字符串的一种程序类，这种程序类的主要功能是根据时间戳实现一个自动的无重复的字符串定义。
+
+
+	一般在获取UUID的时候往往都是随机生成的一个内容，所以可以通过如下方式获取：
+
+		·获取UUID对象：public static UUID randomUUID()；
+		·根据字符串获取UUID内容：public static UUID fromString(String name)；
+
+package println;
+
+import java.util.UUID;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		UUID uuid=UUID.randomUUID();	//获取UUID对象
+		System.out.println(uuid.toString());
+	}
+}
+
+
+
+	在对一些文件进行自动命名处理的情况下，UUID类型非常好用。
+——————————————————————————————————————————————————————————————————————————————————
+Optional类（可选择，随意的）：
+
+	Optional类主要功能时进行null的相关处理，在以前进行程序开发的时候，如果为了防止程序之中出现空指向异常，往往
+可以追加右null的验证。
+
+package println;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		MessageUtil.uesMessage(MessageUtil.getMessage());
+	}
+}
+class MessageUtil{
+	private MessageUtil(){}
+	public static IMessage getMessage(){
+		return null;
+	}
+	public static void uesMessage(IMessage msg){
+		if(msg!=null){
+			System.out.println(msg.getContent());	
+		}
+	}
+}
+interface IMessage{
+	public String getContent();
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public String getContent() {
+		// TODO Auto-generated method stub
+		return "WNaiLH";
+	}
+	
+}
+
+
+	在引用接收的一方往往都是被动的进行判断，所以为了解决这种被动的处理操作，在java类中提供右一个Optional
+类这个类可以实现null的处理操作，这这个类里面提供有如下的一些操作方法：
+
+		·返回空的数据：public static <T> Optional<T> empty()
+		·获取数据：public T get()；
+		·保存数据，但不许出现null数据：public static <T> Optional<T> of(T value)；
+			|-如果在保存数据的时候存在有null，则会抛出NullPointerException异常
+		·保存数据允许出现null：public static <T> Optional<T> ofNullable(T value)
+		·空的时候返回其他数据：public T orElse(T other)；
+
+范例：修改程序，按照正规的结构完成
+
+package println;
+
+import java.util.Optional;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		IMessage temp=MessageUtil.getMessage().get();	//获取数据
+		MessageUtil.uesMessage(temp);
+	}
+}
+class MessageUtil{
+	private MessageUtil(){}
+	public static Optional<IMessage> getMessage(){
+		return Optional.of(new MessageImpl());	//有对象
+	}
+	public static void uesMessage(IMessage msg){
+		if(msg!=null){
+			System.out.println(msg.getContent());	
+		}
+	}
+}
+interface IMessage{
+	public String getContent();
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public String getContent() {
+		// TODO Auto-generated method stub
+		return "WNaiLH";
+	}
+	
+}
+
+	如果说现在数据保存的内容是null，则就会在保存处出现异常：
+public static Optional<IMessage> getMessage(){
+	return Optional.of(null);	
+}
+
+Exception in thread "main" java.lang.NullPointerException
+	at java.util.Objects.requireNonNull(Objects.java:203)
+	at java.util.Optional.<init>(Optional.java:96)
+	at java.util.Optional.of(Optional.java:108)
+	at println.MessageUtil.getMessage(Factory.java:14)
+	at println.Factory.main(Factory.java:7)
+
+
+	由于Optional类中允许保存有null的内容，所以在数据获取的时候也可以进行null的处理，但是如果为null，则在使用get()获取数据的时候就会出现“Exception in thread "main" java.util.NoSuchElementException: No value present”
+异常信息，所以此时可以更换为orElse方法
+范例：处理null的处理。
+
+package println;
+
+import java.util.Optional;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		IMessage temp=MessageUtil.getMessage().orElse(new MessageImpl());	//处理空数据
+		MessageUtil.uesMessage(temp);
+	}
+}
+class MessageUtil{
+	private MessageUtil(){}
+	public static Optional<IMessage> getMessage(){
+		return Optional.ofNullable(null);	//没有对象
+	}
+	public static void uesMessage(IMessage msg){
+		if(msg!=null){
+			System.out.println(msg.getContent());	
+		}
+	}
+}
+interface IMessage{
+	public String getContent();
+}
+class MessageImpl implements IMessage{
+
+	@Override
+	public String getContent() {
+		// TODO Auto-generated method stub
+		return "WNaiLH";
+	}
+	
+}
+
+	在所有引用数据类型的操作处理之中，null是一个重要的技术问题，所以JDK1.8后提供的这个新的类对于null 的处理很有帮助，
+同时也是在入后进行项目开发之中使用次数很多的一个程序类。
+
+————————————————————————————————————————————————————————————————————————————————————————————
+
+————————————————————————————————————————————————————————————————————————————————————————————————
+定时器：
+
+	定时器的主要操作是进行定时任务的处理，就好比你们每天早晨的闹钟一样。在Java中提供有定时任务的支持，
+但是这种任务的处理只是实现了一种间隔触发的操作。
+	如果要想实现定时的处理操作主要需要有一个定时操作的主体类，以及一个定时任务的控制。可以使用两个类实现：
+
+		·java.util.TimerTask类：实现定时任务处理；
+		·java.util.Timer类：进行任务的启动，启动的方法：
+			|-任务启动：public void schedule(TimerTask task,long delay)、延迟单位为毫秒；
+			|-间隔触发：public void scheduleAtFixedRate(TimerTask task,Date firstTime,long period)
+范例：实现定时任务处理
+
+package println;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+class MyTask extends TimerTask{
+
+	@Override
+	public void run() {	//多线程的处理方法
+		// TODO Auto-generated method stub
+		System.out.println(Thread.currentThread().getName()+"定时任务执行、当前时间,"+System.currentTimeMillis());
+	}
+	
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Timer timer=new Timer();	//定时任务
+		//定义间隔任务，100毫秒后开始执行，每秒执行1次
+		timer.scheduleAtFixedRate(new MyTask(), 100, 1000);
+		timer.schedule(new MyTask(), 1000);
+	}
+}
+
+
+	这种定时是由JDK最原始的方式提供的支持，但是实际上开发之中利用此类方式进行的定时处理实现的代码会非常麻烦。
+
+——————————————————————————————————————————————————————————————————————
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

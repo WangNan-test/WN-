@@ -1,0 +1,93 @@
+	Runtime描述的是运行时的状态，也就是说在整个的JVM之中，Runtime类是唯一一个与JVM运行状态有关的类，
+并且都会默认提供有一个该类的实例化对象。
+	由于在每个JVM进程里面只允许提供有一个Runtime类的对象，所以这个类的构造方法被默认私有化了，那么就
+证明该类使用的时单例设计模式，并且单例设计模式一定会提供有static 方法获取本类实例。
+
+	由于Runtime 类属于单例设计模式，如果要想获取实例化对象，那么就可以依靠类中的getRuntime()方法
+		·获取实例化对象：public static Runtime getRuntime()；
+
+	通过这个类中的availableProcessors()方法可以获取本机的CPU内核数。
+		·public int availableProcessors()；
+
+范例：获取Runtime实例化 对象
+package println;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+	 	Runtime run= Runtime.getRuntime();	//获取Runtime类实例化对象
+		System.out.println(run.availableProcessors());	//4核CUP
+	}
+}
+
+	然是除了以上的方法之外，在Runtime类里面还提供有以下四个重要的操作方法：
+		·获取最大可用内存空间：public long maxMemory()，默认的配置为本机系统内存的4分之1；
+		·获取可用内存空间：public long totalMemory()，默认的配置为本机系统内存的64分之1；
+		·获取空闲内存空间：public long freeMemory()，；
+		·手工进行JC处理：public void gc()；
+
+范例观察内存状态：
+package println;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+	 	Runtime run= Runtime.getRuntime();	//获取Runtime类实例化对象
+		System.out.println("1、【MAX_MEMORY：】"+run.maxMemory());	
+		System.out.println("1、【TOTAL_MEMORY：】"+run.totalMemory());	
+		System.out.println("1、【FREE_MEMORY：】"+run.freeMemory());	
+		String str="";
+		for(int x=0;x<30000;x++){
+			str+=x;
+		}
+		System.out.println("2、【MAX_MEMORY：】"+run.maxMemory());	
+		System.out.println("2、【TOTAL_MEMORY：】"+run.totalMemory());	
+		System.out.println("2、【FREE_MEMORY：】"+run.freeMemory());
+		Thread.sleep(2000);
+		run.gc();
+		System.out.println("3、【MAX_MEMORY：】"+run.maxMemory());	
+		System.out.println("3、【TOTAL_MEMORY：】"+run.totalMemory());	
+		System.out.println("3、【FREE_MEMORY：】"+run.freeMemory());
+	}
+}
+
+面试题：请问什么时GC？如何处理？
+
+	·GC（Garbage Collector）垃圾收集器，是可以由系统自动调用的立即释放功能，或者使用Runtime中的gc()方法
+手工调用。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

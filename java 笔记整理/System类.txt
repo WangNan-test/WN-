@@ -1,0 +1,93 @@
+
+	System类是一直陪伴着我们学习的程序类，之前使用的系统输出采用的就是system类中的方法，而后在System类
+里面也定义由其他处理方法：
+	·数组拷贝：public static void arraycopy(Object src,int srcPos,Object dest, int destPos,int length)；
+	·获取当前的日期时间数值：public static long currentTimeMillis()
+	进行垃圾回收：public static void gc()；
+
+范例：操作耗时的统计：
+package println;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		long start = System.currentTimeMillis();
+		Runtime run = Runtime.getRuntime(); // 获取Runtime类实例化对象
+
+		String str = "";
+		for (int x = 0; x < 30000; x++) {
+			str += x; // 产生大量的垃圾
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("操作耗时" + (end - start));
+	}
+}
+
+	在System类里面会发现也提供有一个gc()方法。但是这个gc()方法并不是重新定义的新方法，而是继续调用了Runtime类
+中的gc()操作（Runtime.getRuntime().gc()）；
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

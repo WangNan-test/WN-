@@ -1,0 +1,286 @@
+内部类基本概念：
+
+所谓的内部类指得就是一个类的内部进行其他类结构嵌套的操作语法形式。
+如果嵌套的结构太多也不好。
+范例
+package println;
+class Emp{
+	private String name="helloworld";
+	class Num{				//内部类
+		public void print(){	//定义一个普通方法
+		System.out.println(name);	//调用name属性
+		}
+	}
+	public void mep(){			
+		Num n=new Num();		//内部类对象
+		n.print();				//内部类中提供的print方法
+	}
+}
+public class println{
+	public static void main(String[]args){
+		Emp msg=new Emp();		//外部类对象
+		msg.mep();			//调用了外部类的方法
+	}
+}
+————————————————————————————————
+通过以上代码实际上就可以立刻发现一个问题：程序的结构有些混乱。虽然内部类破环了程序的结构从整体
+上讲不好。从另外一个方面上来讲内部类也是有优点的，在于外部类的私有访问。
+
+通过以上的代码了解，当前内部类的访问必须通过外部类的方法才可以完成。 如果不想通过外部类访问进行调用，
+想在程序外部调用，那么必须按照如下的形式进行内部类实例化对象创建。
+	语法：外部类.内部类 内部类对象=new外部类().new内部类()
+	package println;
+	class Emp{
+		private String name="helloworld";
+		
+			class mpt{
+				public void print(){
+				
+				System.out.println(name);
+				}
+		
+		}
+	}
+	public class println{
+		public static void main(String[]args){
+			Emp.mpt a=new Emp().new mpt();
+			a.print();
+				}
+	}
+————————————————————————————————————————————————————————————————————————
+static定义内部类：
+内部类如果使用了static进行定义，那么就表示其就是一个外部类的形式，但是外部类的名称就是“外部类.内部类”
+同时该内部类只允许访问外部类中的static操作。
+	·语法：外部类.内部类=new 外部类.内部类();
+
+
+package println;
+class Emp{
+	private static String name="helloworld";
+	 static class Num{					//内部类
+		public void print(){	//定义一个普通方法
+		System.out.println(	name);	//调用name属性
+		}
+	}
+	
+}
+public class println{
+	public static void main(String[]args){
+		Emp.Num a=new Emp.Num();
+		a.print();
+			}
+}	
+	如果以static定义内部类中的形式在将并不常用，static定义内部接口的形式最为常用。
+范例：使用static定义内部接口
+package println;
+interface IMessageWarp{		//包装消息
+	static interface IMessage{	//消息发送 内部静态接口
+		public String getContent();
+	}
+	static interface IChannel{	//消息通道内部静态接口
+		public boolean connect();	//消息发送通道
+	}
+	public static void send(IMessage mes,IChannel cha){
+		if(cha.connect()){
+			System.out.println(mes.getContent());
+		}else{
+			System.out.println("消息通道未打开");
+		}
+	}
+}
+class DefaultMessage implements IMessageWarp.IMessage{	//实现父接口中内部静态接口
+	public String getContent(){
+		return "www.www";
+	}
+}
+class NetChannel implements IMessageWarp.IChannel{	//实现父接口中内部静态接口
+
+	@Override
+	public boolean connect() {
+		// TODO Auto-generated method stub
+		System.out.println("消息通道以建立");
+		return true;
+	}
+	
+}
+public class Factory{
+	public static void main(String []args){
+		IMessageWarp.send(new DefaultMessage(), new NetChannel());
+	}
+}
+	之所以使用static定义内部接口，主要是因为这些操作是属于一组相关的定义，有了外部接口可以更加明确
+描述出这些接口的主要功能。
+__________________________________________________________________________
+以后开发之中一定会见到这样类似的概念，
+这种不会作为第一种考虑要素；
+
+在方法中定义内部类：
+
+理论上内部类可以定义在类中的任意位置上，这就包括了：类中、方法中、代码块中。
+从实用的角度来讲方法中定义内部类最多的。
+
+package println;
+	class Emp{
+		private String name="helloworld";
+		public void mas(int num){
+			class mpt{
+				public void print(){
+				System.out.println(num);
+				System.out.println(name);
+				}
+			}
+			new mpt().print();	//方法中直接实例化内部类对象
+		}
+	}
+	public class println{
+		public static void main(String[]args){
+			new Emp().mas(100);
+				}
+	}
+
+在JDK1.7及以前，如果一个内部类定义在方法之中，那么该内部类如果要想访问方法中的参数，
+哪么这个参数前必须使用”final“定义。而JDK1.8之后为了推广它的函数式编程，所以将这一局限取消了。 
+
+
+
+内部类的使用暂时不作为你的首选。但是你至少应该知道内部类的特点
+	·破环了程序的结构；
+	·方便的进行私有属性的访问；
+	·以后如果发现类名称上出现了“.”应该立刻想到时内部类的概念
+——————————————————————————————————————————————————————————————————————————————————————————————————
+匿名内部类：
+	匿名内部类是一种简化的内部类的处理i形式，其主要实在抽象类和接口的子类上使用的：
+范例：观察一个基本的程序结构
+package println;
+interface IMessage{
+	public void send(String str);
+}
+class MessageImpl implements IMessage{
+	public void send(String str){
+		System.out.println(str);
+	}
+}
+public class Factory{
+	public static void main(String []args){
+		IMessage mes=new MessageImpl();
+		mes.send("wwwwwwwwwwwwww");
+	}
+}
+	如果说现在Imessage接口中的MessageImpl只使用一次，那么是否将其定义为单独的类。那么在这样的
+情况下就发现定义的子类有些多余，所以就可以使用匿名内部类的形式来解决此问题
+范例：使用匿名类
+package println;
+interface IMessage{
+	public void send(String str);
+}
+public class Factory{
+	public static void main(String []args){
+		IMessage mes=new IMessage(){	//匿名内部类
+			public void send(String str){
+				System.out.println(str);
+			}
+		};
+		mes.send("wwwwwwwwwwwwww");
+	}
+}
+	有些时候为了更加方便的体现出匿名内部类的使用，往往可以利用静态方法做一个内部的匿名内部类
+范例：在接口中直接定义匿名内部类
+package println;
+interface IMessage{
+	public void send(String str);
+	public static IMessage getInstance(){	//静态方法
+		return new IMessage(){			//在静态方法中定义匿名内部类
+			public void send(String str){		//覆写父接口中的方法
+				System.out.println(str);
+			}
+		};
+	}
+}
+public class Factory{
+	public static void main(String []args){
+		IMessage.getInstance().send("wwwwwwwwwwwwww");	//
+	}
+}
+	与内部类相比匿名内部类只是一个没有名字的只能使用一次的，并且结构固定的一个子类
+————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+内部类扩充：
+	在java之中类作为最基础的结构体实际上还有之类似的抽象类或者是接口，抽象类与接口中都可以定义
+内部结构。
+范例：定义内部接口
+package println;
+interface IChannel{	//定义接口
+	public void send(IMessage msg);
+	interface IMessage{	//定义内部接口
+		public String getContent();	//获取消息
+	}
+}
+class ChannelImpl implements IChannel{	//实现父接口
+	public void send(IMessage msg){	//覆写父接口方法
+		System.out.println("发送消息："+msg.getContent());
+	}
+	class IMessageImpl implements IMessage{	//实现父接口 中的内部接口
+		public String getContent(){
+			return "杜凯是傻逼";
+		}
+	} 
+}
+public class Factory{
+	public static void main(String []args){
+		IChannel ic=new ChannelImpl();
+		ic.send(((ChannelImpl)ic).new IMessageImpl());
+	}
+}
+	观察内部的抽象类，内部抽象类可以定义在普通类、抽象类、接口内部都是可以的。
+范例：观察内部抽象类
+package println;
+interface IChannel{	//定义接口
+	public void send();
+	abstract class AbstractMessage{	//定义内部抽象类
+		public abstract String print();	
+	}
+}
+class ChannelImpl implements IChannel{	//实现父接口
+	public void send(){
+		AbstractMessage mes=new MessageImpl();
+		System.out.println(mes.print());
+	}
+	class MessageImpl extends AbstractMessage{	//继承父接口中的内部抽象类
+		public String print(){
+			return "www";
+		}
+	}
+}
+
+public class Factory{
+	public static void main(String []args){
+		IChannel ic=new ChannelImpl();
+		ic.send();
+	}
+}
+
+	内部类还有一些更为有意思的结构，即：如果现在定义了一个接口，那么可以在内部类实现该接口，在JDK1.8
+之后接口中追加了static 方法可以不受到实例化对象的控制，现在就可以利用此特性来完成功能
+范例：接口内部进行接口实现
+
+package println;
+interface IChannel{	//定义接口
+	public void send();
+	class ChannelImpl implements IChannel{	//在内部类中实现父接口
+		public void send(){
+			System.out.println("www");
+		}
+	}
+	public static IChannel print(){		//接口中的static方法
+		return new ChannelImpl();		//返回内部类的实例
+	}
+}
+
+public class Factory{
+	public static void main(String []args){
+		IChannel ic=IChannel.print();
+		ic.send();
+	}
+}
+	内部类是一种非常灵活的定义结构，只要你的语法满足了，各种需求都可以帮你实现。
+
+ 

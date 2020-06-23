@@ -1,0 +1,363 @@
+
+	所谓的国际化的程序指的是同一个程序代码可以根据不同的国家实现不同的语言描述，但是程序处理的核心业务是相同的
+
+国际化问题简介：
+
+
+	现在假设有一款世界都认可的企业管理平台，那么这个企业的老板决定将这个产品推广到全世界各个大型的上市公司
+这些公司可以来自于：中国、美国、德国，那么在这样的情况下，首先要考虑的问题是什么呢？
+
+
+
+	通过分析之后可以发现，如果要想实现国际化的程序开发，那么要解决的问题就在于以下两点：
+
+		·如何可以定义保存文字的文件信息；
+		·如何可以根据不同的区域语言的编码读取指定的资源信息。
+————————————————————————————————————————————————————————————————————————————————————————————————————————————
+Locale类：
+
+	通过分析可以发现，如果要想实现国际化，那么首先需要解决的就是不同国家用户的区域和语言编码问题，而在java.util包里面
+提供有一个专门描述区域和语言编码的类：Locale，而后主要可以使用Locale类中的两个构造方法进行实例化。
+
+	·构造方法：public Locale(String language)；
+	·构造方法：public Locale(String language,String country)
+
+       此时需要的是国家和语言的代码，而中文的代码：zh_CN、美国英语的代码：en_US，对于这些区域和语言的编码最简单的获得f
+方式就是公国IE浏览器完成。
+
+范例：实例化Locale类对象
+package println;
+
+import java.util.Locale;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Locale loc=new Locale("zh","CN");	//表示的是中文环境
+		System.out.println(loc);
+		
+	}
+}	
+
+
+	如果说现在要想自动获得当前的运行的环境，那么现在就可以利用Locale类本身默认的方式进行实例化：
+		·读取本地默认环境：public static Locale getDefault()；
+package println;
+
+import java.util.Locale;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Locale loc=Locale.getDefault();	//获取默认环境
+		System.out.println(loc);	//zh_CN
+		
+	}
+}	
+
+	在实际的开发过程之中，很多人可能并不关心国家和语言的编码，所以为了简化开发，Locale类也将世界上一些比较著名的国家的编码
+设置为了常量。
+package println;
+
+import java.util.Locale;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Locale loc=Locale.CHINA;
+		System.out.println(loc);	//zh_CN
+		
+	}
+}	
+
+	使用常量的优势在于可以避免一些区域编码信息的繁琐。
+
+——————————————————————————————————————————————————————————————————————————————————
+资源文件：
+
+	国际化程序的实现过程之中，语言文字是最为重要的内容，所以来讲在此类程序里面可以将所有的语言文字的信息直接
+保存在资源文件之中，并且资源文件的定义要求如下：
+
+		·所有的资源文件一定要定义在CLACCPATH之中，允许你的资源文件在包里面
+		·资源文件的后缀必须是“*.properties”,所以严格意义上来讲可以将其称为属性文件
+			|-资源文件最初的时候命名于类命名要求一致，但是现在这一原则也在不断被打破；
+			|-资源文件一定要与国际化程序进行接轨，所以一般的国际化“资源文件名称_语言_国家。properfties”；
+		·资源文件中的所有的数据采用字符串形式定义，利用“Key=value”的形式进行保存，即：程序通过Key加载到value；
+
+	下面定义一个wn.feifan.message.Messages.properties资源文件；
+
+	
+	所有的资源文件的信息都是通过“Key=value”的形式进行保存的，但是需要注意一个问题，如果在这个文件里面
+要保存中文则中文一定要进行转码处理，原本的JDK是有专门的转换工具存在的，但是这一工具非常遗憾的是从JDK1.9后就显示了，
+那么现在可以利用Eclipse进行处理。但是处理后的结果是非常糟糕的，因为不方便进行维护。那么在这种情况下往往可以直接在
+Eclipse里面装一个资源文件的编辑的插件，这个插件的下载地址：：
+http://propedit.sourceforge.jp/eclipse/updates/
+
+	插件安装步骤：【help】→【Install New Software】
+
+	此时开始通过网络下载，随后会进入到一个下载的确认页面。
+	随后
+
+
+范例：定义wn.feifan.message.Messages.properyies配置文件
+info=adasdasdasdasdasd;
+
+	资源之中主要是一个“key-value”的结果，程序将通过key获取对应的value数据。
+———————————————————————————————————————————————————————————————————————————————————
+读取资源文件：ResourceBundle
+
+	现在已经准备好了资源文件，那么随后就需要进行资源文件的读取操作了，而读取资源文件主演依靠的是java.util.ResourceBundle
+类完成，此类定义如下：
+
+		public abstract class ResourceBundleextends Object
+	ResourceBunble是一个抽象类，如果说现在要想进行此类的实例化可以直接利用该类中提供的一个静态方法：
+		·获取ResourceBundle类对象：public static final ResourceBundle getBundle(String baseName)；
+			|-baseName:描述的是资源文件的名称，但是没有后缀。
+
+		·根据Key读取资源内容：public final String getString(String key)；
+范例：使用ResourceBundle类读取内容
+package println;
+
+import java.util.ResourceBundle;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		ResourceBundle rb=ResourceBundle.getBundle("wn.feifan.message.Messages");
+		String str= rb.getString("info");
+		System.out.println(str);
+		}
+}	
+
+	如果资源没有放在包里面，则直接编写资源名称即可。
+
+
+	在进行资源读取的时候数据的Key一定要存在，如果不存在则会出现如下异常信息
+
+Exception in thread "main" java.util.MissingResourceException: Can't find bundle for base name TestStringBuffer, locale zh_CN
+——————————————————————————————————————————————————————————————————————————
+
+实现国际化程序：
+
+	现在国际化程序的实现前期准备已经全部完成了，也就是说依靠资源文件、Locale、ResourceBundle类就可以实现国际化处理操作
+那么下面来进行国际化的程序实现（核心关键：读取资源信息）。
+1、在CLASSPATH下建立：wn.feifan.message.Messages_zh_CN.properties;(中文资源)
+			info=\u6B22\u8FCE\u60A8\u7684\u8BBF\u95EE\uFF01
+
+2、在CLASSPATH下建立：wn.feifan.message.Messages_en_US.properties;(英文资源)
+			info=Welcome!
+
+
+	现在加上没有默认的区域的资源文件，一共定义了三个资源
+3、通过程序进行指定区域的资源信息加载
+
+package println;
+import java.util.ResourceBundle;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		ResourceBundle resource=ResourceBundle.getBundle("wn.feifan.message.Messages");
+		String str=resource.getString("info");
+		System.out.println(str);
+	}
+}	
+
+	此时在利用ResourceBundle类读取资源的时候并没有设置一个明确的Locale对象，但是发现“Messages_zh_CN”的文件被读取了
+因为这个方法里面默认加载的就是当前本地的Locale的资源：
+public static final ResourceBundle getBundle(String baseName)
+    {
+        return getBundleImpl(baseName, Locale.getDefault(),
+                             getLoader(Reflection.getCallerClass()),
+                             getDefaultControl(baseName));
+    }
+
+4、如果现在有需要也可以修改当前的Lcoale环境，则可以使用ResourceBundle类中的如下方法：
+
+	·获取ResourceBundle:public static final ResourceBundle getBundle(String baseName,Locale locale);
+
+package println;
+import java.util.Locale;
+import java.util.ResourceBundle;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Locale loc=new Locale("en_US");	//取出英语
+		ResourceBundle resource=ResourceBundle.getBundle("wn.feifan.message.Messages",loc);//设置英文
+		String str=resource.getString("info");
+		System.out.println(str);	//Welcome!
+	}
+}	
+
+	如果现在有指定区域的资源文件存在的时候，那么没有设置区域的资源文件的信息将不会被读取。
+
+	资源读取顺序：读取指定区域的资源文件>默认的本地资源>公共的资源（没有区域的设置）
+
+——————————————————————————————————————————————————————————————————————————————————————————
+
+
+消息格式化文本显示：
+
+	如果说现在某一位用户登陆成功了，那么一般都会显示这样的信息“Xxx，欢迎您的光临”，也就是说这个时候会显示用户名，
+那么此时如果这些内容保存在了资源文件里面，则需要通过占位符来进行描述，同时对于读取出来的数据也需要进行消息格式化的处理。
+
+范例：修改资源文件
+
+【中文修改文件】wn.feifan.message.Messages_zh_CN.properties：info=\u6B22\u8FCE{0}\u7684\u8BBF\u95EE\uFF01
+【英文文件修改】wn.feifan.message.Messages_en_US.properties
+
+	如果有需要则可以继续添加{1}、{2}之类的内容；
+
+
+	此时如果要进行资源读取则会将占位符的信息一起读取出来，所以此时就需要利用MessageFormat进行格式化处理。
+
+	在MessageFormat类中 提供有一个格式化文本的方法：public static String format(String pattern,Object... arguments)；
+
+
+范例：格式化文本实例化
+
+package println;
+
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Locale loc=new Locale("en","US");
+		ResourceBundle resource=ResourceBundle.getBundle("wn.feifan.message.Messages_en_US",loc);
+		String str= resource.getString("info");
+		System.out.println(MessageFormat.format(str, "李欢",new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
+	}
+}	
+
+	如果在日后的开发过程之中见到资源文件里面出现有“{0}”、{1}的结构表示的都是占位符，该信息一定都要进行格式化处理。
+
+package println;
+
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Locale loc=new Locale("zh","CN");
+		ResourceBundle resource=ResourceBundle.getBundle("wn.feifan.message.Messages_zh_CN",loc);
+		String str=resource.getString("info");
+		System.out.println(MessageFormat.format(str, "王南",new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
+	}
+}	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

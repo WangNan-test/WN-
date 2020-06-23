@@ -1,0 +1,76 @@
+1、
+
+package com.ytinf.interceptor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+public class ValidationInterceptor implements HandlerInterceptor {
+    private Logger logger = LoggerFactory.getLogger(ValidationInterceptor.class) ;// 设置一个日志操作对象
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        this.logger.info("1、preHandle()方法，" + handler.getClass());
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        this.logger.info("2、postHandle()方法，" + handler.getClass());
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        this.logger.info("3、afterCompletion()方法，" + handler.getClass());
+    }
+}
+
+2、
+    <!-- 进行拦截器的访问路径的匹配 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/pages/**/*.action"/>    <!-- 定义拦截器的匹配路径 -->
+            <bean class="com.ytinf.interceptor.ValidationInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+3、
+package com.ytinf.interceptor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+public class ValidationInterceptor implements HandlerInterceptor {
+    private Logger logger = LoggerFactory.getLogger(ValidationInterceptor.class) ;// 设置一个日志操作对象
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (handler instanceof HandlerMethod) { // 是否为HandleMethod类的实例
+            HandlerMethod handlerMethod = (HandlerMethod) handler ; // 获取HandleMethod对象实例
+            this.logger.info("【Action对象】" + handlerMethod.getBean());
+            this.logger.info("【Action类型】" + handlerMethod.getBeanType());
+            this.logger.info("【Action方法】" + handlerMethod.getMethod());
+        }
+        return true;
+    }
+}
+
+
+[17:33:33:763] [INFO] - com.ytinf.interceptor.ValidationInterceptor.preHandle(ValidationInterceptor.java:19) - 【Action对象】com.ytinf.action.EchoAction@f929023
+[17:33:33:765] [INFO] - com.ytinf.interceptor.ValidationInterceptor.preHandle(ValidationInterceptor.java:20) - 【Action类型】class com.ytinf.action.EchoAction
+[17:33:33:766] [INFO] - com.ytinf.interceptor.ValidationInterceptor.preHandle(ValidationInterceptor.java:21) - 【Action方法】public org.springframework.web.servlet.ModelAndView com.ytinf.action.EchoAction.echo(java.lang.String)
+*** 【EchoAction.echo()】Action方法执行完毕，准备返回跳转路径。
+
+

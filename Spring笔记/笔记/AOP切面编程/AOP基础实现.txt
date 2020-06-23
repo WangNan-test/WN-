@@ -1,0 +1,116 @@
+
+
+	如果现在要想在项目之中进行AOP的处理，一定要进行AOP相关依赖库的配置
+
+1、【spring项目】修改pom.xml配置文件，引入aop的依赖库
+
+ <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
+      <version>5.2.2.RELEASE</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-aspects -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aspects</artifactId>
+      <version>5.2.2.RELEASE</version>
+    </dependency>
+
+2、【spring-base项目】AOP的关注点是将所有的关注点单独的独立出来，形成一个个具体的独立程序类，所以创建一个可以进
+行AOP处理的工具类，同时设置一些处理方法
+
+package com.ytinf.aop;
+
+public class ServiceAdvice {    //该类没有任何强制性的继承要求
+
+    public void brforeHandle(){ //在业务操作之前进行调用
+        System.err.println("【ServiceAdvice-brforeHandle()】业务调用之前。");
+    }
+    public void afterHandle(){
+        System.err.println("【ServiceAdvice-beforeHandle()】业务调用之后。");
+    }
+}
+
+3、【spring-base项目】修改spring-base.xml配置文件，进行切入点的处理配置；
+	·引入AOP相关的命名空间
+	·进行切入点的配置以及相关处理类的配置
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+         https://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/aop
+         https://www.springframework.org/schema/aop/spring-aop.xsd">
+<!--进行扫描包的设置，如果要设置多个包，则可以使用“，”号拆分-->
+    <context:component-scan base-package="com.ytinf.dao.impl,com.ytinf.service.impl"/>
+    <bean id="serviceAdvice" class="com.ytinf.aop.ServiceAdvice"/><!--辅助处理类-->
+    <aop:config><!--进行AOP的具体配置-->
+        <aop:pointcut id="commonPointcut" expression="execution(public * com.ytinf.service..*.*(..))"/>
+        <aop:aspect ref="serviceAdvice"><!--进行代码的植入处理-->
+            <aop:before method="brforeHandle" pointcut-ref="commonPointcut"/>
+            <aop:before method="afterHandle" pointcut-ref="commonPointcut"/>
+        </aop:aspect>
+    </aop:config>
+</beans>
+
+5、【spring-base项目】在DeptServiceImpl子类上使用注解进行Bean对象定义
+
+@Service
+public class DeptServiceImpl implements IDeptService {
+    @Autowired
+    private IDeptDAO deptDAO;   //根据名称注入如果名称不匹配根据类型注入
+
+    @Override
+    public boolean add() {
+        //调用数据层
+        System.out.println("【deptService】执行部门的处理业务。");
+        return false;
+    }
+}
+
+6、【spring-base项目】编写测试类
+
+@Test
+    public void testAdd(){
+        System.out.println(this.deptService.add());
+    }
+
+
+【ServiceAdvice-brforeHandle()】业务调用之前。（实现了代理的操作）
+【deptService】执行部门的处理业务。（真实业务的处理）
+【ServiceAdvice-beforeHandle()】业务调用之后。
+
+	通过此时的执行结果可以发现，所有的切面的关注点的配置都可以利用表达式进行直接指派
+整体的业务代码非常简洁，而所有的代理功能也可以独立的进行定义。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

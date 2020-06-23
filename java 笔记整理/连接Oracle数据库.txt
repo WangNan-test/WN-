@@ -1,0 +1,97 @@
+		
+
+	本次为了与实际的工作切合，将使用的是Oracle数据库进行JDBC代码讲解。如果要想进行Oracle的使用，
+需要保证有两个前提条件：
+
+条件一：电脑上安装并可以正常启动Oracle相关服务：
+	·监听服务：OracleOraDb11g_home2TNSListener，开启网络服务；
+	·实例服务：OracleServiceWWWW；
+
+条件二：进行Oracle数据库驱动程序的配置，对于有版权数据库的驱动程序一定要通过它的安装目录
+找到相应的数据库驱动程序，再Oracle安装路径下提供有此路径，路径为：
+
+D:\app\wwww\product\11.2.0\dbhome_1\jdbc\lib\ojdbc6.jar
+
+	但是如果要想使用此驱动程序，则必须进行配置，二配置需要考虑两种情况：
+
+情况一：现在使用的是记事本开发，那么可以将此驱动程序配置到CLASSPATH环境属性之中
+情况二：系统环境种配置的CLASSPATH再开发工具之中是无效的，如果使用开发工具编写，则还需要再开发工具之中进行
+驱动的路径配置，找到项目模块配置。
+
+当*.jar文件的开发包配置完成之后，IDEA工具会自动提示用户是否需要将此配置添加到模块的依赖中
+
+	如果此时没有配置，那么也可以再指定的项目模块之中进行手工配置处理。
+
+
+	如果要想进行数据库的连接，再JDBC之中使用的是java.sql.Connection接口来描述，每一个Connection接口
+的实例都表示一个独立的数据库连接。Connection接口定义如下： 
+	public interface Connection extends Wrapper, AutoCloseable
+
+	Connection接口属于AutoCloseable子接口，所以该接口中进行资源释放的方法为close()；但是Connection本身
+属于接口。而这个就扣如果要想获得实例化对象，就必须依靠java.sql.DriverManager类来完成，此类提供有一个连接数据库的方法：
+
+	public static Connection getConnection​(String url, String user, String password) throws SQLException
+
+	再进行连接的时候需要输入有三项核心内容：
+		·连接路径：jdbc:oracle:thin:@主机地址:连接端口:SID名称；
+			|-连接本机的mldn数据库：jdbc:oracle:thin:@localhost:1521:WWWW;
+		·用户名：scott
+		·密码：tiger
+范例：实现数据库连接
+
+package drill;
+
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class JDBCDemo {
+    public static final String DBDRIVER="oracle.jdbc.driver.OracleDriver"; //驱动程序
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSwORD="tiger";
+    public static void main(String[] args) throws Exception{
+        //第一步、进行数据库驱动程序的加载
+        Class.forName(DBDRIVER);    //反射加载驱动程序
+        //第二步、根据DriverManager类获取Connection类实例
+        Connection connection= DriverManager.getConnection(DBURL,USER,PASSwORD);
+        System.out.println(connection);//如果不为null表示连接成功
+        
+        //第四步：数据库属于资源操作，而且资源宝贵一定要再使用后关闭连接
+        connection.close();
+    }
+}
+
+
+	如果此时的程序没有抛出任何的异常，那么就表示当前的数据库连接正常
+
+疑问：为什么Connection接口必须通过DriverManager类才可以获取到实例？
+
+因为JDBC采用了工厂设计，对外部隐藏了JDBC标准子类的实现操作
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

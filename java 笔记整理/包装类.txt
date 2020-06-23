@@ -1,0 +1,538 @@
+
+包装类实现原理分析：
+	包装类的主要功能是针对于基本数据类型的对象转换而实现的，并且随着JDK版本的更新，包装类的功能也在发生这
+改变有着更多的支持。
+
+	Object类最大的提点是所有类的父类，并且可以接受所有的数据类型，但是在这个过程之中我们就存在有问题：
+基本数据类型并不是一个类，所以现在如果要想将基本数据类型以类的形式进行处理，那么就需要对其进行包装。
+
+范例：以int型数据为例实现一个包装
+
+package println;
+class Int{
+	private int num;		//包装了一个基本数据类型
+	public Int(int num){
+		this.num=num;
+	}
+	public int intValue(){
+		return this.num;
+	}
+} 
+public class println{
+	public static void main(String[]args){
+		Object obj= new Int(10);		//装箱：将基本数据类型保存在包装类之中
+		int x=((Int)obj).intValue();		//拆箱：从包装类对象中获取基本数据类型
+		System.out.println(x);
+	}
+}
+
+基本数据类型进行包装处理后可以像对象一样进行引用传递，也可以是由Object类来进行接收，但是如果我们都已经
+发现基本数据类型与Object类型之间的缺陷，那么JDK也早就发现了同样的问题，所有在JDK1.0的时候就提供有
+包装类的概念。基本数据一共有八种，所以提供有包装类，那么这个八种包装类的基本定义如下：
+
+
+在Java中包装类一共提供有两种类型：
+	·对象型的包装类（Object直接子类）：Boolean、Charcter；
+	·数值型的包装类（Number直接子类）：Byte 、 long、Short、integer、Float、double。
+
+Number是一个抽象类，以后只要是看见了Number都因该明确的表示它是一个数字的概念，这个类定义有如下方法：
+
+
+	public byte      byteValue() 			普通	从包装类种获取byte类型数据。
+	public short     shortValue()			普通	从包装类中获取short类型数据。
+	public integer  integerValue()			普通	从包装类中获取integer类型数据。
+	public abstract long       longValue()		普通	从包装类中获取long类型数据。
+	public abstract float      floatValue()		普通	从包装类中获取float类型数据。
+	public abstract double  doubleValue()		普通	从包装类中获取double类型数据。
+
+Number类中的方法就是直接提供有获取包装类中基本数据类型功能，一共只定义有六个方法
+——————————————————————————————————————————————————————————————————————
+装箱与拆箱操作：
+	基本数据类型的包装类都是为了基本数据类型转为对象提供的，这样对于基本类型与包装类之间就有了如下的操作关系：
+		·数据装箱：将基本数据类型保存到包装类之中，一般可以利用构造方法完成。
+			|-integer类：public integer (int value);
+			|-double类：public  Double（double value）;
+			|-boolean类：public  Boolean（boolean value）；
+		·数据拆箱：从包装类中获取基本数据类型：
+			|-数值型包装类已经有Number类定义了拆箱方法；
+			|-boolean类：public boolean booleanValue();
+以int与integer为例：			
+package println;
+public class println{
+	public static void main(String[]args){
+		Integer obj=new Integer(10);			//手动装箱
+		int x= obj.intValue();			//手动拆箱
+		System.out.println(x);
+	}
+}
+
+以double与Double为例：
+package println;
+public class println{
+	public static void main(String[]args){	
+		Double obj=new Double(10.1);		//手动装箱
+		double x= obj.doubleValue();			//手动拆箱
+		System.out.println(x);
+	}
+}
+以boolean与Boolean为例：
+package println;
+public class println{
+	public static void main(String[]args){
+		Boolean obj=new Boolean(false);			//手动装箱
+		boolean x= obj.booleanValue();			//手动拆箱
+		System.out.println(x);
+	}
+}
+可以发现从JDK1.9之后，对于所有包装类之中提供的构造方法就变为过期处理，不建议用户再去使用了，
+这是因为从JDK1.5之后为了方便处理提供了自动的装箱与拆行操作，所以这种手工的模式基本上没人使用。
+
+范例：观察自动装箱：
+package println;
+public class println{
+	public static void main(String[]args){
+		Integer obj=10;			//自动装箱
+		Integer x= obj;			//自动拆箱
+		obj++;				//包装类对象可以直接参与数学运算
+		System.out.println(x+obj);		//直接参与数学运算
+	}
+}
+
+除了提供有这种自动的数学运算支持之外，使用自动装箱最大的好处是可以实现Object接受基本数据类型操作
+范例Object 接受小数
+
+package println;
+public class println{
+	public static void main(String[]args){
+		Object obj=10.2;			//double自动装箱为Double，向上转型为Object
+		double x=(double) obj;		//向下转型为包装类才自动拆箱
+		System.out.println(x*2);	
+	}
+}
+
+	JDK1.5之后提供的自动支持功能，到了JDK1.9之后为了巩固此概念，所以将包装类的构造方法都设置为过期定义了。
+但是对于包装类需要注意一下问题，关于相等判断：
+package println;
+public class println{
+	public static void main(String[]args){
+		Integer x=200;
+		Integer y=200;
+		System.out.println(x==y);		//false
+		System.out.println(x.equals(y));	//true
+	}
+}
+以后进行包装类相等判断都是用equals()进行判断。而包装类本身也需要考虑占位的长度，如果超过了一位的内容那么就需要使用equals（）比较，
+如果不超过了则使用“==”即可判断。
+
+————————————————————————————————————————————————————————————————————————————————
+数据类型转换：
+	使用包装类还有一个最大的特点在于其可以实现字符串与基本数据类型之间的转换，再日后进行项目开发的过程只中
+用户可以输入的数据类型只有一种：字符串（String），那么对于程序就需要根据接受的字符串将其变为基本数据类型，这就要
+通过转换来完成，各个包装类提供有转换的功能：
+	·Integer类：public static int parseInt(String s);
+	·Double类：public static double parsedouble(String s);
+	·Boolean：public static boolean parseboolean(String s);
+范例：观察数据类型转换：
+package println;
+public class println{
+	public static void main(String[]args){
+		String a="123";				//字符串由数字组成
+		int num=Integer.parseInt(a);//字符串转为int
+		System.out.println(num*num);
+	}
+}
+
+但是在进行转换的过程之中千万要记住，此时的字符串必须全部由数字所组成，如果字符串不是由数字所组成
+，则执行时会出现“java.lang.NumberFormatException”异常信息。
+
+
+转换boolean：
+package println;
+public class println{
+	public static void main(String[]args){
+		String a="true";				
+		boolean num=Boolean.parseBoolean(a);
+		System.out.println(num);
+	}
+}
+
+Boolean取值范围只有两个内容：true、false，所有如果现在字符串不是true或者false则统一按照false处理。
+
+现在实现了字符串像基本数据类型的转换，但是如果反过来，基本数据类型如果要想变为字符串呢，这个时候由两种做法：
+	·做法一：任意的基本类型与字符串连接后都自动变成String型。
+package println;
+public class println{
+	public static void main(String[]args){
+		int number=100;
+		String job=number+"";			//字符串连接
+		System.out.println(job.length());	//计算长度
+	}
+}
+这种做法会产生无用的垃圾。
+	·做法二：String类中提供有一系列的valueOf（）方法
+
+package println;
+public class println{
+	public static void main(String[]args){
+		int number=100;
+		String job=String.valueOf(number);			//字符串连接
+		System.out.println(job.length());	//计算长度
+	}
+}
+利用此方式在进行转换的时候至少可以避免一些垃圾的产生。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

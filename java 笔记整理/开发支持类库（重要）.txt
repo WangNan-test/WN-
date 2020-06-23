@@ -1,0 +1,294 @@
+ThreadLocal类：
+
+	在真正去了解ThreadLocal类作用的时候下面编写一个简单的程序做一个早期的分析：
+
+范例：现在定义这样的一个结构
+
+package println;
+
+class Message{	//发送的消息
+	private String info;
+	public Message() {
+		// TODO Auto-generated constructor stub
+	}
+	public void setInfo(String info) {
+		this.info = info;
+	}
+	@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return this.info;
+		}
+}
+class Channle{	//发送消息的通道
+	private static Message message;
+	public Channle() {
+	}
+	public static void setMessage(Message m){
+		message=m;
+	}
+	public static void send(){
+		System.out.println(message.toString());
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		Message meg=new Message();
+		meg.setInfo("卢欢");		//设置发送的消息内容
+		Channle.setMessage(meg);	//获取发送的消息
+		Channle.send();	//发送消息
+	}
+}
+
+	对于当前的程序实际上采用的是一种单线程的模式来进行处理的，那么如果在多线程的状态下能否实现完全一致的
+效果呢？为此将启动三个线程进行处理。
+
+范例：多线程的影响
+package println;
+
+class Message{	//发送的消息
+	private String info;
+	public Message() {
+		// TODO Auto-generated constructor stub
+	}
+	public void setInfo(String info) {
+		this.info = info;
+	}
+	@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return this.info;
+		}
+}
+class Channle{	//发送消息的通道
+	private static Message message;
+	public Channle() {
+	}
+	public static void setMessage(Message m){
+		message=m;
+	}
+	public static void send(){
+		System.out.println("【"+Thread.currentThread().getName()+"发送消息】："+message.toString());
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		new Thread(()->{
+			Message meg=new Message();
+			meg.setInfo("第一个");		//设置发送的消息内容
+			Channle.setMessage(meg);	//获取发送的消息
+			Channle.send();	//发送消息
+		},"AAA").start();
+		new Thread(()->{
+			Message meg=new Message();
+			meg.setInfo("第二个");		//设置发送的消息内容
+			Channle.setMessage(meg);	//获取发送的消息
+			Channle.send();	//发送消息
+		},"BBB").start();
+		new Thread(()->{
+			Message meg=new Message();
+			meg.setInfo("第一个");		//设置发送的消息内容
+			Channle.setMessage(meg);	//获取发送的消息
+			Channle.send();	//发送消息
+		},"CCC").start();
+	}
+}
+
+	这个时候消息的处理产生了影响。
+
+
+	在保持Channle(所有发送的通道)核心结构不改变的情况下，需要考虑到每个线程的独立操作问题。那么在这样的情况下
+就发现对于Channel类而言除了要保留有发送的消息之外，还应该多存放有一个每一个线程的标记(当前线程)，那么这个时候就可以
+通过ThreadLocal类来存放数据。在ThreadLocal类里面提供有如下操作方法：
+
+		·构造方法：public ThreadLocal()；
+
+		·设置数据：public void set(T value)；
+		·取出数据:  public T get();
+		·删除数据：public void remove()；
+
+
+范例：解决线程同步问题
+
+package println;
+
+class Message{	//发送的消息
+	private String info;
+	public Message() {
+		// TODO Auto-generated constructor stub
+	}
+	public void setInfo(String info) {
+		this.info = info;
+	}
+	@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return this.info;
+		}
+}
+class Channle{	//发送消息的通道
+	private static final ThreadLocal<Message> THREADLOCAL=new ThreadLocal();
+	public Channle() {
+	}
+	public static void setMessage(Message m){
+		THREADLOCAL.set(m);	//向ThradLocal中保存数据
+	}
+	public	 static void send(){
+		System.out.println("【"+Thread.currentThread().getName()+"发送消息】："+THREADLOCAL.get().toString());
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		new Thread(()->{
+			Message meg=new Message();
+			meg.setInfo("第一个");		//设置发送的消息内容
+			Channle.setMessage(meg);	//获取发送的消息
+			Channle.send();	//发送消息
+		},"AAA").start();
+		new Thread(()->{
+			Message meg=new Message();
+			meg.setInfo("第二个");		//设置发送的消息内容
+			Channle.setMessage(meg);	//获取发送的消息
+			Channle.send();	//发送消息
+		},"BBB").start();
+		new Thread(()->{
+			Message meg=new Message();
+			meg.setInfo("第三个");		//设置发送的消息内容
+			Channle.setMessage(meg);	//获取发送的消息
+			Channle.send();	//发送消息
+		},"CCC").start();
+	}
+}
+
+	每一个线程通过ThreadLocal只允许保存一个数据
+————————————————————————————————————————————————————————————
+
+Base64加密与解密：
+
+	正常来讲加密基本上永远都要伴随着解密，所谓的加密或者是解密往往都需要有一些规则。在JDK1.8开始提供有一些
+新的加密处理操作类。Base64处理，在这个类里面有两个内部类：
+
+		·Base64.Encoder:进行加密处理；
+			|——加密处理：public byte[] encode(byte[] src)
+		·Base64.Decoder：进行解密处理。
+			|——解密处理：public byte[] decode(byte[] src)
+		·
+
+范例：实现加密与解密操作
+
+package println;
+import java.util.Base64;
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		String str="李欢爱王南";
+		String enStr=new String( Base64.getEncoder().encode(str.getBytes()));	//加密处理
+		System.out.println(enStr);
+		String lodStr=new String(Base64.getDecoder().decode(enStr));	//解密处理
+		System.out.println(lodStr);
+	}
+}
+
+
+	虽然Base64可以实现加密与解密的处理，但是其由于是一个公版的算法，所以如果直接对数据进行加密往往并不安全
+最好的方法是使用盐值操作。
+
+package println;
+
+import java.util.Base64;
+
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		String salt="wwwww";	//盐值
+		String str="李欢爱王南"+"{"+salt+"}";	//增加盐值
+		String enStr=new String( Base64.getEncoder().encode(str.getBytes()));	//加密处理
+		System.out.println(enStr);
+		String lodStr=new String(Base64.getDecoder().decode(enStr));	//解密处理
+		System.out.println(lodStr);
+	}
+}
+
+	即便现在有盐值实际上发现加密的效果也不是很好，最好的做法是多次加密。
+
+package println;
+
+import java.util.Base64;
+
+class StringUtil{
+	private static final String SALT="nnnnn";	//公共的盐值
+	private static final int REPEAT=5;
+	/**
+	 * 加密处理操作
+	 * @param str	要加密的字符串，语言与盐值整合
+	 * @return	加密后的数据
+	 */
+	public static String encode(String str){	//加密处理
+		String temp=str+"{"+SALT+"}";	//盐值对外不公布
+		byte[] data=temp.getBytes();	//将字符串变为字节数组
+		for(int x=0;x<REPEAT;x++){
+			data= Base64.getEncoder().encode(data);	//重复加密
+		}
+		return new String(data);
+	}
+	/**
+	 * 解密操作
+	 * @param str 要揭秘的内容
+	 * @return 解密后的数据
+	 */
+	public static String decoder(String str){
+		byte data[]=str.getBytes();
+		for(int x=0;x<REPEAT;x++){
+			data= Base64.getDecoder().decode(data);
+		}
+		return new String(data).replaceAll("\\{\\w+\\}", "");
+	}
+}
+public class Factory {
+	public static void main(String[] args) throws Exception {
+		String str=StringUtil.encode("李欢爱王南");
+		System.out.println(StringUtil.decoder(str));
+	}
+}
+
+	最好的做法是使用2、3种加密程序，同时再找到一些完全不可能解密的加密算法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

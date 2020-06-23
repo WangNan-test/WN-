@@ -1,0 +1,128 @@
+字符串就是一个字符数组，所有在String类里面支持有字符数组转换为字符串
+以及字符串变为字符的处理操作发放，这些操作方法如下：
+
+
+	1、              public String(char[] value)                     构造    将字符数组中的所有内容变为字符串；
+	2、public String(char[] value,int fooset,int count)   构造    将部分字符数组中的内容变为字符串；
+	3、 public char charAt(int index)                              普通    取得指定索引位置的字符，索引从‘0’开始；
+	4、      public char[] toCharArray()                            普通    将字符串变为字符数组返回
+
+
+	3.(应用)	String atr="hello";
+			System.out.println(atr.charAt(0));                   
+	4.（应用）String str="helloworld";
+		char data[]=str.toCharArray();
+		for(int x=0;x<data.length;x++){
+			data[x]-=32;
+			System.out.print(data[x]+"、");
+			System.out.print(new String(data));
+			System.out.print(new String(data,int x,int x））；
+
+
+字节与字符串方法：
+		1:public String(byte[] bytes)				构造   将字节数组中的所有内容变为字符串
+		2:public String(byte[]bytes,int offset,int length)		构造    将字节数组中的部分内容变为字符串
+		3:public byte[]getBytes()				普通    将字符串以字节数组的形式返回
+		4:public byte[] getBytes(String charsetName)throws 	普通    编码转换处理
+			UnsupportedEncodingException
+
+
+
+字符串比较：
+	1：public boolean equals(相等)(ob ject an0b ject)     			 普通     区分大小写比较
+	2:public boolean equalsIgnoreCase(String anotherString)		普通    不区分大小写比较
+	3:public int compare(比较)To(String anptherString)			普通     比较两个字符串的大小	
+
+	compareTo()这种方法是一个重要的操作方法，该方法输出为int型的数据，该数据会根据大小关系返回三种类型内容:
+		·相等：返回0
+		·小于：返回的内容小于0
+		·大于：返回的内容大于0
+
+
+
+字符串查找：
+		①public boolean contains(包含)(CharSequence s)		普通	判断一个子字符串是否存在
+		②public int index(指定)Of(String str)			普通	从头开始查找指定的字符串的位置，查到了返回位置的开始索引；
+		③public int indexOf(String str,int fromIndex)		普通	从指定位置开始查找子字符串的位置；
+		④public int last(最后)IndexOf(String str)		普通	由后向前 查找子字符串的位置；
+		⑤public int lastIndexOf(String str,int fromIndex)		普通	从指定位置由后向前查找子字符串；
+		⑥public boolean starts(开头)With(String prefix)		普通	从头判断是否以指定的字符串开头；
+		⑦public boolean startsWith(String prefix,int toffset)	普通	从指定位置开始判断是否以指定的字符串开头；
+		⑧public boolean endsWith(String suffix)		普通	判断是否以指定的字符串结尾
+
+
+字符替换方法：
+		①public String replace(替换)All(String regex,String replllacement);	普通	全部替换	
+		②public String replaceFirst(第一)(String regex,String replacement);	普通	替换第一个字符
+
+字符串拆分方法：
+		①public String[] split(拆分)(String regex)			普通	将字符串全部拆分
+		②public String[] split(String rehex,int limit)			普通	将指定位置的字符串拆分
+将字符串拆为字符串
+
+字符串截取：
+		①public String substring(int beginIndex);		普通	从索引部分截取到结尾
+		②public String substring(int beginlndex,int endIndex)	普通	截取部分内容
+		
+字符串其他操作方法：
+		①public String teim()		普通	去掉左右空格，保留中间空格
+		②public String toUpperCase()	普通	字符串转大写
+		③public String toLowerCase()	普通	字符串转小写
+		④public String intern()		普通	字符串的入池方法
+		⑤ public String concat(String str)	普通	字符串的连接相当于“+”
+		⑥public int length()		普通	取得字符串的长度
+		⑦public boolean isEmpty()		普通	判断是否为空字符串(但不是null，而是长度为0)
+首字母大写操作；	
+public class println{
+	public static void main(String []args){
+			String str="p";
+			System.out.println(initcap(str));
+	}
+	public static String initcap(String num){
+		if(num==null||"".equals(num)){
+			return num;
+		}
+		if(num.length()>1){
+			return num.substring(0,1).toUpperCase()+num.substring(1);
+		}
+		return num.toUpperCase();
+	}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

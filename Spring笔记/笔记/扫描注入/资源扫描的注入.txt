@@ -1,0 +1,105 @@
+
+
+	在项目的开发过程之中往往都要进行数据层以及业务层的定义操作，而且业务层一定要引用数据层的对象实例，那么
+此时可以直接基于扫描的方式实现该对象的注入管理。
+
+1、【spring-base项目】定义一个数据层操作接口
+package com.ytinf.dao;
+import com.ytinf.vo.Dept;
+public interface IDeptDAO {
+    public Dept findById(Long deptno);
+}
+
+
+2、【spring-base项目】常见数据层接口的实现子类，同时该子类由于需要自动扫描注入，所以要追加有相应的注解。
+
+package com.ytinf.dao.impl;
+
+import com.ytinf.dao.IDeptDAO;
+import com.ytinf.vo.Dept;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class DeptImpl implements IDeptDAO {
+    @Override
+    public Dept findById(Long deptno) {
+        Dept dept=new Dept();
+        dept.setDeptno(deptno);
+        dept.setDname("后勤部");
+        return dept;
+    }
+}
+3、【spring-base项目】创建一个IDeptService的业务接口
+package com.ytinf.service;
+import com.ytinf.vo.Dept;
+public interface IDeptService  {
+    public Dept get(Long deptno);
+}
+
+【spring-base项目】修改spring-base.xml配置文件，再此配置文件之中定义扫描包
+
+    <context:component-scan base-package="com.ytinf.dao.impl,com.ytinf.service.impl"/>
+
+6、【spring-base项目】编写测试程序类
+package com.yuinf.test;
+
+import com.ytinf.service.IDeptService;
+import com.ytinf.vo.Dept;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestDept {
+    @Autowired  //自动注入
+    private IDeptService deptService;    //注入对象类型
+    @Test
+    public void testEcho(){
+        System.out.println(this.deptService.get(10l));
+    }
+}
+
+	那么此时这种基于扫描注入的操作模式只要在有Spring容器的代码中都是可以直接进行使用的，而它的实现原理主要是
+基于程序包的扫描，根据扫描包配置父路径，而后依据父路径进行逐层文件的递归处理，最后讲所有获取到的注解配置保存在一个集合中
+最终形成的扫描注入。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,80 @@
+this调用属性：
+	this.属性，当前对象中的属性
+
+class Emp{
+	private String name;
+	private int age;
+	public Emp(String name,int age){
+		this.name=name;
+		this.age=age;
+	}
+
+	
+	public String getInfo(){
+		return "name= "+this.name+"age= "+this.age;
+	}
+}
+public class println{
+	public static void main(String []args){
+			
+			System.out.println(new Emp("张三",9).getInfo());
+		}
+	}
+
+
+只要在类的方法中访问有类中的属性，属性前一定要追加“this”关键字
+
+
+
+使用this调用本类方法：
+	·普通方法：this.方法名称（参数....）
+	·构造方法：this(参数)
+普通方法：虽然调用本类普通方法可以不适用this，但是强烈建议追加上this，
+这样的目的可以区分方法的定义来源。
+
+
+
+构造方法：
+构造方法与普通方法最大的区别：使用关键字new实例化新对象的时候使用一次，
+而普通方法实在对象实例化完成后（构造已经执行过了）可以调用多次。
+	在java里面支持类构造方法的互相调用  。 
+虽然使用this可以实现构造方法的互相调用，但是有以下的两点要求：
+	·this（）构造方法的语句必须放在构造方法的首行。
+	·使用this（）调用构造方法的时候请留有出口。
+
+
+this表示当前对象：
+
+
+在整体的操作过程之中，this定义没有变，只要有某一个对象调用了本类中的方法，
+那么this 就表示当前执行对象。
+class Emp{
+	public void info(){
+		System.out.println("info方法="+this);
+	}
+}
+public class println{
+	public static void main(String[]args){
+		Emp num=new Emp();
+		System.out.println("MAIN方法="+num);
+		num.info();
+		System.out.println("======================");
+		Emp nmm=new Emp();
+		System.out.println("MAIN方法="+nmm);
+		nmm.info();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

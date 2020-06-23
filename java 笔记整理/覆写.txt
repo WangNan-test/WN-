@@ -1,0 +1,493 @@
+当子类于父类定义了相同的方法或属性的时候，这样的操作就称为覆写；
+
+
+方法的覆写（重点）：
+
+所谓的方法的覆写指的是子类定义了于父类方法名称、参数类型、及参数个数完全相同的方法。
+但是被覆写的方法不能够拥有比父类更为严格的访问控制权限。
+package println;
+class Emp{
+	private String name;
+	public void setName(String name){
+		this.name=name;
+	}
+	public String getName(){
+		return this.name;
+	}
+	public void Info(){
+		System.out.println(getName());
+	}
+}
+class Num extends Emp{
+	public Num(String name){
+		setName(name);
+	}
+	public void Info(){
+		System.out.println("www"+getName());
+	}
+}
+public class println{
+	public static void main(String []args){
+		Num a=new Num("王");
+		a.Info();
+	}
+}
+
+在以后进行覆写方法使用的时候一定要关注两点：
+	·你当前 使用的对象是通过那个类new的；
+	·当调用某一个方法，如果该方法已经被子类所覆写则调用的一定是被覆写过的方法。
+
+在进行方法覆写的时候也有一个明确的要求：被覆写的方法不能够拥有比父类更为严格的访问控制权限。
+关于访问控制权限才是封装的全部内容，现在已经接触过了三种访问控制权限:private（个人） <default（教师）<public（公共）
+
+如果父类中的方法使用了public进行定义，那么子类中使用的权限只能够是public，而父类中使用的方法是default，而子类可以使用defult
+或者是public。
+
+结论：以后写方法就写public
+
+如果父类中使用了private定义，那么就表示该方法只能够被父类所使用，子类无法使用，也就是说
+子类根本就不知道父类有这样的方法。
+
+面试题：请解释重载（OverLoading）与覆写(Override)的区别？
+
+1、概念不同：重载（方法的名称相同，参数的类型及个数不同）覆写（方法名称，返回值类型，参数的类型，个数都完全相同）
+2、范围：重载（发生在一个类之中），覆写（继承关系之中）
+3、限制：重载（没有权限要求），覆写（被覆写的方法不能比父类更为严格的访问控制权限）
+
+在重载的时候返回值类型是否会不同？
+
+方法重载的时候返回值可以不同，但是良好的设计上要求返回类型一致。
+
+
+属性覆盖：
+
+当子类定义了和父类属性名称完全相同的属性的时候就称为属性的覆盖 。
+package println;
+class Emp{
+	 String name;	
+}
+class Num extends Emp{
+//因为此时按照就近取用的原则，肯定找被覆盖的属性名称；
+    int name=100;
+	public void Info(){
+		System.out.println(name);
+	}
+}
+public class println{
+	public static void main(String []args){
+		Num a=new Num();
+		a.Info();
+	}
+}
+
+这种操作本身是没有任何意义的，其核心的原因在于：所有类中的属性都要求使用private封装，
+一旦封装了子类不知道父类有那么属性，所以覆盖属性也没有任何意义存在。
+
+
+结论：在定义属性的时候没事别搞重名。
+
+Super关键字：
+
+在讲子类实例化操作的时候讲解过了super（）的形式，当时主要的作用是
+由子类调用父类构造方法的时候在使用那么在进行覆写的操作过程中子类 也可以使用super.方法()、super.属性
+明确的调用父类中 的方法和属性。 
+
+package println;
+class Emp{
+	public void Info(){
+		System.out.println("11111111111");
+	}
+}
+class Num extends Emp{
+	public void Info(){
+		super.Info();
+		System.out.println("2222222222222222");
+	}
+}
+public class println{
+	public static void main(String []args){
+		Num q=new Num();
+		q.Info();
+	}
+}
+
+给子类方法中加上 super.方法   表示直接调用主类方法。
+
+调用主类属性：
+package println;
+class Emp{
+	public String info="王南";
+}
+class Num extends Emp{
+	int info=100;
+	public void Info(){
+		System.out.println(this.info);
+		System.out.println(super.info);
+	}
+}
+public class println{
+	public static void main(String []args){
+		Num q=new Num();
+		q.Info();
+	}
+}
+
+
+通过一系列的讲解可以发现super和this使用形式上非常的相似，
+但是两者最大的区别是super是子类访问父类的操作，而this是本类的访问处理操作。
+
+this	概念：访问本类的属性方法	查找范围：先查找本类，如果本类没有则调用父类		特殊：表示当前对象
+
+super	概念：访问父类的属性方法	查找范围：直接查找父类				特殊：-
+
+
+能使用super.方法()一定要明确的标记出是父类的操作。
+
+1、子类复写父类的方法是因为父类的方法功能不足，才需要覆写。
+2、方法覆写的时候使用的就是public权限，将我们父类的方法名称直接粘贴过来最简单。
+——————————————————————————————————————————————————————
+
+final关键字：
+final在程序之中描述的是种终结器的概念，在java里面final关键字可以实现一下功能：定义不能被继承的类，
+不能被覆写的方法，常量。
+范例：使用final定义不能被继承类
+package println;
+final class Emp{			//此类不能有子类
+	
+}
+class Num extends Emp{
+	
+}
+public class println{
+	public static void main(String[]args){
+		
+	}
+}
+
+
+当子类继承了父类之后实际上是可以进行父类种方法的覆写的，但是如过你现在不希望你的某一个方法被
+子类覆写就可以使用final来进行定义。
+范例：定义不能够别覆写的方法
+package println;
+ class Emp{
+public final void Info(){			此方法不能够被覆写
+	System.out.println("www");
+}	
+}
+class Num extends Emp{
+	public void Info(){
+		System.out.println("nnn");
+	}
+}
+public class println{
+	public static void main(String[]args){
+		Num pemp=new Num();
+		pemp.Info();
+	}
+}
+
+在有一些徐通开发之中，可能使用1表示开关打开、使用0表示开关关闭，但是
+在Java中会造成混乱，所以就希望可以通过一些名称来表示0，1。
+
+
+在final关键字里面有一个重要的应用技术：可以利用其定义常量，
+常量的内容一旦被定义则不可被修改。
+范例：被final定义的常量
+package println;
+ class Emp{
+	 public static  final int NO=1;	//别final定义就是常量
+	 public static final int OFF=0;	//别final定义就是常量
+public final void Info(){
+	NO=2;						//不能被改变
+}	
+}
+
+public class println{
+	public static void main(String[]args){
+	}
+}
+
+
+实际上常量往往都是公共的定义，所以为了可以体现出共享的概念，往往会使用一种全局常量的形式来定义
+”public static final“ 来定义全局常量。
+
+
+在定义全局常量的时候每一个字母必须大写。
+
+如果final修饰了一个属性，并且初始化没有赋值，那就必须在构造方法中赋值。
+
+在方法的时候也可以使用final来定义参数，此时也表示一个常量的概念。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

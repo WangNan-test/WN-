@@ -1,0 +1,67 @@
+
+	Spring在进行事物处理的过程之中充分的考虑到标准化与可扩展的问题，所以在Spring之中进行事物控制的时候
+首先从总的操作来讲提供有一个公共的事物标准，那么在以后不同整合过程里面，都可以基于此标准实现各自的事务处理的
+操作机制。
+	为了实现事物的同一控制，在Spring种提供有“org.springframework.transaction.PlatformTransactionManager;”接口
+在该接口之中存在有如下的定义：
+
+
+interface PlatformTransactionManager extends TransactionManager {
+    /**
+     * 根据指定的事物定义获取一个事物的处理状态，而获取的目的主要是为了进行提交或回滚操作
+     * @param var1 对于事物的相关定义，包括传播属性以及隔离的级别
+     * @return  返回当前事务的控制状态，依据当前的状态来决定提交或回滚
+     * @throws TransactionException 数据获取的异常
+     */
+    public TransactionStatus getTransaction(@Nullable TransactionDefinition var1) throws TransactionException;
+
+    /**
+     * 事务的提交
+     * @param var1 设置之前的事务状态
+     * @throws TransactionException 事务的处理异常
+     */
+    public void commit(TransactionStatus var1) throws TransactionException;
+
+    /**
+     * 事务的回滚操作
+     * @param var1  设置之前的事务状态
+     * @throws TransactionException 事务的处理异常
+     */
+    public  void rollback(TransactionStatus var1) throws TransactionException;
+}
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

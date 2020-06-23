@@ -1,0 +1,167 @@
+
+	于Statement对应另外一个几口就是preparedStatement，而且该接口也是在是所有开发之中必定要使用到的一个数据操作
+接口。此接口定义如下:
+		public interface PreparedStatement extends Statement
+	但是于Statement接口不同的是再我们preparedStatement构建实例化对象的时候就必须为其设置要执行的SQL语句
+这一点可以通过Connection接口的方法的来：
+	public PreparedStatement prepareStatement​(String sql) throws SQLException
+
+
+
+	由于和Statement接口设置SQL语句的位置有所区别，所以再使用PreparedStatement进行数据操作的时候也要更换方法。
+		·更新操作：public int executeUpdate() throws SQLException
+		·查询操作：public ResultSet executeQuery() throws SQLException
+
+
+	使用Connection接口实例化PrepareStatement接口的时候需要为所传入的数据进行占位符“？”的编写，也就是说
+它现在操作饿SQL语句是不完整的，例如： String sql=" INSERT INTO news (nid,title,pubdate,price,content) VALUES" +
+                " (news_seq.nextval,?,?,?,:)";   //如果换行，建议所有的语句前后都追加一个空格
+
+
+	因为此时nid的内容将通过序列进行生成，然而title，pubdate，price，content都需要外部的变量进行设置，所以全部使用了
+占位符“？”来处理，当获取了PreparedStatement接口实例，就可以再执行更新或查询全利用set()方法根据占位符的编号（编号从一开始）
+进行内容的设置，方法：public void setXxx​(int parameterIndex, 数据类型 x) throws SQLException
+
+如果没有正确占位符数据，则执行更新或查询时就会出现如下的错误提示：Exception in thread "main" java.sql.SQLException: 索引中丢失  IN 或 OUT 参数:: 1
+	但是对于设置内容的方法有一点需要特别说明就是关于日期实现的设置问题：
+		public void setDate​(int parameterIndex, java.sql.Date x) throws SQLException
+	再进行如期时间定义的时候往往会使用java.util.Date类进行描述，但是再数据库里面是无法使用此类型的，因为
+它要使用的时java.sql.Date，而这两个Date类是存在有继承关系的。
+
+范例：利用PreparedStatement解决Statement的设计问题
+package drill;
+import java.sql.Connection;
+import java.util.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+public class JDBCDemo {
+    public static final String OBDRIVER="oracle.jdbc.driver.OracleDriver";
+    public static final String DBURL="jdbc:oracle:thin:@localhost:1521:WWWW";
+    public static final String USER="scott";
+    public static final String PASSWORD="tiger";
+    public static void main(String[] args) throws Exception{
+        String title="李欢是傻逼'ss'";
+        String content="李欢是猪";
+        Date pubdate=new Date();    //将当前日期作为发布日期
+        double price=0.2;
+        Class.forName(OBDRIVER);    //反射加载驱动程序
+        Connection con= DriverManager.getConnection(DBURL,USER,PASSWORD);//连接数据库
+        String sql=" INSERT INTO news (nid,title,pubdate,price,content) VALUES" +
+                " (news_seq.nextval,?,?,?,?)";   //如果换行，建议所有的语句前后都追加一个空格
+        PreparedStatement ps=con.prepareStatement(sql); //实例化PreparedStatement接口对象
+        ps.setString(1,title);
+        ps.setDate(2,new java.sql.Date(pubdate.getTime()));
+        ps.setDouble(3,price);
+        ps.setString(4,content);
+        int i = ps.executeUpdate();
+        System.out.println("【数据库更新】影响到的更新行数"+i);
+        con.close();
+    }
+}
+
+	利用PrepareStatement实现的数据库处理更加的简单了，而且代码结构也比较清晰。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

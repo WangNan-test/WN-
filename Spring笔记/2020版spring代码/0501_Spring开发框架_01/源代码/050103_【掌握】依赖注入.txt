@@ -1,0 +1,120 @@
+1、
+
+package com.ytinf.vo;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class Emp implements Serializable {
+    private Long empno ;
+    private String ename ;
+    private Double salary ;
+    private Date hiredate ;
+    private Integer age ;
+
+    public Long getEmpno() {
+        return empno;
+    }
+
+    public void setEmpno(Long empno) {
+        this.empno = empno;
+    }
+
+    public String getEname() {
+        return ename;
+    }
+
+    public void setEname(String ename) {
+        this.ename = ename;
+    }
+
+    public Double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(Double salary) {
+        this.salary = salary;
+    }
+
+    public Date getHiredate() {
+        return hiredate;
+    }
+
+    public void setHiredate(Date hiredate) {
+        this.hiredate = hiredate;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+}
+
+
+
+2、
+package com.ytinf.test;
+
+import com.ytinf.vo.Emp;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestEmp {
+    @Autowired                                  // 自动注入
+    private Emp emp ;    // 注入对象类型
+    @Test
+    public void testEcho() {
+        System.out.println(this.emp);
+    }
+}
+
+
+3、
+<bean id="dept" class="com.ytinf.vo.Dept">
+    <constructor-arg value="10"/>       <!-- 构造方法的第1个参数 -->
+    <constructor-arg value="财务部"/>       <!-- 构造方法的第2个参数 -->
+</bean>
+
+
+4、
+    <bean id="dept" class="com.ytinf.vo.Dept">
+        <constructor-arg index="1" value="财务部"/>       <!-- 构造方法的第2个参数 -->
+        <constructor-arg index="0" value="10"/>       <!-- 构造方法的第1个参数 -->
+    </bean>
+
+5、
+    <bean id="dept" class="com.ytinf.vo.Dept">
+        <constructor-arg name="dname" value="财务部"/>       <!-- 构造方法的第2个参数 -->
+        <constructor-arg name="deptno" value="10"/>       <!-- 构造方法的第1个参数 -->
+    </bean>
+
+6、
+package com.ytinf.test;
+
+import com.ytinf.vo.Dept;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class TestObjectSpring {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring/spring-base.xml");
+        for (int x = 0; x < 20; x++) {
+            new Thread(() -> {
+                System.out.println("｛" + Thread.currentThread().getName() + "｝" + context.getBean("dept", Dept.class));
+            }).start();
+        }
+    }
+}
+
+
+7、
+
+

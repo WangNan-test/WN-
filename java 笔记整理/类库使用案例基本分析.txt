@@ -1,0 +1,193 @@
+StringBuffer使用
+package test.cl.www;
+/**
+ * 定义个StringBuffer类对象，然后通过append()方法向对象中添加26个小写字母，要求每次添加一次
+ * ，共添加26次，然后按照逆序的方式输出，并且可以删除5个前字符
+ * @author 11154
+ *
+ */
+public class TestStringBuffer {
+	public static void main(String[] args) {
+		StringBuffer buffer=new StringBuffer();
+		for(int x='a';x<'z';x++){	//直接循环设置
+			buffer.append((char)x);	//保存数据
+		}
+		buffer.reverse().delete(0, 5);	//反转数据与删除数据
+		System.out.println(buffer);
+		
+	}
+	
+}
+____________________________________________________________________________________________________________________________________________________________
+随机数组：
+
+package test.cl.www;
+
+import java.util.Arrays;
+import java.util.Random;
+
+/**
+ * 利用Random类产生5个1-30之间（包括1和30）的随机数组
+ * @author 11154
+ *
+ */
+public class TestRandom {
+	public static void main(String[] args) {
+		int[] temp=NumberFactory.create(5);
+		System.out.println(Arrays.toString(temp));
+	}
+}
+class NumberFactory{
+	private static Random random=new Random();
+	/**
+	 * 产生随机数保存到数组中
+	 * @param len 数组长度
+	 * @return 返回保存好的数组
+	 */
+	public static int[] create(int len){
+		int data[]=new int[len];	//开辟新的数组
+		int foot=0;
+		while(foot<data.length){
+			int num= random.nextInt(30);	//随机产生不大于30 的数字
+			if(num!=0){
+				data[foot++]=num;	//保存数据
+			}
+		}
+		
+		return data;
+	}
+}
+——————————————————————————————————————————————————————————————————————————————
+Email地址验证
+
+package test.cl.www;
+/**
+ * 输入一个Email地址，然后使用正则表达式验证该Email地址是否正确
+ * @author 11154
+ *
+ */
+public class TestRegex {
+	public static void main(String[] args) {
+		if(args.length!=1){	//输入又一个参数
+			System.out.println("程序执行错误，没有输入初始化参数正确格式为：java.TestRegex EMAIL地址");
+			System.exit(1);//系统退出
+		}
+		String str=args[0];	//获取初始化参数
+		if(Validator.isEmail(str)){
+			System.out.println("输入EMAIL地址正确");
+		}else{
+			System.out.println("输入EMAIL地址错误");
+		}
+	}
+}
+class Validator{	//定义一个专门验证的类
+	private Validator(){}
+	public static boolean isEmail(String email){
+		if(email==null||"".equals(email)){
+			return false;
+		}
+		String regex="\\w+@\\w+\\.\\w+";
+		return email.matches(regex);
+	}
+}
+————————————————————————————————————————————————————————
+抛硬币
+package test.cl.www;
+
+import java.util.Random;
+/**
+ * 扔1000次硬币引用随机数0-1记录正反面的个数
+ * @author 11154
+ *
+ */
+public class TestCoin {
+	public static void main(String[] args) {
+		Coin coin=new Coin();
+		coin.throwCoin(1000);
+		System.out.println("正面的次数为"+coin.getFoot());
+		System.out.println("反面的次数为"+coin.getBack());
+	}
+}
+class Coin{
+	private  int foot;
+	private  int back;
+	private  Random random=new Random();
+	
+	public  void throwCoin(int num){	//开始抛硬币
+		for(int x=0;x<num;x++){
+			int temp=random.nextInt(2);	
+			if(temp==0){
+				foot++;
+			}else{
+				back++;
+			}
+		}
+	}
+	public int getFoot(){
+		return this.foot;
+	}
+	public int getBack(){
+		return this.back;
+	}
+}
+——————————————————————————————————————————————————————————————————————————————
+package test.cl.www;
+/**
+ * 编写正则表达式，判断给定的是否是一个合法的IP地址
+ * @author 11154
+ *
+ */
+public class TestIP {
+	public static void main(String[] args) {
+		String str="192.169.1.2";
+		System.out.println(Validatorip.validator(str));
+	}
+}
+class Validatorip{
+	public static boolean validator(String IP){
+		if(IP==null||"".equals(IP)){
+			return false;
+		}
+		String regex="([12]?[0-9]?[0-9]?\\.){3}[12]?[0-9]?[0-9]?";
+		if( IP.matches(regex)){	//验证通过，还需要对IP进行拆分处理
+			String result[]=IP.split("\\.");	//拆分数据
+			for(int x=0;x<result.length;x++){
+				int temp=Integer.parseInt(result[x]);
+				if(temp>255){
+					return false;
+				}
+			}
+		}else{
+			return false;
+		}
+		return true;
+	}
+}
+——————————————————————————————————————————————————
+package test.cl.www;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * 给定一下代码：
+ * <font face="Arial,Serif"size="+2"color="red">
+ * 要求对内容进行拆分，拆分之后的结果是：
+ * face Arial,Serif
+ * size+1;
+ * color red;
+ * @author 11154
+ *
+ */
+public class TestHtml {
+	public static void main(String[] args) {
+		String str="<font face=\"Arial,Serif\"size=\"+2\"color=\"red\">";
+		String regex="\\w+=\"[a-zA-Z0-9,\\+]+\"";
+		Matcher matcher=Pattern.compile(regex).matcher(str);
+		while(matcher.find()){
+			String result=matcher.group(0);
+			String temp[]=result.split("=");
+			System.out.println(temp[0]+"\t"+temp[1].replaceAll("\"",""));
+			}
+	}
+}

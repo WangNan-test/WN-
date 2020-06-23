@@ -1,0 +1,210 @@
+ 所谓的数组指的就是一组相关类型的变量集合，
+并且这些变量可以按照统一的方式进行操作。
+
+
+数组属于引用数据类型，那么既然是引用数据类型，
+这里面实际上又会牵扯到内存分配，而数组的定义语法有如下：
+	·数组动态初始化：
+		|-声明并开辟数组：数据类型 []  数组名称=new 数据类型[长度]；
+		 |-分步进行数组开辟（实例化):
+			数据类型 数组名称[]=null；
+		开辟数组空间：数组名称=new 数组类型[长度]；
+那么当数组开辟空间之后，就可以采用如下的方式进行操作：
+	·数组的访问通过索引完成，即:"数组名称[索引]"，但是需要注意的是，数组的索引从0开始，
+	所以使用的索引范围就是0~数组长度-1，例如：现在开辟了3个空间的数组，所以可以使用
+	的索引是：0，1，2。如果数组访问的时候超过了数组的索引范围，则会产生“”异常信息；
+
+	·当数组采用动态初始化开辟空间之后，数组里面的每一个元素都是该数组对应数据类型的默认值；
+
+	·数组分时是一个有序的集合操作，所以对于数组的内容操作往往会采用循环的模式完成，数组是一个有限的数据集合，
+	所以使用的循环语句是for循环。
+
+	·在Java中提供一种动态取得数组长度的方房：数组名称.length
+
+千万要记住一点！！！数组属于引用数据类型所一在数组使用之前必须开辟空间（实例化）。
+
+
+
+
+静态初始化：
+
+数组定义都有一个明显的的特点：数组首先先开辟内存空间，然后在使用索引进行内容的设置，实际上这种做法都叫做
+动态初始化， 而如果希望数组在定义的时候可以同时设置内容，那么 就可以采用静态初始化完成。
+
+
+	·简化格式：数据类型 数组名称[]={值，值，值，值~~}
+	·完成格式：数据类型 数组名称[]=new 数据类型[];
+在开发之中，对于静态数组的初始化强烈建议使用完整语法格式，这样可以轻松使用匿名数组这一概念。
+————————————————————————————————————————————————————————————————————
+数组的引用传递
+public class println{
+	public static void main(String args[]){
+		int num[]=new int[4];//开辟了一个长度为4的数组
+		int nnm[]=null;//声明对象
+		num[0]=10;//第一个元素
+		num[1]=20;//第二个元素
+		num[2]=30;//第三个元素
+		num[3]=40;//第四个元素
+		//如果要发生引用传递，不要出现[]
+
+		nnm=num;//int nnm[]=num
+		nnm[1]=99;//修改数据
+		for (int x=0;x<num.length ;x++ )
+			{
+			System.out.println(num[x]);
+		}
+	}
+}
+
+
+数组是一个引用数据类型，那么所有的引用数据类型都可以为其设置多个栈内存指向。
+所以在进行数组操作的时候也可以将其通过方法进行处理
+————————————————————————————————————————————————————————————————————————
+数组与方法调用：
+public class println{
+	public static void main(String args[]){
+		int num[]=init();			//调用init方法
+		inc(num);				//调用inc方法，在传入num
+		info(num);			//调用info方法，在传入num
+		
+	
+	}
+	public static void inc(int arr[]){		//inc方法
+		for (int x=0;x<arr.length ;x++ )	//循环
+		{
+			arr[x]*=2;			//给arr【】数组的每个数都乘2
+		}
+	}
+	public static int[] init(){			//init方法
+		return new int[]{1,2,3,4};		//返回一个数组
+	}
+	public static void info(int nnm[]){		//info方法
+		for ( int x=0;x<nnm.length ;x++ )	//循环输出
+		{
+			System.out.print(nnm[x]+"、");
+		}
+	
+	}
+}
+————————————————————————————————————————————————————————————————————————————
+java对数组的支持：
+数组排序：java .util.Arrays.sort(数组名称；)；
+数组拷贝：指的是将一个数组的部分内容替换掉另外一个数组的部分内容；
+	·方法：System.arraycopy(原数组名称，原数组开始点，目标数组名称，目标数组开始点，拷贝长度)；
+————————————————————————————————————————————————————————————
+数组排序：
+一般方法
+public class println{
+	public static void main(String args[]){
+		int data[]=new int[]{3,4,2,6,7,9,8,1,5};
+		fini(data);
+		fino(data);
+		
+	}
+	public static void fini(int arr[]){
+		for(int x=0;x<arr.length-1;x++){
+			 for(int y=0;y<arr.length-x-1;y++){
+				 if(arr[y]>arr[y+1]){
+					 int temp=arr[y];
+					 arr[y]=arr[y+1];
+					 arr[y+1]=temp;
+				 }
+			 }
+		}
+	}
+	public static void fino(int temp[]){
+		for (int x=0;x<temp.length;x++){
+			System.out.println(temp[x]+"、");
+		}
+			
+	}
+}
+
+
+
+
+快捷方法：  java.util.Arrays.sort(数组)。
+————————————————————————————————————————————
+数组转置：
+第一个转置方法：开辟一个新的等长的数组，然后将原始数组等长保存进去；
+public class println{
+	public static void main(String args[]){
+		int data[]=new int[]{1,2,3,4,5,6,7,8,9};	
+		data=fini(data);
+		fino(data);
+	}
+	public static int[] fini(int arr[]){	
+			int temp[]=new int[arr.length];	
+			int food=0;
+			for(int x=arr.length-1;x>=0;x--){
+				temp[food++]=arr[x];
+			}
+			return temp;
+	}
+	public static void fino(int temp[]){
+		for(int x=0;x<temp.length;x++){
+			System.out.print(temp[x]+"、");
+		}
+	}
+}
+使用此类模式时间最大问题在与开辟了两块相同的堆内存空间，造成了空间浪费。
+
+
+第二个转置方法：数组反转
+public class println{
+	public static void main(String args[]){
+		int data[]=new int[]{1,2,3,4,5,6,7,8,9};
+		fini(data);
+		fino(data);
+	}
+	public static void fini(int arr[]){
+		int num=arr.length/2;
+		int nnm=0;
+		int nmm=arr.length-1;
+		for(int x=0;x<num;x++){
+			int temp=arr[nnm];
+			arr[nnm]=arr[nmm];
+			arr[nmm]=temp;
+			nnm++;
+			nmm--;
+		}
+	}
+	
+	public static void fino(int temp[]){
+		for(int x=0;x<temp.length;x++){
+			System.out.print(temp[x]+"、");
+		}
+	}
+}
+
+二维数组转置：
+public class println{
+	public static void main(String args[]){
+		int data[][]=new int[][]{
+				{1,2,3},{4,5,6},{7,8,9}};
+		fini(data);
+		fino(data);
+	}
+	public static void fini(int arr[][]){
+		for(int x=0;x<arr.length;x++){
+			for(int y=x;y<arr[x].length;y++){
+				if(x!=y){
+					int temp=arr[x][y];
+					arr[x][y]=arr[y][x];
+					arr[y][x]=temp;
+				}
+			}
+		}
+	}
+	
+	public static void fino(int temp[][]){
+		for(int x=0;x<temp.length;x++){
+			for(int y=0;y<temp[x].length;y++){
+			System.out.print(temp[x][y]+"、");
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+}
+

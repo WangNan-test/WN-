@@ -1,0 +1,101 @@
+
+
+	清楚了整个Spring之中针对于事务的组织架构、传播属性和隔离级别之后，那么下面将采用手工的方式进行Spring事务
+的控制实现，如果要想采用事务，则项目之中一定要配置由“Spring-tx”依赖库
+
+
+1、【spring-base项目】在pom.xml现目种导入
+
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-tx -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-tx</artifactId>
+    <version>5.2.2.RELEASE</version>
+</dependency>
+
+
+2、【spring-base项目】既然要进行事务的控制，由于此时只是提供有基本的JDBC处理操作，所以现在针对于事务的控制就应该使用
+“org.springframework.jdbc.datasource.DataSourceTransactionManager;”这个子类；在spring-base。xml文件种定义：
+
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+<import resource="spring-transaction.xml"/>
+
+
+3【spring-base项目】编写一个测试类，该测试类主要进行事务传播属性与隔离界别的配置
+
+package com.yuinf.test;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+
+//如果要进行Spring此时，必须进行Spring容器得启动，那么此时可以直接利用此定义配置文件路径
+@ContextConfiguration(locations = {"classpath:spring/spring-base.xml"})
+//设置本次要执行得测试类型
+@RunWith(SpringJUnit4ClassRunner.class)
+public class SpringTestTransaction {
+    @Autowired
+   private PlatformTransactionManager transactionManager;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Test
+    public void test(){
+        //如果要想进行传播属性的定义，那么肯定需要设置有一个传播属性的操作的子类
+        //如果要进行属性的设置就只能通过子类完成
+        DefaultTransactionDefinition transactionDefinition=new DefaultTransactionDefinition();
+        //设置事务的传播属性为“PROPAGATION_REQUIRED”
+        transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        //设置事务的隔离级别由数据库子雄处理
+        transactionDefinition.setIsolationLevel(TransactionDefinition.ISOLATION_DEFAULT);
+        //获取事务的当前的处理状态，以后的提交提交的是整个处理状态
+        TransactionStatus transaction = this.transactionManager.getTransaction(transactionDefinition);
+        try {
+            String sql="DELETE FROM news WHERE nid=?";
+            long nid=2;
+            int update = this.jdbcTemplate.update(sql, nid);
+            System.out.println("更新行数："+update);
+            this.transactionManager.commit(transaction);    //手工提交事务
+        }catch (Exception e){
+            this.transactionManager.rollback(transaction); //手工回滚事务
+        }
+    }
+}
+
+	在很多的开发框架里面都有可能对原始的JDBC事务进行封装，所以在Spring事务创建的时候为用户回避了
+最底层的数据库的事务的控制概念，只提供了更高级的事务抽象。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
