@@ -1,0 +1,278 @@
+	原子操作类最大的特点是可以避免锁的处理复杂机制，而实现更加安全的数据处理操作，如果要想理解原子操作类
+要清除一下关于操作系统位数的问题，在一些32位的系统里面，如果要是使用了大的数值进行保存，那么有可能带来的结果就是需要
+两位进行数据的存储
+
+
+	可是我们的系统设计需要考虑不同操作系统环境的问题，所以在当前的JUC里面为了防止多为的内存数字操作所带来
+的不同步的问题，引入了原子性的控制，原子性控制帮助用户解决了不同操作系统数据的访问问题，同时也方便了实现线程安全
+的数值处理，为了更加方便的观察出原子操作的特点，下面编写一个简单的代码
+范例：使用普通的整形变量实现数据的累加操作
+package test.demo.JUC;
+import java.util.concurrent.TimeUnit;
+class Count{
+    private int num=0;
+    public void add(){
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        this.num=this.num+1;
+    }
+    public int getNum() {
+        return num;
+    }
+}
+public class JUCDome {
+    public static void main(String[] args) throws InterruptedException {
+        Count count=new Count();
+        for(int x=0;x<10;x++){
+            new Thread(()->{
+                count.add();
+            }).start();
+        }
+        TimeUnit.SECONDS.sleep(5);
+        System.out.println(count.getNum());
+
+    }
+}
+	这里时候传统的做法是进行各种同步的机制处理，但是可以使用一个原子性的整数类进行控制(AtomicIntegea)
+范例:进行原子性的数据操作
+package test.demo.JUC;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+class Count{
+    private AtomicInteger num=new AtomicInteger();
+    public void add(){
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        this.num.addAndGet(1);  //每次加一
+    }
+    public AtomicInteger getNum() {
+        return num;
+    }
+}
+public class JUCDome {
+    public static void main(String[] args) throws InterruptedException {
+        Count count=new Count();
+        for(int x=0;x<10;x++){
+            new Thread(()->{
+                count.add();
+            }).start();
+        }
+        TimeUnit.SECONDS.sleep(1);
+        System.out.println(count.getNum());
+
+    }
+}
+
+	此时得到了正确的结果，同时避免了再项目到吗之中大量且频繁的去使用锁定与唤醒的处理机制，所以原子性的本身是一种
+线程安全的数据类型，再JUC里面针对于原子性的实现实际上也分为若干个类型：基本原子类型(描述了常规使用的数据)、原子数组类型、
+原子引用类型、原子属性修改器、原子计算器。
+
+
+基本类型原子操作类
+	基本类型的原子类主要描述的是一些常规的数据操作，有如下集中对应的类型：AtomicBoolean、AtomicInteger、
+AtomicLong，这几种的类型的操作方法实际上是非常相似的，本次使用AtomicLong类型进行说明，如果要进行原子类型的讨论
+那么首先必须要解决的就是操作方法问题，因为此时是依据类的形式实现的同步处理机制，
+
+
+	方法名称							类型			描述
+	
+	public AtomicLong()						构造			设置保存的类型为0
+	public AtomicLong(long nul)					构造			设置指定的初始化内容
+	public final long addAndGet(long delta)				方法			增加数据同时返回计算后的内容
+	public final long decrementAndGet()				方法			自减并且返回结果
+	public final long incrementAnd					方法			自增并且返回结果
+	public final void set(long newValue)				方法			设置新的数据内容
+	public final long get()					方法			获取原始数据内容
+	public final boolean compareAndSet(long expectedValue,long newValue)	方法			 CAS操作，目的是为了进行安全的数据修改操作
+
+范例：实现AtomicLong基本操作
+package test.demo.JUC;
+import java.util.concurrent.atomic.AtomicInteger;
+public class JUCDome {
+    public static void main(String[] args) throws InterruptedException {
+        AtomicInteger num=new AtomicInteger(10);
+        System.out.println("自增并返回结果"+num.addAndGet(10));
+        num.set(100);
+        System.out.println(num.get());
+
+    }
+}
+	再多线程的访问下，只有进行相应的方法调用之后才可以实现线程安全的控制，即：以后对于并发访问下的数据的操作都应
+改采用原子性的数据进行控制，但是对于原子性的基本类型需要观察一下它内部的源代码机制
+
+	成员属性：private volatile long value;	//默认值为0
+
+	构造方法：public AtomicLong(){}
+		public AtomicLong(){
+			value=initialValue;
+		}
+
+	CAS：方法定义：
+		private static final jdk. internal. misc. Unsafe U= jdk. internal. mi sc. Unsafe. getUnsafe() ;
+		public final boolean compareAndSet (1ong expectedValue，1ong newValue) {
+			return U. compareAndSetLong(this，VALUE, expectedValue,newValue) ;
+		}
+	可以发现CAS进行操作的时候并不是利用Java虚拟机进行控制，而是直接利用了一个底层交互Unsafe类完成的，也就是说这个
+时候的CAS是底层代码的具体实现，所以他的到的判断结构一定是最为准确的。
+范例:观察CAS方法
+public class JUCDome {
+    public static void main(String[] args) throws InterruptedException {
+        AtomicInteger num=new AtomicInteger(10);
+        System.out.println(num.compareAndSet(10, 50));
+        System.out.println(num.get());
+    }
+}
+
+	CAS乐观锁的并发安全的处理机制：
+		·A线程：value=10、预期内容是10、新的内容是20；
+		·B线程：value=10、预期内容是10、新的内容是30；
+		·C线程：value=10、预期内容是10、新的内容是50；
+	B线程修改完成之后，原始内容是30，但是A、B预期的内容是10，于是现在发现两个内容不同，那么就证明无法进行修改
+进行分析可以发现，乐观锁帮助多线程避免了线程阻塞所带来的的性能问题，而乐观锁往往会假设没有那么多的并发线程同时进行访问，
+从而的到了性能的提升。
+
+引用原子操作类
+	再之前基本上见到的类型大多都是围绕着基本数据类型展开，实际上数组本身除了引用原子类型之外，其他的也还是针对于
+基本数据类型展开的，再Java数据类型划分之中，不仅仅只有基本数据类型，还包括引用数据类型，所以在JUC的原子操作类型
+之中提供有如下的引用处理类：AtomicReference<V>（引用类型原子类）、AtomicMarkableReference<V>（标记节点原子引用类）、
+AtomicStampedReference<V>（引用版本号原子类）,以“AtomicReference”为例观察他可以支持的操作方法。
+
+	方法名称							类型			描述
+	public AtomicReference()					构造			设置一个为null的引用数据
+	public AtomicReference(V initialValue）				构造			设置要引用的数据内容
+	public final boolean compareAndSet(VexpectedValue, V newValue)	方法			CAS操作
+	public final V get()						方法.			获取引用原子类中包含的数据
+	public final void set(V newValue)				方法.			修改操作的数据内容
+范例：观察AtomicReference原子引用类型的处理
+package test.demo.JUC;
+
+import java.util.concurrent.atomic.AtomicReference;
+class Member{
+    private String name;
+    private int age;
+    public Member(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    @Override
+    public String toString() {
+        return "Member{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+}
+public class JUCDome {
+    public static void main(String[] args) throws InterruptedException {
+        Member memA=new Member("张三",20);
+        Member memB=new Member("李四",50);
+        AtomicReference<Member> ref=new AtomicReference<>(memA);
+        ref.compareAndSet(memA,memB);
+        System.out.println(ref.get());
+    }
+}
+
+	此时利用CAS方式进行了原子性数据的替换处理操作，但是需要注意的是，只要是CAS的处理操作，实际上都是针对于地
+址进行判断以及数据修改的，所以如果使用的是匿名对象，无法进行正确的CAS处理。
+
+	CAS本质上是一种基于“乐观锁”的并发修改操作，那么除了使用AtomicReference类型之外，再JUC里面还提供有另外一个
+依据版本编号实现的数据交换，使用的是“AtomicStampedReference”，此类的方法如下。
+
+	方法名称						类型		描述
+	public AtomicStampedReference(V initialRef,int initialStamp)	构造		设置一个初始的引用，以及一个初始的标记数值
+	public V getReference()				方法		返回当前包含的引用数据	
+	public int getStamp()				方法		返回当前的标记戳
+	public boolean compareAndSet(V expectedReference,	方法		CAS数据交换
+	 V newReference, int expectedStamp, int newStamp)			
+	public void set(V newReference, int newStamp)		方法		 设 置新的内容
+
+范例：使用标记戳引用
+class Member{....}
+public class JUCDome {
+    public static void main(String[] args) throws InterruptedException {
+        Member memA=new Member("张三",20);
+        Member memB=new Member("李四",50);
+        AtomicStampedReference<Member> ref=new AtomicStampedReference<>(memA,1);
+        ref.compareAndSet(memA,memB,1,2);	//CAS操作
+        System.out.println(ref.getReference());
+        System.out.println(ref.getStamp());		//同时要修改标记戳
+    }
+}
+	但是很多开发者认为，如果每一次都进行标记戳的增长再取得，再进行CAS的处理操作过于麻烦了，能不能吧
+这个标记戳简化一些，于是提供了“AtomicMarkableReference”原子引用类型，该 操作提供有如下处理方法。
+
+	方法名称						类型		描述
+	
+public AtomicMarkableReference(V initialRef,boolean initialMark)	方法		设置内容并且设置一个初始化标记(true、 false)
+public boolean isMarked()					方法		获取当前的标志内容
+public V getReference()					方法.		得到包含的引用数据
+public void set(V newReference, booleannewMark)			方法		进行内容的设置和标记戳的配置
+public boolean compareAndSet(V expectedReference, 		方法.		进行CAS数据交换。
+V newReference, boolean expectedMark, boolean newMark)
+
+
+public class JUCDome {
+    public static void main(String[] args) throws InterruptedException {
+        Member memA=new Member("张三",20);
+        Member memB=new Member("李四",50);
+        AtomicMarkableReference<Member> ref=new AtomicMarkableReference<>(memA,true);
+        ref.compareAndSet(memA,memB,true,false);
+        System.out.println(ref.getReference());
+        System.out.println(ref.isMarked());
+    }
+}
+	世纪上经过了一系列的分析之后，就必须冷静的做一次应用的分析了，对于基本数据类型，可以理解为什么要提供所谓的原子性
+操作，就是为了解决并发操作，但是为什么引用上也要提供有这样的原子性操作？
+
+本质上是为了简化同步处理(缺陷在于只能够利用地址比较)、解决的属于ABA同步问题。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

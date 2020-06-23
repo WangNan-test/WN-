@@ -1,0 +1,124 @@
+
+并发编程再Java语言里面最为重要的代表就是多线程的技术 ，利用多线程的技术再结合系统
+系统硬件的超线程技术，发挥出硬件全部的性能，也可以让程序运行的更快，但是对于传统的多线程实现只提供了
+java.lang包中的Thread类（Object类中对多线程的处理支持）,以及Runnable接口，而随着技术的发展，很多人越来越发现传统
+多线程代码的实现弊端：
+
+	·Runnable定义线程的主体，而Thread定义的是线程对象，Runnable是没有返回结果；所以后来才有Callable
+
+	 ·多线程的开发里面对于同步以及其相关操作（notify()，notifyAll(),wait()等操作）实际上会发现如果处理不当会出现死锁，而且如果
+锁进行了嵌套的处理，那么一旦有一个地方没有解锁，整个代码的执行就会陷入停泄状态，而最麻烦的问题在于，这类的问题一般很难检测出来：
+
+	所以为了解决所有的多线程开发中出现的各种同步问题，Java 提出了一系列的同步解决方案，而这些方案是在JDK1.5的时候
+提出来的，并且随着版本的更新迭代，也在不断的进行完善，JUC(java，util.Concurrent)就是在JDK1.5时候引入的，同时提供有三个相关的开发包
+
+		·Java.util.Concurrent：这是主要使用的工具类所在的包，提供有各种线程的工具供开发者进行同步处理。
+		·java.util.Concurrent.locks.提供有各种锁的原始实现模型。
+		·java.util.Concurrent.atomic：提供有安全的数据原子性的操作，避免多线程访问下的同步处理问题；
+
+再JUC里面提供有一系列的工具类，这些常见的工具类如下所示
+
+	Executor :	具体Runnable任务的执行者
+	ExecutorService：线程池管理
+	ScheduledExecutorService：线程延迟调度池
+	CompletionService: ExecutorService的扩展，可以获得线程执行结果
+	Callable:线程执行者，与Runnable的区别在于可以获取线程执行后的结果
+	Future：获取Callable线程执行结果
+	Semaphore:同步技术信号量
+	ReentrantLock：互斥锁
+	BlockingQueue：阻塞队列
+	CountDownLatch：同步辅助列，实现一组线程类的锁定处理
+	CyclicBarrier:同步辅助类，他允许一组线程互相等待，达到既定线程个数后可以解锁
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
