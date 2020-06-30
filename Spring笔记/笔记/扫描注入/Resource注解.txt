@@ -1,4 +1,4 @@
-
+﻿
 
 	在使用Spring进行对象注入的过程之中，除了可以使用原生的“@Autowired”注解进行资源的注入之外，也可以使用JavaEE
 原生的注解@Resource来实现对象注入管理，如果两者进行比较的或，实际上"@Resource"会更加方便一些
@@ -27,7 +27,7 @@
 
 	·“@Autowired”是Spring开发框架原生实现，而“@Resource”属于JavaEE的实现注解；
 	·不管使用的是@AutoWired还是@Resource都首先会根据名称进行注入，名称不匹配的时候在根据类型进行注入
-但是在没有唯一类型的时候“@Au'to'wired”我发匹配，而使用“@Resource”可以直接设置bean的名称来进行匹配
+但是在没有唯一类型的时候“@Au'to'wired”无法匹配，而使用“@Resource”可以直接设置bean的名称来进行匹配
 
 
 
